@@ -1,0 +1,300 @@
+.quando-container {
+  padding: 24px;
+  background-color: #222;
+  color: #eee;
+  overflow: hidden;
+  border-radius: 6px;
+  -webkit-box-shadow: 0 6px 21px rgba(0,0,0,0.7);
+  box-shadow: 0 6px 21px rgba(0,0,0,0.7);
+  -moz-transition: all .50s ease-in-out;
+  -o-transition: all .50s ease-in-out;
+  -webkit-transition: all .50s ease-in-out;
+  transition: all .50s ease-in-out;
+}
+.quando-container > p {
+  font-size: 12px;
+  text-transform: uppercase;
+}
+.quando-container:not(.visible) > .header {
+  display: none;
+}
+
+i.checked {
+  color: yellowgreen;
+}
+
+.calcolator {
+  position: relative;
+  width: 500px;
+  margin: 50px 0 20px 51px;
+  z-index: 10;
+}
+.calcolator > kbd {
+  font-size: 10px;
+  float: right;
+  background-color: darkorange;
+  margin-top: -10px;
+}
+
+.header {
+  margin-bottom: 20px;
+  font-size: 10px;
+}
+.header > i {
+  float: right;
+  display: inline-block;
+  margin: -10px -4px 0 18px;
+}
+.header > i:hover {
+  color: yellowgreen;
+}
+
+.header-title {
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.work-hour {
+  background-color: #aaa;
+  border-color: #333;
+}
+.lunch {
+  display: block;
+  padding-right: 30px;
+  margin: 10px 50px;
+}
+.form-control {
+  width: 70px;
+  display: inline-block;
+}
+.form-inline .form-control {
+  width: 70px;
+}
+tempi-item {
+  display: block;
+}
+
+tempi-item > input.alarmed {
+  background-color: red;
+  color: #eee;
+}
+
+.result {
+  border: none;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+  color: yellowgreen;
+  font-weight: bold;
+  padding: 0;
+  font-size: 26px;
+  background-color: inherit;
+}
+.result.alarmed {
+  color: red;
+  font-size: 28px;
+}
+
+.permessi {
+  color: crimson;
+}
+
+.inaz-command.disabled {
+  color: #444;
+}
+.inaz-commands > i {
+  margin-top: -.2em;
+  margin-left: .5em;
+}
+
+.inaz-commands > .inaz-command:not(.disabled):hover,
+.options-commands > i:not(.disabled):hover {
+  color: yellowgreen;
+  cursor: pointer;
+}
+
+
+
+.details {
+  position: absolute;
+  top: 100px;
+  left: 480px;
+  background-color: #444;
+  color: #aaa;
+  padding: 12px 18px;
+  z-index: 2;
+  border-bottom-right-radius: 40px;
+  border-top-right-radius: 40px;
+  -moz-transition: all .50s ease-in-out;
+  -o-transition: all .50s ease-in-out;
+  -webkit-transition: all .50s ease-in-out;
+  transition: all .50s ease-in-out;
+}
+.details:not(.disabled):hover {
+  color: yellowgreen;
+  cursor: pointer;
+  background-color: #555;
+}
+
+.details.enabled {
+  left: 540px;
+}
+
+
+.details-help {
+  top: 100px;
+  left: 540px;
+}
+.details-help.enabled{
+  color: yellowgreen;
+}
+.details-history {
+  top: 158px;
+}
+.allitems-charts {
+  width: 500px;
+  position: relative;
+  margin-left: 50px;
+  padding: 0 24px;
+  height: 0;
+  z-index: 10;
+  overflow: inherit;
+}
+.allitems-charts.visible {
+  padding: 24px;
+  height: auto;
+  top: -50px;
+}
+/*.allitems-charts > p {*/
+  /*font-size: 12px;*/
+  /*text-transform: uppercase;*/
+/*}*/
+
+.alarm {
+  margin-left: 20px;
+}
+
+.e-alarm,
+.u-alarm {
+  font-size: 12px;
+  position: absolute;
+  color: #333;
+  margin-left: -14px;
+  margin-top: 2px;
+}
+
+.calcolator > .fa-stack {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+}
+
+.q-help {
+  position: absolute;
+  margin-left: 650px;
+  width: 550px;
+  top: -1000px;
+  -moz-transition: all .50s ease-in-out;
+  -o-transition: all .50s ease-in-out;
+  -webkit-transition: all .50s ease-in-out;
+  transition: all .50s ease-in-out;
+}
+
+.q-help > h1 {
+  font-size: 30px;
+}
+.q-help > p {
+  margin-top: 50px;
+}
+.q-help > p > a {
+  text-decoration: none;
+  color: inherit;
+  font-size: 20px;
+}
+.q-help > p > a:hover{
+  color: #000;
+}
+.q-section > h1 {
+  font-size: 20px;
+}
+.q-section > h1 > i {
+  font-size: 32px;
+}
+.q-section > p {
+  font-size: 12px;
+}
+
+
+progress-clock {
+  position: absolute;
+  right: 50px;
+}
+
+.options {
+  width: calc(100% + 48px);
+  background-color: #333;
+  height: 100px;
+  color: #999;
+  margin: 0 -24px 15px;
+  -moz-transition: all .50s ease-in-out;
+  -o-transition: all .50s ease-in-out;
+  -webkit-transition: all .50s ease-in-out;
+  transition: all .50s ease-in-out;
+  overflow: hidden;
+}
+.options-commands {
+  text-align: right;
+  position: relative;
+  font-size: 1.5em;
+}
+.option-values{
+  padding: 10px 30px;
+}
+
+.option-values > p.checked {
+  color: yellowgreen;
+}
+
+
+.analisys {
+  position: absolute;
+  width: 500px;
+  margin-top: -24px;
+  z-index: 8;
+  display: none;
+  -moz-transition: all .50s ease-in-out;
+  -o-transition: all .50s ease-in-out;
+  -webkit-transition: all .50s ease-in-out;
+  transition: all .50s ease-in-out;
+}
+.analisys .form-control {
+  width: 100px;
+}
+
+.analisys.visible {
+  margin-left: 500px;
+  display: block;
+}
+
+.analisys dd {
+  color: yellowgreen;
+}
+
+.analisys-results > p {
+  color: #777;
+}
+
+.details-analisys{
+  /*visibility: hidden;   *//*<< INVISIBILE*/
+  position: relative;
+  top: 50px;
+  width: 62px;
+  text-align: right;
+  -moz-transition: all .50s ease-in-out;
+  -o-transition: all .50s ease-in-out;
+  -webkit-transition: all .50s ease-in-out;
+  transition: all .50s ease-in-out;
+}
+
+.details-analisys.opened {
+  width: 590px;
+}

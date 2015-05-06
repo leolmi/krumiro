@@ -1,0 +1,106 @@
+<div class="calcolator quando-container visible">
+  <div class="header">
+    Oggi è {{getDate()}}
+    <i class="fa fa-2x fa-trash aslink" ng-click="clear()"></i>
+    <i class="fa fa-2x fa-bars aslink" ng-click="toggleOptions()"></i>
+  </div>
+  <!--ng-class="{'heightzero':!showopt}"-->
+  <div class="options" ng-style="optstyle">
+    <div class="option-values">
+      <p ng-class="{'checked':context.options.checkmine}"><i class="fa fa-fw aslink" ng-class="{'fa-toggle-off':!context.options.checkmine, 'fa-toggle-on':context.options.checkmine}" ng-click="toggleOptionValue('checkmine')"></i> Verifica ingresso minimo</p>
+      <p ng-class="{'checked':context.options.checknine}"><i class="fa fa-fw aslink" ng-class="{'fa-toggle-off':!context.options.checknine, 'fa-toggle-on':context.options.checknine}" ng-click="toggleOptionValue('checknine')"></i> Verifica sforamento dell'ora d'ingresso</p>
+      <p ng-class="{'checked':context.options.checklunch}"><i class="fa fa-fw aslink" ng-class="{'fa-toggle-off':!context.options.checklunch, 'fa-toggle-on':context.options.checklunch}" ng-click="toggleOptionValue('checklunch')"></i> Verifica pausa pranzo</p>
+      <p ng-class="{'checked':context.options.canautomilk}"><i class="fa fa-fw aslink" ng-class="{'fa-toggle-off':!context.options.canautomilk, 'fa-toggle-on':context.options.canautomilk}" ng-click="toggleOptionValue('canautomilk')"></i> Offre la possibilità di attivare l'automungitura</p>
+      <div class="options-commands">
+        <i class="fa fa-fw fa-download" ng-class="{'disabled':!context.user.name || !context.user.password}" ng-click="downloadHistory()"></i>
+        <i class="fa fa-fw fa-cloud-upload" ng-class="{'disabled':!context.user.name || !context.user.password}" ng-click="uploadHistory()"></i>
+      </div>
+    </div>
+  </div>
+  <!--<p>onsubmit="angular.element(this).scope().handleSubmit($event)"</p>-->
+  <form class="form-horizontal" id="loginform" onsubmit="angular.element(this).scope().handleSubmit(this)">
+    <div class="form-group">
+      <label class="col-xs-6 control-label">Ore da fare / Permesso</label>
+      <div class="col-xs-6">
+        <input class="form-control work-hour" type="text" ng-model="context.o" ng-change="recalc()"
+               title="Qui metti le ore che lavori"> /
+        <input class="form-control work-hour permessi" type="text" ng-model="context.p" ng-change="recalc()"
+               title="Qui metti le ore di permesso">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="col-xs-6 control-label">Entrata / Uscita</label>
+      <div class="col-xs-6">
+        <tempi-item ng-repeat="i in context.items" ng-model="i" ng-change="recalc()"></tempi-item>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="col-xs-6 control-label">Uscita prevista alle:</label>
+      <div class="col-xs-6">
+        <div class="form-control result transition" ng-class="{'alarmed':alarmed}">{{context.exit}}</div>
+        <i class="fa fa-2x fa-volume-up alarm aslink" ng-show="isalarm" ng-click="alarm()"></i>
+        <progress-clock ng-show="progress && progress.value && context.exitm" ng-model="progress" title="mancano {{progress.elapsed}}"></progress-clock>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="col-xs-6 control-label inaz-commands">
+        <span ng-hide="context.user.name && context.user.password">Credenziali INAZ:</span>
+        <i class="fa fa-3x inaz-command" ng-class="{'fa-toggle-on':context.user.auto,'fa-toggle-off':!context.user.auto}"
+           ng-show="context.user.name && context.user.password && context.options.canautomilk" ng-click="toggleAutoInaz()"
+           title="Se lo accendi allinea automaticamente i dati con quelli del portale inaz (ogni 30sec)"></i>
+        <i class="fa fa-3x fa-cloud-download inaz-command" ng-click="inaz()"
+           ng-class="{'disabled':!context.user.name || !context.user.password || context.user.auto}"
+           ng-show="context.user.name && context.user.password && !milking"
+           title="Allinea manualmente con i dati del portale inaz"></i>
+        <i class="fa fa-3x fa-cog fa-spin" ng-show="milking"></i>
+      </label>
+      <div class="col-xs-6">
+        <input class="form-control" type="text" ng-model="context.user.name" placeholder="name" title="Nome utente per il portale inaz"> /
+        <input id="password" class="form-control" type="password" ng-model="context.user.password" placeholder="pswrd" title="Password per il portale inaz" autocomplete="false">
+        <!--<i class="fa fa-lock aslink" ng-class="{'checked':context.lockuser}" ng-click="toggleLockUser()"></i>-->
+      </div>
+    </div>
+  </form>
+  <span class="fa-stack fa-lg aslink" ng-click="toggleAlarms()" title="Attiva gli allarmi">
+    <i class="fa fa-bullhorn fa-stack-1x"></i>
+    <i class="fa fa-ban fa-stack-2x text-danger" ng-show="!context.options.alarms"></i>
+  </span>
+  <kbd>beta</kbd>
+</div>
+<i class="details details-help fa fa-2x fa-user-md" ng-class="{'enabled':helpon}" ng-click="help()"></i>
+<i class="details details-history fa fa-2x fa-calendar" ng-class="{'enabled':context.user.name && context.user.password}" ng-click="inazall()"></i>
+<i class="details details-analisys fa fa-2x fa-calculator" ng-class="{'enabled':context.allDaysItems.length, 'opened':analisyson}" ng-click="analisys()" ng-show="context.allDaysItems.length"></i>
+<div class="allitems-charts quando-container" ng-class="{'visible':context.allDaysItems.length}">
+  <div class="analisys quando-container" ng-class="{'visible':context.allDaysItems.length && analisyson}" ng-show="context.allDaysItems.length">
+    <p>Analisi</p>
+    <form class="form-horizontal">
+      <div class="form-group">
+        <label class="col-xs-5 control-label">Periodo:  da / a</label>
+        <div class="col-xs-7">
+          <input class="form-control" type="text" ng-model="context.analisys.da" ng-change="recalcAnal()"> /
+          <input class="form-control" type="text" ng-model="context.analisys.a" ng-change="recalcAnal()">
+        </div>
+      </div>
+    </form>
+    <div class="analisys-results" ng-show="context.analisys && context.analisys.results">
+      <dl class="dl-horizontal">
+        <dt ng-repeat-start="res in context.analisys.results">{{res.name}}</dt>
+        <dd ng-repeat-end>{{res.value}}</dd>
+      </dl>
+      <p>* Se positiva rappresenta le ore lavorate in più rispetto all'orario concordato.</p>
+    </div>
+  </div>
+  <div class="header">
+    <span class="header-title">Storico</span>
+    <input id="history-file" type="file" class="hidden" ng-model-instant onchange="angular.element(this).scope().uploadHistoryContent(this)"/>
+  </div>
+  <line-chart ng-repeat="i in context.allDaysItems" ng-model="i"></line-chart>
+</div>
+<div class="q-help" ng-style="helpstyle">
+  <h1>{{instractions.title}}</h1>
+  <div class="q-section" ng-repeat="s in instractions.sections">
+    <h1><i class="fa fa-fw fa-3x" ng-class="s.icon"></i> {{s.title}}</h1>
+    <p>{{s.desc}}</p>
+  </div>
+  <p>{{instractions.footer}} <a href="https://github.com/leolmi/Quando/issues"><i class="fa fa-user-md"></i></a></p>
+</div>
