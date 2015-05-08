@@ -2,11 +2,14 @@
  * Created by Leo on 01/04/2015.
  */
 'use strict';
+const COOKIE_CREDENTIALS = 'CRD';
+const COOKIE_OPTIONS = 'OPT';
 
 angular.module('krumiroApp')
-  .controller('TempiCtrl', ['$scope','$http','$interval','$timeout','$window','Logger', function ($scope,$http,$interval,$timeout,$window,Logger) {
+  .controller('TempiCtrl', ['$scope','$http','$cookieStore','$interval','$timeout','$window','AES','Logger', function ($scope,$http,$cookieStore,$interval,$timeout,$window,AES,Logger) {
     var alarm = new Audio('assets/media/alarm.mp3');
     var alarmOwner;
+    var scrt = '431a12934fc4914912895c5103aa51b0';
     var _tick;
 
     $scope.helpon = false;
@@ -29,7 +32,8 @@ angular.module('krumiroApp')
         U:''
       }],
       options:{
-        alarms:false, //attiva gli allarmi
+        lockuser: false, //salva le credenziali per l'accesso successivo
+        alarms: false, //attiva gli allarmi
         checknine: true,  //verifica l'ingresso dopo le 9:00
         checklunch: true, //verifica la pausa pranzo
         checkmine: true,  //verifica l'ingresso prima delle 8:30
@@ -71,7 +75,6 @@ angular.module('krumiroApp')
         desc:'Attivando il megafonino in basso a sinistra puoi farti avvisare acusticamente (quindi devi avere il volume e degli altoparlanti attivi) all\'ora d\'uscita e, attivandoli separatamente ad ogni orario definito (altoparlantino nella cella dell\'orario valorizzato).'
       }]
     };
-
     /**
      * Compara i tempi
      * @param r1
@@ -105,19 +108,54 @@ angular.module('krumiroApp')
       $scope.calcAllItems();
     }
 
+    function loadOptionsStore() {
+      var storedopt = $cookieStore.get(COOKIE_OPTIONS);
+      if (storedopt) {
+        $scope.context.options.lockuser = storedopt.lockuser;
+        $scope.context.options.alarms = storedopt.alarms
+        $scope.context.options.checklunch = storedopt.checklunch;
+        $scope.context.options.checkmine = storedopt.checkmine;
+        $scope.context.options.checknine = storedopt.checknine;
+      }
+      if ($scope.context.options.lockuser)
+        loadCredentials();
+    }
+    function updateOptionsStore() {
+      $cookieStore.put(COOKIE_OPTIONS, $scope.context.options);
+      if (!$scope.context.options.lockuser)
+        $cookieStore.remove(COOKIE_CREDENTIALS);
+    }
+
     $scope.toggleLockUser = function() {
-      $scope.context.lockuser = !$scope.context.lockuser;
+      $scope.context.options.lockuser = !$scope.context.options.lockuser;
+      updateOptionsStore();
+      storeCredentials();
     };
 
-    function storeLogin() {
-      if (!$scope.context.lockuser) return;
-      ///TODO: salva le credenziali
+    function storeCredentials() {
+      if (!$scope.context.options.lockuser) {
+        $cookieStore.remove(COOKIE_CREDENTIALS);
+      }
+      else if ($scope.context.user.name && $scope.context.user.password) {
+        var storeuser = {
+          user: AES.encrypt($scope.context.user.name, scrt),
+          pswd: AES.encrypt($scope.context.user.password, scrt)
+        };
+        $cookieStore.put(COOKIE_CREDENTIALS, storeuser);
+      }
     }
 
-    function loadLogin() {
-      ///TODO: carica le credenziali
+    function loadCredentials() {
+      var encuser = $cookieStore.get(COOKIE_CREDENTIALS);
+      if (!encuser) return;
+      try {
+        $scope.context.user.name = AES.decrypt(encuser.user, scrt);
+        $scope.context.user.password = AES.decrypt(encuser.pswd, scrt);
+      }
+      catch(err) {
+        Logger.error('Impossibile recuperare le credenziali',err);
+      }
     }
-
     /**
      * Avvia la mungitura di inaz
      * C0 - numero
@@ -131,7 +169,7 @@ angular.module('krumiroApp')
     function milkinaz(all) {
       if ($scope.milking) return;
       //simula il submit per memorizzare password e login
-      storeLogin();
+      storeCredentials();
 
       $scope.milking = true;
       var reqopt = {
@@ -371,7 +409,7 @@ angular.module('krumiroApp')
      * (preserva le opzioni e le credenziali)
      */
     $scope.clear = function() {
-      var u = ($scope.context) ? $scope.context.user : {};
+      var u = ($scope.context && $scope.context.user) ? $scope.context.user : {};
       var opt = $scope.context.options;
       $scope.context = {
         user: u,
@@ -390,6 +428,7 @@ angular.module('krumiroApp')
         },
         debug:{}
       };
+      loadOptionsStore();
       $scope.recalc();
     };
 

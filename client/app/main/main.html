@@ -57,7 +57,7 @@
       <div class="col-xs-6">
         <input class="form-control" type="text" ng-model="context.user.name" placeholder="name" title="Nome utente per il portale inaz"> /
         <input id="password" class="form-control" type="password" ng-model="context.user.password" placeholder="pswrd" title="Password per il portale inaz" autocomplete="false">
-        <!--<i class="fa fa-lock aslink" ng-class="{'checked':context.lockuser}" ng-click="toggleLockUser()"></i>-->
+        <i class="fa fa-lock aslink" ng-class="{'checked':context.options.lockuser}" ng-click="toggleLockUser()"></i>
       </div>
     </div>
   </form>

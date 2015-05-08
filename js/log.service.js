@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('krumiroApp')
-  .factory('Logger', function(toastr){
+  .factory('Logger',['toastr', function(toastr){
     function getToastrSettings(){
       return {
         allowHtml: true,
@@ -55,4 +55,4 @@ angular.module('krumiroApp')
       info: toastInfo,
       warning: toastWarning
     }
-  });
+  }]);
