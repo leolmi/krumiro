@@ -100,6 +100,7 @@ angular.module('krumiroApp')
     $scope.toggleOptionValue = function(opt) {
       $scope.context.options[opt] = !$scope.context.options[opt];
       $scope.recalc();
+      updateOptionsStore();
     };
 
     function loadAllData(results) {
@@ -699,6 +700,7 @@ angular.module('krumiroApp')
         $scope.context.options.alarms = true;
         watchTime();
       }
+      updateOptionsStore();
     };
 
     /**
