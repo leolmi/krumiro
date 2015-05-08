@@ -112,7 +112,7 @@ angular.module('krumiroApp')
       var storedopt = $cookieStore.get(COOKIE_OPTIONS);
       if (storedopt) {
         $scope.context.options.lockuser = storedopt.lockuser;
-        $scope.context.options.alarms = storedopt.alarms
+        $scope.context.options.alarms = storedopt.alarms;
         $scope.context.options.checklunch = storedopt.checklunch;
         $scope.context.options.checkmine = storedopt.checkmine;
         $scope.context.options.checknine = storedopt.checknine;
@@ -308,6 +308,7 @@ angular.module('krumiroApp')
      * se small:    '24/10/2012'
      * altrimenti:  'martedì 24 ottobre 2012'
      * @param {boolean} small
+     * @param {string} [sep]
      * @returns {string}
      */
     $scope.getDate  = function(small, sep) {

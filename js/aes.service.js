@@ -234,6 +234,13 @@ angular.module('krumiroApp')
       return w;
     }
 
+    /**
+     * Encrypt a text by AES in counter mode of operation
+     * @param {string} plaintext
+     * @param {string} password
+     * @param {number} [nBits]
+     * @returns {string}
+     */
     function encrypt(plaintext, password, nBits) {
       var blockSize = 16;  // block size fixed at 16 bytes / 128 bits (Nb=4) for AES
       nBits = nBits || 256;
@@ -307,7 +314,7 @@ angular.module('krumiroApp')
      *
      * @param   {string} ciphertext - Source text to be encrypted.
      * @param   {string} password - Password to use to generate a key.
-     * @param   {number} nBits - Number of bits to be used in the key; 128 / 192 / 256.
+     * @param   {number} [nBits] - Number of bits to be used in the key; 128 / 192 / 256. default=256
      * @returns {string} Decrypted text
      *
      * @example
