@@ -528,7 +528,6 @@ angular.module('krumiroApp')
      * Struttura classe item [i]:
      *    i.day = '01/01/2010'
      *    i.items = [{time:491},{time:780},...]
-     *
      */
     $scope.recalcAnal = function() {
       if (!$scope.context.allDaysItems || $scope.context.allDaysItems.length<=0) return;
@@ -572,10 +571,10 @@ angular.module('krumiroApp')
       };
       //aggiunge i meta del giorno
       if ($scope.context.meta.length>0) {
-        var meta = $.grep($scope.context.meta, function(m){ return m.day==day; });
-        if (meta) {
-          if (m.perm>0) dayitem.perm = m.perm;
-          if (m.work!=(8*60)) dayitem.work = m.work;
+        var metas = $.grep($scope.context.meta, function(m){ return m.day==day; });
+        if (metas && metas.length>0) {
+          if (metas[0].perm>0) dayitem.perm = metas[0].perm;
+          if (metas[0].work!=(8*60)) dayitem.work = metas[0].work;
         }
       }
       daysItems.push(dayitem);
