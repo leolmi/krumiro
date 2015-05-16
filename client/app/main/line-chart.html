@@ -5,4 +5,5 @@
        ng-class="{'item-in':i['C4']=='E','item-out':i['C4']=='U'}">
     <span class="chart-item-time">{{getTime(i.time)}}</span>
   </div>
+  <span class="badge" ng-show="item.perm>0">{{getTime(item.perm)}}</span>
 </div>
