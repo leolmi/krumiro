@@ -41,3 +41,12 @@
 .item-out > .chart-item-time {
   top:-12px;
 }
+
+.line-chart-back > .badge {
+  position: absolute;
+  right: 4px;
+  top: 10px;
+  background-color: royalblue;
+  color: #ddd;
+  font-size: 10px;
+}
