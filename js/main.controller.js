@@ -1,15 +1,12 @@
 /**
  * Created by Leo on 01/04/2015.
  */
-'use strict';
-const COOKIE_CREDENTIALS = 'CRD';
-const COOKIE_OPTIONS = 'OPT';
-
 angular.module('krumiroApp')
-  .controller('TempiCtrl', ['$scope','$http','$cookieStore','$interval','$timeout','$window','AES','Logger', function ($scope,$http,$cookieStore,$interval,$timeout,$window,AES,Logger) {
+  .controller('TempiCtrl', ['$scope','$http','$interval','$timeout','$window','AES','Logger', function ($scope,$http,$interval,$timeout,$window,AES,Logger) {
     var alarm = new Audio('assets/media/alarm.mp3');
     var alarmOwner;
     var scrt = '431a12934fc4914912895c5103aa51b0';
+    const STORE_OPTIONS = 'OPT';
     var _tick;
 
     $scope.helpon = false;
@@ -110,53 +107,48 @@ angular.module('krumiroApp')
     }
 
     function loadOptionsStore() {
-      var storedopt = $cookieStore.get(COOKIE_OPTIONS);
-      if (storedopt) {
-        $scope.context.options.lockuser = storedopt.lockuser;
-        $scope.context.options.alarms = storedopt.alarms;
-        $scope.context.options.checklunch = storedopt.checklunch;
-        $scope.context.options.checkmine = storedopt.checkmine;
-        $scope.context.options.checknine = storedopt.checknine;
+      if (!localStorage) return;
+      var content = localStorage.getItem(STORE_OPTIONS);
+      if (!content || content.length<=0) return;
+      try {
+        var storedopt = JSON.parse(content);
+        if (storedopt) {
+          $scope.context.options.lockuser = storedopt.lockuser;
+          $scope.context.options.alarms = storedopt.alarms;
+          $scope.context.options.checklunch = storedopt.checklunch;
+          $scope.context.options.checkmine = storedopt.checkmine;
+          $scope.context.options.checknine = storedopt.checknine;
+          if ($scope.context.options.lockuser && storedopt.crd && storedopt.crd.name && storedopt.crd.pswd) {
+            try {
+              $scope.context.user.name = AES.decrypt(storedopt.crd.name, scrt);
+              $scope.context.user.password = AES.decrypt(storedopt.crd.pswd, scrt);
+            }
+            catch (err) {
+              Logger.error('Impossibile recuperare le credenziali', err);
+            }
+          }
+        }
       }
-      if ($scope.context.options.lockuser)
-        loadCredentials();
+      catch (err) {
+        localStorage.clear();
+      }
     }
     function updateOptionsStore() {
-      $cookieStore.put(COOKIE_OPTIONS, $scope.context.options);
-      if (!$scope.context.options.lockuser)
-        $cookieStore.remove(COOKIE_CREDENTIALS);
+      if (!localStorage) return;
+      $scope.context.options.crd = {};
+      if ($scope.context.options.lockuser) {
+        $scope.context.options.crd.name = AES.encrypt($scope.context.user.name, scrt);
+        $scope.context.options.crd.pswd = AES.encrypt($scope.context.user.password, scrt);
+      }
+      var content = JSON.stringify($scope.context.options);
+      localStorage.setItem(STORE_OPTIONS, content);
     }
 
     $scope.toggleLockUser = function() {
       $scope.context.options.lockuser = !$scope.context.options.lockuser;
       updateOptionsStore();
-      storeCredentials();
     };
 
-    function storeCredentials() {
-      if (!$scope.context.options.lockuser) {
-        $cookieStore.remove(COOKIE_CREDENTIALS);
-      }
-      else if ($scope.context.user.name && $scope.context.user.password) {
-        var storeuser = {
-          user: AES.encrypt($scope.context.user.name, scrt),
-          pswd: AES.encrypt($scope.context.user.password, scrt)
-        };
-        $cookieStore.put(COOKIE_CREDENTIALS, storeuser);
-      }
-    }
-
-    function loadCredentials() {
-      var encuser = $cookieStore.get(COOKIE_CREDENTIALS);
-      if (!encuser) return;
-      try {
-        $scope.context.user.name = AES.decrypt(encuser.user, scrt);
-        $scope.context.user.password = AES.decrypt(encuser.pswd, scrt);
-      }
-      catch(err) {
-        Logger.error('Impossibile recuperare le credenziali',err);
-      }
-    }
     /**
      * Avvia la mungitura di inaz
      * C0 - numero
@@ -170,7 +162,7 @@ angular.module('krumiroApp')
     function milkinaz(all) {
       if ($scope.milking) return;
       //simula il submit per memorizzare password e login
-      storeCredentials();
+      updateOptionsStore();
 
       $scope.milking = true;
       var reqopt = {
