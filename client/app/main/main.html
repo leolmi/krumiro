@@ -99,7 +99,9 @@
 </div>
 <div class="rap-table quando-container" ng-class="{'visible':context.rap.items}">
   <div class="header">
-    <span class="header-title">Rapportini</span><i class="fa fa-2x fa-refresh aslink" ng-click="reloadRap()"></i>
+    <span class="header-title">Rapportini</span>
+    <i class="fa fa-2x fa-refresh aslink" ng-click="reloadRap()"></i>
+    <i class="fa fa-2x fa-eraser aslink" ng-click="clearSel()" ng-show="selection"></i>
     <div class="rap-controls-container">
       <div class="rap-control rap-date">
         <div class="input-group input-group-sm">
@@ -115,19 +117,24 @@
       </div>
     </div>
   </div>
-  <div class="rap-results" ng-repeat="rap in filtered=(context.rap.items | filter:context.rap.filter)">
+  <div class="rap-results" ng-repeat="rap in filtered=(context.rap.items | filter:context.rap.filter)" ng-click="toggleSel(rap)" ng-class="{'selected':rap.selected}">
     <div class="index">{{$index+1}}</div>
     <div class="desc"><p>{{rap['C1']}}</p><p>{{rap['C2']}}</p><p>{{rap['C3']}}</p></div>
     <div class="idaol" ng-show="rap['C4']">[{{rap['C4']}}]</div>
     <div class="location">{{rap['C6']}}</div>
     <div class="date">{{rap['C0']}}</div>
-    <div class="time">{{rap['C5']}}</div>
+    <div class="time">{{rap['C5']}}<span ng-show="rap['C7'] && rap['C7']!='0:0'"> / {{rap['C7']}}</span></div>
   </div>
   <div class="no-rap" ng-show="!filtered || filtered.length<=0">Nessun elemento!</div>
   <div class="rap-summary" ng-show="context.rap.items">
     <span class="value">{{filtered.length}}</span><small> elementi </small>
-    <small>Tot: </small><span class="value">{{getFilteredSummary()}}</span>
-    <small>hh (</small><span class="value">{{rapSummaryGG}}</span><small>gg)</small>
+    <small>Tot: </small><span class="value">{{getFilteredSummary()}}<span ng-show="rapSummaryV>0"> / {{rapSummaryV}}</span></span>
+    <small>hh (</small><span class="value">{{rapSummaryGG}}<span ng-show="rapSummaryVGG>0"> / {{rapSummaryVGG}}</span></span><small>gg)</small>
+  </div>
+  <div class="rap-summary rap-summary-sel" ng-show="selection">
+    <span class="value">{{selection}}</span><small> elementi </small>
+    <small>Tot: </small><span class="value">{{rapSummarySel}}<span ng-show="rapSummarySelV>0"> / {{rapSummarySelV}}</span></span>
+    <small>hh (</small><span class="value">{{rapSummarySelGG}}<span ng-show="rapSummarySelVGG>0"> / {{rapSummarySelVGG}}</span></span><small>gg)</small>
   </div>
 </div>
 <div class="q-help" ng-style="helpstyle">

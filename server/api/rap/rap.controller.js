@@ -37,6 +37,7 @@ function parseRap(content) {
   var row = {};
   var date = undefined;
   var loc = undefined;
+  var travel = undefined;
   var $ = cheerio.load(content);
   $('#tblRap > tr').each(function(ri) {
     //console.log('riga corrente: '+$(this).text()+'   style:'+$(this).attr('style'));
@@ -47,12 +48,15 @@ function parseRap(content) {
       var absence = false;
       $(this).children().each(function(i, e) {
         if (i==0) date = $(e).text();
-        if (i==4) loc = $(e).text();
+        if (i==4) loc = $(e).text().trim();
+        if (i==5) travel = $(e).text();
         if (i==3 && $(e).text())
           absence=true;
         if (absence) {
           row['C0'] = date;
+          //descrizione assenza
           if (i==3) row['C1'] = $(e).text();
+          //ore di assenza
           if (i==6) row['C5'] = $(e).text();
         }
       });
@@ -61,14 +65,15 @@ function parseRap(content) {
     }
     //riga singolo valore
     if (getType($(this))=='work'){
+      $(this).children().each(function(i, e){ row['C'+i] = $(e).text(); });
       row['C0'] = date;
-      $(this).children().each(function(i, e){
-        //console.log('valore corrente: '+$(e).text());
-        if (i>0) row['C'+i] = $(e).text();
-      });
       row['C6'] = loc;
+      row['C7'] = travel;
       if (!isEmpty(row)) table.push(row);
       row = {};
+      date = undefined;
+      travel = undefined;
+      loc = undefined;
     }
   });
   if (!isEmpty(row)) table.push(row);
@@ -141,12 +146,6 @@ exports.data = function(req, res) {
     if (err) return w.error(res, err);
 
     var table = parseRap(c);
-
-    var txt = JSON.stringify(table);
-    txt = txt.replace(/},{/g,'\r\n');
-    console.log('DATI: '+txt);
-
-
     return w.ok(res, table);
   });
 };

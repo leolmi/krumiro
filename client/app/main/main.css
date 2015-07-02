@@ -10,6 +10,7 @@
   -o-transition: all .50s ease-in-out;
   -webkit-transition: all .50s ease-in-out;
   transition: all .50s ease-in-out;
+  margin-bottom: 20px;
 }
 .quando-container > p {
   font-size: 12px;
@@ -324,9 +325,13 @@ progress-clock {
   position: relative;
   padding: 4px;
   border-radius: 6px;
+  margin: 2px 0;
 }
 .rap-results:hover {
   background-color: #111;
+}
+.rap-results.selected {
+  background-color: darkorange;
 }
 .rap-results > .index {
   position: absolute;
@@ -336,20 +341,23 @@ progress-clock {
 }
 .rap-results > .location {
   position: absolute;
-  right: 150px;
-  top: 0;
+  right: 160px;
+  top: 2px;
   color: #777;
   font-size: 12px;
 }
 .rap-results > .date {
   position: absolute;
-  right: 50px;
+  right: 80px;
   top: 0;
 }
 .rap-results > .time {
   position: absolute;
-  right: 10px;
+  right: 0;
   top: 0;
+}
+.rap-results > .time > span {
+  font-size: 11px;
 }
 .rap-results > .idaol {
   color: #777;
@@ -363,14 +371,22 @@ progress-clock {
 }
 .rap-summary {
   border-top: #777 1px solid;
-  margin: 10px 0;
-  padding: 10px 0;
+  margin: 20px 0 0;
+  padding: 10px 0 0;
   text-align: right;
   color: #777;
+}
+.rap-summary-sel {
+  padding: 5px 0 0;
+  border: none;
+  margin: 0;
 }
 .rap-summary > .value {
   color: yellowgreen;
   font-weight: bold;
+}
+.rap-summary-sel > .value {
+  color: darkorange;
 }
 .rap-controls-container {
   position: relative;
@@ -382,7 +398,7 @@ progress-clock {
   width: 120px;
 }
 .rap-search {
-  width: 240px;
+  width: 324px;
 }
 .no-rap {
   text-align: center;
