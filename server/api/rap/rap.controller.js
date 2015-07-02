@@ -142,9 +142,9 @@ exports.data = function(req, res) {
 
     var table = parseRap(c);
 
-    var txt = JSON.stringify(table);
-    txt = txt.replace(/},{/g,'\r\n');
-    console.log('DATI: '+txt);
+    //var txt = JSON.stringify(table);
+    //txt = txt.replace(/},{/g,'\r\n');
+    //console.log('DATI: '+txt);
 
 
     return w.ok(res, table);
