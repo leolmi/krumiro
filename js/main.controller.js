@@ -1,19 +1,17 @@
 /**
  * Created by Leo on 01/04/2015.
  */
-'use strict';
-const COOKIE_CREDENTIALS = 'CRD';
-const COOKIE_OPTIONS = 'OPT';
-
 angular.module('krumiroApp')
-  .controller('TempiCtrl', ['$scope','$http','$cookieStore','$interval','$timeout','$window','AES','Logger', function ($scope,$http,$cookieStore,$interval,$timeout,$window,AES,Logger) {
+  .controller('TempiCtrl', ['$scope','$http','$interval','$timeout','$window','AES','Logger', function ($scope,$http,$interval,$timeout,$window,AES,Logger) {
     var alarm = new Audio('assets/media/alarm.mp3');
     var alarmOwner;
     var scrt = '431a12934fc4914912895c5103aa51b0';
+    var helpstyle_hidden = '-1000px';
+    const STORE_OPTIONS = 'OPT';
     var _tick;
 
     $scope.helpon = false;
-    $scope.helpstyle = { top: '-700px' };
+    $scope.helpstyle = { top: helpstyle_hidden };
     $scope.analisyson = false;
     $scope.showopt = false;
     $scope.optstyle = { height: 0 };
@@ -67,8 +65,12 @@ angular.module('krumiroApp')
         desc:'Inserendo le credenziali INAZ puoi scaricare manualmente le bedgiature cliccando sulla nuvoletta.\r\nOppure, attivando l\'interruttore puoi lasciare fare all\'applicazione che allinerà i dati ogni mezzo minuto.'
       },{
         icon:'fa-calendar',
-        title:'Vedere lo storico dell\'ultima settimana...',
-        desc:'Inserendo le credenziali INAZ puoi scaricare lo storico degli ultimi giorni cliccando sul calendarino sulla destra.'
+        title:'Vedere lo storico delle tue bedgiature...',
+        desc:'Inserendo le credenziali INAZ puoi scaricare lo storico delle tue bedgiature cliccando sul calendarino sulla destra.'
+      },{
+        icon:'fa-paw',
+        title:'Vedere i rapportini lavorati nel mese...',
+        desc:'Inserendo le credenziali INAZ puoi visualizzare l\'elenco mensile dei rapportini e fare le tue ricerche calcolando le ore lavorate per commessa o lavoro o quant\'altro.'
       },{
         icon:'fa-bullhorn',
         title:'Aggiungere un allarme per ogni orario che desideri...',
@@ -110,53 +112,48 @@ angular.module('krumiroApp')
     }
 
     function loadOptionsStore() {
-      var storedopt = $cookieStore.get(COOKIE_OPTIONS);
-      if (storedopt) {
-        $scope.context.options.lockuser = storedopt.lockuser;
-        $scope.context.options.alarms = storedopt.alarms;
-        $scope.context.options.checklunch = storedopt.checklunch;
-        $scope.context.options.checkmine = storedopt.checkmine;
-        $scope.context.options.checknine = storedopt.checknine;
+      if (!localStorage) return;
+      var content = localStorage.getItem(STORE_OPTIONS);
+      if (!content || content.length<=0) return;
+      try {
+        var storedopt = JSON.parse(content);
+        if (storedopt) {
+          $scope.context.options.lockuser = storedopt.lockuser;
+          $scope.context.options.alarms = storedopt.alarms;
+          $scope.context.options.checklunch = storedopt.checklunch;
+          $scope.context.options.checkmine = storedopt.checkmine;
+          $scope.context.options.checknine = storedopt.checknine;
+          if ($scope.context.options.lockuser && storedopt.crd && storedopt.crd.name && storedopt.crd.pswd) {
+            try {
+              $scope.context.user.name = AES.decrypt(storedopt.crd.name, scrt);
+              $scope.context.user.password = AES.decrypt(storedopt.crd.pswd, scrt);
+            }
+            catch (err) {
+              Logger.error('Impossibile recuperare le credenziali', err);
+            }
+          }
+        }
       }
-      if ($scope.context.options.lockuser)
-        loadCredentials();
+      catch (err) {
+        localStorage.clear();
+      }
     }
     function updateOptionsStore() {
-      $cookieStore.put(COOKIE_OPTIONS, $scope.context.options);
-      if (!$scope.context.options.lockuser)
-        $cookieStore.remove(COOKIE_CREDENTIALS);
+      if (!localStorage) return;
+      $scope.context.options.crd = {};
+      if ($scope.context.options.lockuser) {
+        $scope.context.options.crd.name = AES.encrypt($scope.context.user.name, scrt);
+        $scope.context.options.crd.pswd = AES.encrypt($scope.context.user.password, scrt);
+      }
+      var content = JSON.stringify($scope.context.options);
+      localStorage.setItem(STORE_OPTIONS, content);
     }
 
     $scope.toggleLockUser = function() {
       $scope.context.options.lockuser = !$scope.context.options.lockuser;
       updateOptionsStore();
-      storeCredentials();
     };
 
-    function storeCredentials() {
-      if (!$scope.context.options.lockuser) {
-        $cookieStore.remove(COOKIE_CREDENTIALS);
-      }
-      else if ($scope.context.user.name && $scope.context.user.password) {
-        var storeuser = {
-          user: AES.encrypt($scope.context.user.name, scrt),
-          pswd: AES.encrypt($scope.context.user.password, scrt)
-        };
-        $cookieStore.put(COOKIE_CREDENTIALS, storeuser);
-      }
-    }
-
-    function loadCredentials() {
-      var encuser = $cookieStore.get(COOKIE_CREDENTIALS);
-      if (!encuser) return;
-      try {
-        $scope.context.user.name = AES.decrypt(encuser.user, scrt);
-        $scope.context.user.password = AES.decrypt(encuser.pswd, scrt);
-      }
-      catch(err) {
-        Logger.error('Impossibile recuperare le credenziali',err);
-      }
-    }
     /**
      * Avvia la mungitura di inaz
      * C0 - numero
@@ -170,7 +167,7 @@ angular.module('krumiroApp')
     function milkinaz(all) {
       if ($scope.milking) return;
       //simula il submit per memorizzare password e login
-      storeCredentials();
+      updateOptionsStore();
 
       $scope.milking = true;
       var reqopt = {
@@ -278,6 +275,28 @@ angular.module('krumiroApp')
     }
 
     /**
+     * Restituisce il numero di minuti dell'orario (per rapportini)
+     * @param t
+     * @returns {number}
+     */
+    function getMinutesRap(t) {
+      if (!t) return 0;
+      var pattern = /\d+/g;
+      var values = t.match(pattern);
+      var mt = 0;
+      if (values && values.length>0) {
+        var h = parse(values[0],0,23);
+        var m = 0;
+        if (values.length>1) {
+          m = parse(values[1],0,50);
+          m = m ? 0.5 : 0;
+        }
+        mt = h+m;
+      }
+      return mt;
+    }
+
+    /**
      * Determina se l'intervallo entrata - uscita è interpretabile come la pausa pranzo
      * @param e
      * @param u
@@ -312,11 +331,13 @@ angular.module('krumiroApp')
      * @param {string} [sep]
      * @returns {string}
      */
-    $scope.getDate  = function(small, sep) {
+    $scope.getDate  = function(mode, sep) {
       sep = sep || '/';
       var date = new Date();
-      if (small)
+      if(mode=='small')
         return date.getDate()+sep+(date.getMonth()+1)+sep+date.getFullYear();
+      if(mode=='verysmall')
+        return (date.getMonth()+1)+sep+date.getFullYear();
       return days[date.getDay()-1]+' '+date.getDate()+' '+months[date.getMonth()]+' '+date.getFullYear();
     };
 
@@ -425,8 +446,11 @@ angular.module('krumiroApp')
         options:opt,
         analisys:{
           da:'01/01/2015',
-          a:$scope.getDate(true),
+          a:$scope.getDate('small'),
           results:[]
+        },
+        rap: {
+          date: $scope.getDate('verysmall')
         },
         debug:{}
       };
@@ -448,8 +472,10 @@ angular.module('krumiroApp')
     $scope.inazall = function() {
       if ($scope.context.allDaysItems && $scope.context.allDaysItems.length)
         $scope.context.allDaysItems = [];
-      else
+      else {
+        $scope.context.rap.items = undefined;
         milkinaz(true);
+      }
     };
 
     function validateUser() {
@@ -528,7 +554,6 @@ angular.module('krumiroApp')
      * Struttura classe item [i]:
      *    i.day = '01/01/2010'
      *    i.items = [{time:491},{time:780},...]
-     *
      */
     $scope.recalcAnal = function() {
       if (!$scope.context.allDaysItems || $scope.context.allDaysItems.length<=0) return;
@@ -572,10 +597,10 @@ angular.module('krumiroApp')
       };
       //aggiunge i meta del giorno
       if ($scope.context.meta.length>0) {
-        var meta = $.grep($scope.context.meta, function(m){ return m.day==day; });
-        if (meta) {
-          if (m.perm>0) dayitem.perm = m.perm;
-          if (m.work!=(8*60)) dayitem.work = m.work;
+        var metas = $.grep($scope.context.meta, function(m){ return m.day==day; });
+        if (metas && metas.length>0) {
+          if (metas[0].perm>0) dayitem.perm = metas[0].perm;
+          if (metas[0].work!=(8*60)) dayitem.work = metas[0].work;
         }
       }
       daysItems.push(dayitem);
@@ -708,7 +733,7 @@ angular.module('krumiroApp')
      */
     $scope.help = function() {
       $scope.helpon = !$scope.helpon;
-      $scope.helpstyle = { top: $scope.helpon ? '10px' : '-700px' };
+      $scope.helpstyle = { top: $scope.helpon ? '10px' : helpstyle_hidden };
     };
 
     $scope.downloadHistory = function() {
@@ -724,7 +749,7 @@ angular.module('krumiroApp')
           content = content.replace(/],"/g,'],\r\n"');
           content = content.replace(/:\[{/g,':[\r\n{');
           var file = new Blob([content], { type: 'text/json;charset=utf-8' });
-          var today = $scope.getDate('-');
+          var today = $scope.getDate(null,'-');
           saveAs(file,'history_'+today+'.json');
         })
         .error(function(err){
@@ -746,7 +771,7 @@ angular.module('krumiroApp')
             loadAllData(results);
           })
           .error(function(err){
-            handleError(err);
+            Logger.error('Errore in fase di richiesta rapportini', err);
           });
       };
       reader.readAsText(args.files[0]);
@@ -768,6 +793,56 @@ angular.module('krumiroApp')
       $scope.progress.value = (lm<=0 || rm<=0) ? 0 : Math.floor((rm * 100)/lm);
       $scope.progress.elapsed = getTime(elps);
     },2000);
+
+    function milkrap() {
+      if ($scope.milking) return;
+
+      $scope.milking = true;
+      var reqopt = {
+        user: $scope.context.user,
+        date: $scope.context.rap.date
+      };
+      $http.post('/api/rap', reqopt)
+        .success(function(results) {
+          $scope.context.rap.items = results;
+          $scope.milking = false;
+        })
+        .error(function(err){
+          $scope.milking = false;
+          handleError(err);
+        });
+    }
+
+    $scope.togglerap = function() {
+      if ($scope.context.rap.items) {
+        $scope.context.rap.items = undefined;
+      }
+      else {
+        $scope.context.allDaysItems = [];
+        milkrap();
+      }
+    }
+
+    $scope.reloadRap = function () {
+      milkrap();
+    }
+
+    $scope.getFilteredSummary = function() {
+      var tot = 0;
+      if ($scope.filtered)
+        $scope.filtered.forEach(function(f){
+          tot += getMinutesRap(f['C5']);
+        });
+      $scope.rapSummary = tot;
+      $scope.rapSummaryGG = (tot / 8).toFixed(2);;
+      return tot;
+    }
+
+    $scope.hendleKeySearch = function(e) {
+      if (e.keyCode==13)
+        $scope.reloadRap();
+    }
+
 
     /**
      * Inizializza le opzioni

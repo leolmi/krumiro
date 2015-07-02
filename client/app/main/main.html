@@ -69,6 +69,7 @@
 </div>
 <i class="details details-help fa fa-2x fa-user-md" ng-class="{'enabled':helpon}" ng-click="help()"></i>
 <i class="details details-history fa fa-2x fa-calendar" ng-class="{'enabled':context.user.name && context.user.password}" ng-click="inazall()"></i>
+<i class="details details-works fa fa-2x fa-paw" ng-class="{'enabled':context.user.name && context.user.password}" ng-click="togglerap()"></i>
 <i class="details details-analisys fa fa-2x fa-calculator" ng-class="{'enabled':context.allDaysItems.length, 'opened':analisyson}" ng-click="analisys()" ng-show="context.allDaysItems.length"></i>
 <div class="allitems-charts quando-container" ng-class="{'visible':context.allDaysItems.length}">
   <div class="analisys quando-container" ng-class="{'visible':context.allDaysItems.length && analisyson}" ng-show="context.allDaysItems.length">
@@ -95,6 +96,39 @@
     <input id="history-file" type="file" class="hidden" ng-model-instant onchange="angular.element(this).scope().uploadHistoryContent(this)"/>
   </div>
   <line-chart ng-repeat="i in context.allDaysItems" ng-model="i"></line-chart>
+</div>
+<div class="rap-table quando-container" ng-class="{'visible':context.rap.items}">
+  <div class="header">
+    <span class="header-title">Rapportini</span><i class="fa fa-2x fa-refresh aslink" ng-click="reloadRap()"></i>
+    <div class="rap-controls-container">
+      <div class="rap-control rap-date">
+        <div class="input-group input-group-sm">
+          <span class="input-group-addon" id="sizing-addon1"><i class="fa fa-calendar"></i></span>
+          <input type="text" class="form-control" ng-model="context.rap.date"  aria-describedby="sizing-addon1" ng-keydown="hendleKeySearch($event)"/>
+        </div>
+      </div>
+      <div class="rap-control rap-search">
+        <div class="input-group input-group-sm">
+          <span class="input-group-addon" id="sizing-addon2"><i class="fa fa-search"></i></span>
+          <input type="text" class="form-control" ng-model="context.rap.filter" aria-describedby="sizing-addon2"/>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="rap-results" ng-repeat="rap in filtered=(context.rap.items | filter:context.rap.filter)">
+    <div class="index">{{$index+1}}</div>
+    <div class="desc"><p>{{rap['C1']}}</p><p>{{rap['C2']}}</p><p>{{rap['C3']}}</p></div>
+    <div class="idaol" ng-show="rap['C4']">[{{rap['C4']}}]</div>
+    <div class="location">{{rap['C6']}}</div>
+    <div class="date">{{rap['C0']}}</div>
+    <div class="time">{{rap['C5']}}</div>
+  </div>
+  <div class="no-rap" ng-show="!filtered || filtered.length<=0">Nessun elemento!</div>
+  <div class="rap-summary" ng-show="context.rap.items">
+    <span class="value">{{filtered.length}}</span><small> elementi </small>
+    <small>Tot: </small><span class="value">{{getFilteredSummary()}}</span>
+    <small>hh (</small><span class="value">{{rapSummaryGG}}</span><small>gg)</small>
+  </div>
 </div>
 <div class="q-help" ng-style="helpstyle">
   <h1>{{instractions.title}}</h1>

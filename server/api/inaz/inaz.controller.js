@@ -171,7 +171,7 @@ exports.data = function(req, res) {
         }
       }];
 
-      w.chainOfRequests(o1, sequence, 0, function(err, c3){
+      w.chainOfRequests(o1, sequence, function(err, c3){
         if (err) return w.error(res, err);
 
         var table = parseInaz(c3);
@@ -424,3 +424,137 @@ exports.download = function(req, res) {
   })
 };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+exports.data1 = function(req, res) {
+  var reqopt = checkReqOpt(req);
+  if (!reqopt) return w.error(res, new Error('Utente non definito correttamente!'));
+
+
+  var sequence1 = [{
+    usecookies: true,
+    host: process.env.INAZ_HOST,
+    title:'ACCESS',
+    method:'GET',
+    keepAlive:true,
+    path:process.env.INAZ_PATH_LOGIN,
+    headers:{
+      'accept':content_accept_text,
+      'accept-language':'it-IT',
+      'content-type':content_type_appwww,
+      'user-agent':user_agent_moz,
+      'DNT':'1'
+    }
+  },{
+    title:'CHECK',
+    method:'POST',
+    path: process.env.INAZ_PATH_CHECK,
+    encodedata: true,
+    data: {
+      SuHrWeb:'0',
+      IdLogin:reqopt.user.name,
+      IdPwd:reqopt.user.password,
+      ServerLDAP:process.env.INAZ_SERVER_LDAP
+    },
+    headers:{
+      'Connection': 'close'
+    }
+  },{
+    title:'DEFAULT',
+    method:'POST',
+    path:process.env.INAZ_PATH_DEFAULT,
+    referer:process.env.INAZ_PATH_REFERER_LOGIN,
+    validations: [{target:'IdPwdCript', func: u.decodeFromEsa}],
+    data: {
+      IdLogin: reqopt.user.name,
+      IdPwdCript: '',
+      IdFrom: 'LOGIN',
+      RetturnTo: process.env.INAZ_PATH_REFERER_LOGIN
+    }
+  },{
+    title:'TOPM',
+    method:'GET',
+    path:process.env.INAZ_PATH_TOPM,
+    referer:process.env.INAZ_PATH_REFERER_DEFAULT
+  },{
+    title:'BLANK',
+    method:'GET',
+    path:process.env.INAZ_PATH_BLANK,
+    referer:process.env.INAZ_PATH_REFERER_DEFAULT
+  },{
+    title:'HOME',
+    method:'POST',
+    path:process.env.INAZ_PATH_HOME,
+    referer:process.env.INAZ_PATH_REFERER_TOPM,
+    data: {
+      AccessCode:process.env.INAZ_P2_AccessCode,
+      ParamFrame:'',
+      VoceMenu:'',
+      ParamPage:''
+    }
+  },{
+    title:'START',
+    method:'POST',
+    path:process.env.INAZ_PATH_START,
+    referer:process.env.INAZ_PATH_REFERER_TOPM,
+    data:{
+      AccessCode:process.env.INAZ_P2_AccessCode,
+      ParamFrame:paramsReplace(process.env.INAZ_START_ParamFrame),
+      ParamPage:'',
+      VoceMenu:process.env.INAZ_P1_VoceMenu
+    }
+  },{
+    title:'FIND',
+    method:'POST',
+    path:process.env.INAZ_PATH_FIND,
+    referer:process.env.INAZ_PATH_REFERER_START,
+    data: {
+      AccessCode:process.env.INAZ_P2_AccessCode,
+      ParamPage:paramsReplace(process.env.INAZ_FIND_ParamPage)
+    }
+  },{
+    title:'TIMB',
+    method:'POST',
+    path:process.env.INAZ_PATH_TIMB,
+    referer:process.env.INAZ_PATH_REFERER_FIND,
+    data: {
+      AccessCode:process.env.INAZ_P2_AccessCode,
+      ParamPage:paramsReplace(process.env.INAZ_TIMB_ParamPage),
+      ListaSel:'',
+      ActionPage:'',
+      NomeFunzione:process.env.INAZ_TIMB_NomeFunzione,
+      ValCampo:'',
+      ValoriCampo:'',
+      CampoKey:'',
+      StatoRiga:'',
+      ParPagina:'',
+      Matches:''
+    }
+  }];
+
+  //w.chainOfRequests1(sequence, function(err, c3){
+  //  if (err) return w.error(res, err);
+  //
+  //  var table = parseInaz(c3);
+  //
+  //  manageHistory(reqopt, table, function(err, results) {
+  //    if (err)
+  //      results.error = err;
+  //    if (!reqopt.all)
+  //      results.data = results.data.filter(function (d) { return d['C1'] == reqopt.today; }).reverse();
+  //    console.log('[data] - risultati:'+JSON.stringify(results));
+  //    return w.ok(res, results);
+  //  });
+  //});
+};

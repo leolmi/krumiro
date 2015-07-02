@@ -26,7 +26,7 @@ i.checked {
 .calcolator {
   position: relative;
   width: 500px;
-  margin: 50px 0 20px 51px;
+  margin: 50px 0 20px 50px;
   z-index: 10;
 }
 .calcolator > kbd {
@@ -150,7 +150,17 @@ tempi-item > input.alarmed {
 .details-history {
   top: 158px;
 }
-.allitems-charts {
+
+.details-works {
+  top: 216px;
+}
+
+
+
+
+
+.allitems-charts,
+.rap-table {
   width: 500px;
   position: relative;
   margin-left: 50px;
@@ -159,11 +169,17 @@ tempi-item > input.alarmed {
   z-index: 10;
   overflow: inherit;
 }
-.allitems-charts.visible {
+
+.allitems-charts.visible,
+.rap-table.visible {
   padding: 24px;
   height: auto;
+}
+
+.allitems-charts.visible {
   top: -50px;
 }
+
 /*.allitems-charts > p {*/
   /*font-size: 12px;*/
   /*text-transform: uppercase;*/
@@ -297,4 +313,78 @@ progress-clock {
 
 .details-analisys.opened {
   width: 590px;
+}
+
+
+.rap-table {
+  overflow: hidden;
+}
+
+.rap-results {
+  position: relative;
+  padding: 4px;
+  border-radius: 6px;
+}
+.rap-results:hover {
+  background-color: #111;
+}
+.rap-results > .index {
+  position: absolute;
+  left: -14px;
+  color: #777;
+  font-size: 10px;
+}
+.rap-results > .location {
+  position: absolute;
+  right: 150px;
+  top: 0;
+  color: #777;
+  font-size: 12px;
+}
+.rap-results > .date {
+  position: absolute;
+  right: 50px;
+  top: 0;
+}
+.rap-results > .time {
+  position: absolute;
+  right: 10px;
+  top: 0;
+}
+.rap-results > .idaol {
+  color: #777;
+  font-size: 10px;
+}
+.rap-results > .desc {
+  font-size: 10px;
+}
+.rap-results > .desc > p {
+  margin: 0;
+}
+.rap-summary {
+  border-top: #777 1px solid;
+  margin: 10px 0;
+  padding: 10px 0;
+  text-align: right;
+  color: #777;
+}
+.rap-summary > .value {
+  color: yellowgreen;
+  font-weight: bold;
+}
+.rap-controls-container {
+  position: relative;
+}
+.rap-control {
+  display: inline-block;
+}
+.rap-date {
+  width: 120px;
+}
+.rap-search {
+  width: 240px;
+}
+.no-rap {
+  text-align: center;
+  color: #777;
 }
