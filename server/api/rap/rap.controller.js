@@ -146,6 +146,12 @@ exports.data = function(req, res) {
     if (err) return w.error(res, err);
 
     var table = parseRap(c);
+
+    var txt = JSON.stringify(table);
+    txt = txt.replace(/},{/g,'\r\n');
+    console.log('DATI: '+txt);
+
+
     return w.ok(res, table);
   });
 };
