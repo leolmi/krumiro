@@ -335,7 +335,7 @@ progress-clock {
 }
 .rap-results > .index {
   position: absolute;
-  left: -14px;
+  left: -20px;
   color: #777;
   font-size: 10px;
 }
@@ -365,9 +365,16 @@ progress-clock {
 }
 .rap-results > .desc {
   font-size: 10px;
+  max-width: 260px;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 .rap-results > .desc > p {
   margin: 0;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  max-width: 260px;
+  overflow: hidden;
 }
 .rap-summary {
   border-top: #777 1px solid;
@@ -398,9 +405,24 @@ progress-clock {
   width: 120px;
 }
 .rap-search {
-  width: 324px;
+  width: 310px;
 }
 .no-rap {
   text-align: center;
   color: #777;
+}
+.advanced-toggler {
+  position: absolute;
+  right: 0;
+  top: 8px;
+  font-size: 1.5em;
+}
+.rap-advanced {
+  position: relative;
+}
+.rap-advanced > .description {
+  display: inline-block;
+  position: absolute;
+  font-size: 12px;
+  padding: 10px;
 }

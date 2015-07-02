@@ -115,6 +115,16 @@
           <input type="text" class="form-control" ng-model="context.rap.filter" aria-describedby="sizing-addon2"/>
         </div>
       </div>
+      <i class="fa advanced-toggler aslink" ng-class="{'fa-chevron-circle-down':!context.rap.advanced, 'fa-chevron-circle-up':context.rap.advanced}" ng-click="toggleAdvancedRap()"></i>
+    </div>
+    <div class="rap-advanced" ng-show="context.rap.advanced">
+      <div class="rap-control rap-date">
+        <div class="input-group input-group-sm">
+          <span class="input-group-addon" id="sizing-addon3"><i class="fa fa-calendar"></i></span>
+          <input type="text" class="form-control" ng-model="context.rap.todate"  aria-describedby="sizing-addon3" ng-keydown="hendleKeySearch($event)"/>
+        </div>
+      </div>
+      <div class="description"><i class="fa fa-fw fa-hand-o-left"></i> ultimo mese di ricerca avanzata.</div>
     </div>
   </div>
   <div class="rap-results" ng-repeat="rap in filtered=(context.rap.items | filter:context.rap.filter)" ng-click="toggleSel(rap)" ng-class="{'selected':rap.selected}">

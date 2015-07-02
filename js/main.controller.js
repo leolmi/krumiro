@@ -89,9 +89,10 @@ angular.module('krumiroApp')
       return 0;
     }
 
-    function handleError(err) {
+    function handleError(err, title) {
+      title = title || 'ERRORE richiesta file degli storici';
       var msg = (err && !$.isEmptyObject(err)) ? JSON.stringify(err) : 'verificare le credenziali e riprovare.';
-      Logger.error('ERRORE richiesta file degli storici', msg);
+      Logger.error(title, msg);
     }
 
     $scope.toggleOptions = function() {
@@ -450,7 +451,9 @@ angular.module('krumiroApp')
           results:[]
         },
         rap: {
-          date: $scope.getDate('verysmall')
+          date: $scope.getDate('verysmall'),
+          advanced: false,
+          todate: $scope.getDate('verysmall')
         },
         debug:{}
       };
@@ -800,7 +803,9 @@ angular.module('krumiroApp')
       $scope.milking = true;
       var reqopt = {
         user: $scope.context.user,
-        date: $scope.context.rap.date
+        date: $scope.context.rap.date,
+        advanced: $scope.context.rap.advanced,
+        todate: $scope.context.rap.todate
       };
       $http.post('/api/rap', reqopt)
         .success(function(results) {
@@ -809,7 +814,7 @@ angular.module('krumiroApp')
         })
         .error(function(err){
           $scope.milking = false;
-          handleError(err);
+          handleError(err, 'ERRORE richiesta rapportini');
         });
     }
 
@@ -873,6 +878,10 @@ angular.module('krumiroApp')
         $scope.reloadRap();
     };
 
+
+    $scope.toggleAdvancedRap = function() {
+      $scope.context.rap.advanced = !$scope.context.rap.advanced;
+    };
 
     /**
      * Inizializza le opzioni

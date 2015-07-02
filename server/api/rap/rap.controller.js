@@ -80,16 +80,74 @@ function parseRap(content) {
   return table;
 }
 
+function getMonthN(date){
+  var pattern = /\d+/g;
+  var values = date.match(pattern);
+  if (values && values.length>1)
+    return parseInt(values[0])+ parseInt(values[1])*12;
+}
+function getMonth(N){
+  var y = Math.floor(N/12);
+  return (N-y*12)+'/'+y;
+}
 
-
+function getMonths(o){
+  var months = [];
+  var m1 = getMonthN(o.date);
+  var m2 = getMonthN(o.todate);
+  for (var y=Math.min(m1,m2),yf=Math.max(m1,m2); y<=yf; y++){
+    months.push(getMonth(y));
+  }
+  return months;
+}
 
 exports.data = function(req, res) {
-  var reqopt = checkReqOpt(req);
-  if (!reqopt) return w.error(res, new Error('Utente non definito correttamente!'));
-  if (!reqopt.date)
-    reqopt.date = '7/2015';
+  var o = checkReqOpt(req);
+  if (!o) return w.error(res, new Error('Utente non definito correttamente!'));
+  if (!o.date) return w.error(res, new Error('Data di riferimento non definita correttamente!'));
 
-  console.log('RAP: '+JSON.stringify(reqopt));
+  if (o.advanced && o.todate){
+    var months = getMonths(o);
+    multimilk(o, months, function(err, table){
+      //console.log('Fine estrazione multipla. errori:'+(err ? 'si' : 'no'));
+      if (err) return w.error(res, err);
+      return w.ok(res, table);
+    });
+  }
+  else{
+    milk(o, function(err, table){
+      if (err) return w.error(res, err);
+      return w.ok(res, table);
+    });
+  }
+};
+/**
+ *
+ * @param {object} o
+ * @param {array} months
+ * @param {function} cb
+ * @param {number} [index]
+ * @param {array} [results]
+ */
+function multimilk(o, months, cb, index, results) {
+  index = index || 0;
+  results = results || [];
+  var opt = {
+    user: o.user,
+    date: months[index]
+  };
+  //console.log('Multimilk: '+months[index]);
+  milk(opt, function(err, table){
+    if (err) return cb(err);
+    results = _.union(results, table);
+    if (index==months.length-1)
+      return cb(null, results);
+    multimilk(o, months, cb, index+1, results);
+  });
+}
+
+function milk(o, cb) {
+  cb = cb || noop;
 
   var options = {
     host:  process.env.RAP_HOST,
@@ -102,7 +160,7 @@ exports.data = function(req, res) {
       { name:'__EVENTVALIDATION', pattern:'<input.*?name="__EVENTVALIDATION".*?value="(.*?)".*?>' }
     ],
     headers:{
-      'authorization': w.getBasicAuth(reqopt.user.name,reqopt.user.password),
+      'authorization': w.getBasicAuth(o.user.name,o.user.password),
       'accept':content_accept_text,
       'accept-language':'it-IT',
       'content-type':content_type_appwww,
@@ -137,21 +195,21 @@ exports.data = function(req, res) {
     path:process.env.RAP_PATH_DATA2,
     referer:process.env.RAP_PATH_REFERER_DATA2,
     data: {
-      txtdatarap: reqopt.date,
+      txtdatarap: o.date,
       btnupdView: 'Riepilogo'
     }
   }];
 
   w.chainOfRequests(options, sequence, function(err, c) {
-    if (err) return w.error(res, err);
+    if (err) return cb(err);
 
     var table = parseRap(c);
-
-    var txt = JSON.stringify(table);
-    txt = txt.replace(/},{/g,'\r\n');
-    console.log('DATI: '+txt);
-
-
-    return w.ok(res, table);
+    //var txt = JSON.stringify(table);
+    //txt = txt.replace(/},{/g,'\r\n');
+    //console.log('DATI: '+txt);
+    return cb(null, table);
   });
-};
+}
+
+
+
