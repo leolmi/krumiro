@@ -136,6 +136,10 @@ tempi-item > input.alarmed {
   background-color: #555;
 }
 
+.details.active {
+  color: yellowgreen;
+}
+
 .details.enabled {
   left: 540px;
 }
@@ -145,9 +149,7 @@ tempi-item > input.alarmed {
   top: 100px;
   left: 540px;
 }
-.details-help.enabled{
-  color: yellowgreen;
-}
+
 .details-history {
   top: 158px;
 }

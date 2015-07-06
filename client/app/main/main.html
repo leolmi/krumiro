@@ -67,9 +67,9 @@
   </span>
   <kbd>beta</kbd>
 </div>
-<i class="details details-help fa fa-2x fa-user-md" ng-class="{'enabled':helpon}" ng-click="help()"></i>
-<i class="details details-history fa fa-2x fa-calendar" ng-class="{'enabled':context.user.name && context.user.password}" ng-click="inazall()"></i>
-<i class="details details-works fa fa-2x fa-paw" ng-class="{'enabled':context.user.name && context.user.password}" ng-click="togglerap()"></i>
+<i class="details details-help fa fa-2x fa-user-md" ng-class="{'active':helpon}" ng-click="help()"></i>
+<i class="details details-history fa fa-2x fa-calendar" ng-class="{'enabled':context.user.name && context.user.password,'active':context.allDaysItems.length}" ng-click="inazall()"></i>
+<i class="details details-works fa fa-2x fa-paw" ng-class="{'enabled':context.user.name && context.user.password,'active':context.rap.items}" ng-click="togglerap()"></i>
 <i class="details details-analisys fa fa-2x fa-calculator" ng-class="{'enabled':context.allDaysItems.length, 'opened':analisyson}" ng-click="analisys()" ng-show="context.allDaysItems.length"></i>
 <div class="allitems-charts quando-container" ng-class="{'visible':context.allDaysItems.length}">
   <div class="analisys quando-container" ng-class="{'visible':context.allDaysItems.length && analisyson}" ng-show="context.allDaysItems.length">
