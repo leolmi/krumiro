@@ -146,47 +146,58 @@ tempi-item > input.alarmed {
 
 
 .details-help {
-  top: 100px;
+  top: 90px;
+  left: 540px;
+}
+
+.details-amonalie{
+  top: 148px;
   left: 540px;
 }
 
 .details-history {
-  top: 158px;
+  top: 206px;
 }
 
 .details-works {
-  top: 216px;
+  top: 264px;
 }
 
 
 
-
-
+.amonalie-container {
+  overflow: hidden;
+}
 .allitems-charts,
 .rap-table {
+  overflow: inherit;
+}
+.allitems-charts,
+.rap-table,
+.amonalie-container{
   width: 500px;
   position: relative;
   margin-left: 50px;
   padding: 0 24px;
   height: 0;
   z-index: 10;
-  overflow: inherit;
 }
 
 .allitems-charts.visible,
-.rap-table.visible {
+.rap-table.visible,
+.amonalie-container.visible {
   padding: 24px;
   height: auto;
+}
+
+.amonalie-container.visible {
+  width: calc(100% - 100px);
 }
 
 .allitems-charts.visible {
   top: -50px;
 }
 
-/*.allitems-charts > p {*/
-  /*font-size: 12px;*/
-  /*text-transform: uppercase;*/
-/*}*/
 
 .alarm {
   margin-left: 20px;

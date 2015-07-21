@@ -1,0 +1,36 @@
+<div class="am-header">
+  <div class="form-group">
+    <label class="control-label">Credenziali @Assistant:</label>
+    <div class="inline">
+      <input class="form-control" type="text" ng-model="context.ass.name" placeholder="name" title="Nome utente per assistant"> /
+      <input id="password" class="form-control" type="password" ng-model="context.ass.password" placeholder="pswrd" title="Password per assistant" autocomplete="false">
+      <i class="fa fa-lock" ng-class="{'checked':context.options.lockuser}"></i>
+    </div>
+  </div>
+  <div class="input-group">
+    <span class="input-group-addon">{{filtered.length}}</span>
+    <input class="form-control" type="text" ng-model="context.amonalie.filter" placeholder="filtra le anomalie..."/>
+    <span class="input-group-addon"><i class="fa fa-search"></i></span>
+  </div>
+</div>
+<div class="am-options" ng-class="{'visible':context.amonalie.o.show}">
+  <div class="am-options-values">
+    <p ng-class="{'checked':context.amonalie.o.SSL}"><i class="fa fa-fw aslink" ng-class="{'fa-toggle-off':!context.amonalie.o.SSL, 'fa-toggle-on':context.amonalie.o.SSL}" ng-click="toggleAmOptionValue('SSL')"></i> Connessione criptata (SSL)</p>
+  </div>
+</div>
+<div class="am-row" ng-repeat="r in filtered = (context.amonalie.items | filter:context.amonalie.filter)">
+  <div class="am-index">{{$index+1}}</div>
+  <!-- Codice / Data -->
+  <div class="am-base-data">{{r.values[0]}} <i>{{r.values[1]}}</i></div>
+  <!--Applicativo / Funzione / Oggetto -->
+  <div class="am-info">{{r.values[2]}} <i>{{r.values[3]}}:</i><i>{{r.values[8]}}</i></div>
+  <!--Descrizione-->
+  <div class="am-description">{{r.values[9]}}</div>
+  <div class="am-details" ng-class="{'visible':r.details}">
+    <div class="am-details-row" ng-repeat="d in r.values track by $index">
+      <div class="am-detail-name">{{context.amonalie.headers.values[$index]}}</div>
+      <div class="am-detail-value">{{d}}</div>
+    </div>
+  </div>
+  <i class="fa aslink" ng-class="{'fa-angle-double-up':r.details, 'fa-angle-double-down':!r.details}" ng-click="toggleDetails(r)"></i>
+</div>

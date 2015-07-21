@@ -6,6 +6,11 @@
 var _ = require('lodash');
 
 /**
+ * Funzione vuota
+ */
+exports.noop = function(){};
+
+/**
  * Modifica tutti i caratteri diversi dalle lettere e numeri in underscore
  * @param filename
  * @returns {*}
@@ -32,14 +37,15 @@ exports.uuid = function(template) {
   return id;
 };
 
-exports.merge = function(v, tmpl) {
+function merge(v, tmpl) {
   tmpl = tmpl || '00';
   v = ''+v;
   var diff = tmpl.length-v.length;
   if (diff>0)
     v = tmpl.slice(0,diff) + v;
   return v;
-};
+}
+exports.merge = merge;
 
 
 function getCharEsa(cc, upper){
@@ -82,3 +88,25 @@ function decodeFromEsa(s) {
 exports.decodeFromEsa = decodeFromEsa;
 
 
+function getToday() {
+  var now = new Date();
+  return merge(now.getDate()) + '/' + merge((now.getMonth() + 1)) + '/' + now.getFullYear();
+}
+exports.getToday = getToday;
+
+/**
+ * Valida le opzioni (richiede la presenza di utente e password)
+ * @param req //request
+ * @returns {*} options
+ */
+function checkReqOpt(req) {
+  var reqopt = req.body;
+  if (reqopt) {
+    reqopt.today = getToday();
+    if (!_.has(reqopt, 'SSL') )
+      reqopt.SSL = true;
+  }
+
+  return (!reqopt || !reqopt.user || !reqopt.user.password || !reqopt.user.name) ? undefined : reqopt;
+}
+exports.checkReqOpt = checkReqOpt;

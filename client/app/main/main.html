@@ -68,6 +68,7 @@
   <kbd>beta</kbd>
 </div>
 <i class="details details-help fa fa-2x fa-user-md" ng-class="{'active':helpon}" ng-click="help()"></i>
+<i class="details details-amonalie fa fa-2x fa-bug" ng-class="{'active':context.amonalie.show}" ng-click="toggleamonalie()"></i>
 <i class="details details-history fa fa-2x fa-calendar" ng-class="{'enabled':context.user.name && context.user.password,'active':context.allDaysItems.length}" ng-click="inazall()"></i>
 <i class="details details-works fa fa-2x fa-paw" ng-class="{'enabled':context.user.name && context.user.password,'active':context.rap.items}" ng-click="togglerap()"></i>
 <i class="details details-analisys fa fa-2x fa-calculator" ng-class="{'enabled':context.allDaysItems.length, 'opened':analisyson}" ng-click="analisys()" ng-show="context.allDaysItems.length"></i>
@@ -146,6 +147,14 @@
     <small>Tot: </small><span class="value">{{rapSummarySel}}<span ng-show="rapSummarySelV>0"> / {{rapSummarySelV}}</span></span>
     <small>hh (</small><span class="value">{{rapSummarySelGG}}<span ng-show="rapSummarySelVGG>0"> / {{rapSummarySelVGG}}</span></span><small>gg)</small>
   </div>
+</div>
+<div class="amonalie-container quando-container" ng-class="{'visible':context.amonalie.show}">
+  <div class="header">
+    <span class="header-title">Amonalie</span>
+    <i class="fa fa-2x fa-refresh aslink" ng-click="reloadAmonalie()"></i>
+    <i class="fa fa-2x fa-bars aslink" ng-click="toggleAmonalieOptions()"></i>
+  </div>
+  <amonalie ng-model="context"></amonalie>
 </div>
 <div class="q-help" ng-style="helpstyle">
   <h1>{{instractions.title}}</h1>

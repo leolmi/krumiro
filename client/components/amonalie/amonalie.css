@@ -1,0 +1,207 @@
+amonalie {
+  width: 100%;
+  overflow: auto;
+  display: block;
+}
+
+.am-header {
+  margin-bottom: 10px;
+}
+
+.am-row {
+  border-bottom: #555 1px solid;
+  padding: 5px;
+}
+.am-row:hover {
+  background-color: #111;
+  color: darkorange;
+}
+.am-row > i {
+  width: 100%;
+  text-align: right;
+}
+
+.am-details {
+  overflow: hidden;
+  height: 0;
+  width: 100%;
+  padding: 0 10px;
+  border-left: #999 2px solid;
+}
+.am-details.visible {
+  height: auto;
+  padding: 10px;
+}
+.am-index {
+  position: absolute;
+  font-size: 10px;
+  color: #aaa;
+  left: 2px;
+}
+
+.am-base-data {
+  font-size: 12px;
+  font-weight: bold;
+  color: yellowgreen;
+}
+
+.am-base-data > i {
+  color: #aaa;
+  font-size: 10px;
+  font-weight: normal;
+}
+
+.am-info {
+  color: #aaa;
+}
+.am-info > i {
+  color: #eee;
+  margin: 0 10px;
+}
+
+.am-description {
+  font-size: 12px;
+  margin: 5px 10px;
+  overflow-wrap: break-word;
+}
+
+
+.am-details-row {
+  position: relative;
+  display: block;
+}
+
+.am-detail-name {
+  font-size: 10px;
+  display: inline-block;
+  color: #aaa;
+  width: 100px;
+}
+.am-detail-value {
+  display: inline-block;
+  font-size: 12px;
+}
+
+.am-options {
+  height: 0;
+  overflow: hidden;
+  background-color: #333;
+  padding: 0 30px;
+  -moz-transition: all .50s ease-in-out;
+  -o-transition: all .50s ease-in-out;
+  -webkit-transition: all .50s ease-in-out;
+  transition: all .50s ease-in-out;
+}
+.am-options.visible {
+  height: 40px;
+  padding: 10px 30px;
+}
+.am-options-values > p.checked {
+  color: yellowgreen;
+}
+
+/*.amonalie-table {*/
+  /*background-color: #222;*/
+  /*font-size: smaller;*/
+  /*border: 0;*/
+/*}*/
+/*.amonalie-table > tbody > tr:hover {*/
+  /*background-color: #222;*/
+  /*color: #ddd;*/
+  /*cursor: pointer;*/
+/*}*/
+/*.amonalie-table > tbody > tr.row-selected:hover {*/
+  /*background-color: gold;*/
+  /*color:#333;*/
+/*}*/
+
+/*.table-infos {*/
+  /*position: relative;*/
+/*}*/
+/*.table-legend {*/
+  /*position: absolute;*/
+  /*right: 0;*/
+  /*top: 0;*/
+/*}*/
+
+/*.amonalie-table tr {*/
+  /*position: relative;*/
+/*}*/
+
+/*.amonalie-table tr > th {*/
+  /*position: relative;*/
+/*}*/
+/*.amonalie-table tr > th:hover {*/
+  /*background-color: orangered;*/
+/*}*/
+
+/*.selected-font-style {*/
+  /*color: darkorange;*/
+/*}*/
+
+/*.amonalie-table tr > th > i {*/
+  /*color: #333;*/
+  /*font-size: 16px;*/
+  /*position: absolute;*/
+  /*top: -4px;*/
+  /*left: 20px;*/
+/*}*/
+/*.row-selected {*/
+  /*background-color: darkorange;*/
+  /*color:#333;*/
+/*}*/
+
+/*.amonalie-table tr > .larger {*/
+  /*padding: 2px;*/
+/*}*/
+/*.amonalie-table tr > th > input {*/
+  /*padding: 1px;*/
+  /*font-size: 10px;*/
+/*}*/
+
+
+
+/*.row-button {*/
+  /*/!*position: absolute;*!/*/
+  /*width: 32px;*/
+  /*opacity: 0;*/
+  /*font-size: 16px;*/
+  /*margin-left: -32px;*/
+  /*background-color: orangered;*/
+  /*border-radius: 6px;*/
+  /*margin-top: 4px;*/
+  /*margin-bottom: 4px;*/
+/*}*/
+/*.amonalie-table > tbody > tr > td.row-button {*/
+  /*border: 0;*/
+  /*padding: 1px 8px;*/
+/*}*/
+/*.amonalie-table > tbody > tr:hover .row-button {*/
+  /*opacity: .4;*/
+/*}*/
+/*.amonalie-table > tbody > tr:hover .row-button:hover {*/
+  /*opacity: 1;*/
+/*}*/
+/*.amonalie-table > thead > tr > th {*/
+  /*border: 0;*/
+/*}*/
+
+/*.row-success {*/
+  /*background-color: rgba(71, 164, 71, 0.50);*/
+/*}*/
+/*.row-warning {*/
+  /*background-color: rgba(237, 156, 40, 0.50);*/
+/*}*/
+/*.row-danger {*/
+  /*background-color: rgba(210, 50, 45, 0.50);*/
+/*}*/
+
+/*.font-success {*/
+  /*color: rgba(71, 164, 71, 0.50);*/
+/*}*/
+/*.font-warning {*/
+  /*color: rgba(237, 156, 40, 0.50);*/
+/*}*/
+/*.font-danger {*/
+  /*color: rgba(210, 50, 45, 0.50);*/
+/*}*/

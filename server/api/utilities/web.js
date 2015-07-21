@@ -6,7 +6,17 @@
 var u = require('./util');
 var _ = require('lodash');
 var https = require('https');
+var http = require('http');
 var querystring = require('querystring');
+
+
+exports.constants = {
+  content_type_appwww: 'application/x-www-form-urlencoded',
+  user_agent_moz: 'Mozilla/5.0 (Windows NT 6.3; WOW64; Trident/7.0; rv:11.0) like Gecko',
+  content_accept_text: 'text/html, application/xhtml+xml, */*',
+  accept_language_iteeng: 'it,it-IT;q=0.8,en;q=0.6,en-US;q=0.4'
+};
+
 
 /**
  * Return standard 200
@@ -56,13 +66,14 @@ exports.error = error;
 
 
 function getData(o, encode) {
-  if (encode) {
+  if (typeof o == 'string') {
+    return o;
+  } else if (encode) {
     var eo = {}
     for (var p in o)
       eo[p] = u.encodeToEsa(o[p]);
     return querystring.stringify(eo);
-  }
-  else{
+  } else {
     return querystring.stringify(o);
   }
 }
@@ -76,8 +87,16 @@ exports.getBasicAuth = getBasicAuth;
 
 
 var getRedirectPath = function(opt, nxt) {
-  if (nxt.indexOf(opt.host)<0)
-    return opt.host + nxt;
+  if (nxt.indexOf('..')==0) {
+    nxt = nxt.slice(2);
+  } else {
+    var prev = opt.path.split('/');
+    var next = nxt.split('/');
+    prev.pop();
+    var mrg = _.union(prev, next);
+    nxt = '/'+mrg.join('/');
+  }
+  console.log('Reindirizzato a: '+nxt);
   return nxt;
 };
 
@@ -97,7 +116,8 @@ var doHttpsRequest = function(desc, options, data, target, cb) {
   if (options.verbose)
     console.log('['+desc+']-OPTIONS: ' + JSON.stringify(options));
 
-  var req = https.request(options, function(res) {
+  var handler = (options.SSL) ? https : http;
+  var req = handler.request(options, function(res) {
     var result = {
       code:res.statusCode,
       headers:res.headers
@@ -120,7 +140,7 @@ var doHttpsRequest = function(desc, options, data, target, cb) {
         console.log('Redir new path:'+options.path);
       if (res.headers['set-cookie'])
         options.headers.cookie = res.headers['set-cookie'];
-      doHttpsRequest('redir - '+desc, options, null, null, cb);
+      doHttpsRequest('redir - '+desc, options, data, null, cb);
     }
 
     if (target) {
@@ -166,6 +186,7 @@ var doHttpsRequest = function(desc, options, data, target, cb) {
 };
 exports.doHttpsRequest = doHttpsRequest;
 
+
 function checkKeepers(options, content) {
   if (options.keepers && options.keepers.length && content){
     options.keepers.forEach(function(k){
@@ -192,6 +213,10 @@ function chainOfRequestsX(options, sequence, i, cb) {
   if (sequence[i].method) options.method = sequence[i].method;
   if (sequence[i].path) options.path = sequence[i].path;
   if (sequence[i].referer) options.headers.referer = sequence[i].referer;
+  if (sequence[i].headers) {
+    for(var pn in sequence[i].headers)
+      options.headers[pn.toLowerCase()] = sequence[i].headers[pn];
+  }
 
   if (options.keepers && options.keepers.length){
     options.keepers.forEach(function(k){
@@ -202,6 +227,13 @@ function chainOfRequestsX(options, sequence, i, cb) {
       }
     });
   }
+  if (sequence[i].noheaders) {
+    sequence[i].noheaders.forEach(function (noh) {
+      if (options.headers[noh]) {
+        delete options.headers[noh];
+      }
+    });
+  }
 
   var data_str = undefined;
   if (sequence[i].data_str)
@@ -209,8 +241,8 @@ function chainOfRequestsX(options, sequence, i, cb) {
   else if (sequence[i].data)
     data_str = getData(sequence[i].data);
 
-
   options.headers['content-length'] = data_str ? data_str.length : 0;
+
 
   if (options.verbose)
     console.log('['+sequence[i].title+']-REQUEST BODY: '+data_str);
@@ -220,7 +252,7 @@ function chainOfRequestsX(options, sequence, i, cb) {
     if (options.verbose)
       console.log('['+(i+1)+' '+sequence[i].title+'] - RICHIESTA EFFETTUATA CON SUCCESSO, CONTENT: '+c);
 
-    if (i>=sequence.length-1)
+    if (i>=sequence.length-1 || sequence[i].end)
       return cb(null, c);
 
     if (r.headers['set-cookie'])
@@ -235,7 +267,7 @@ function chainOfRequestsX(options, sequence, i, cb) {
 /**
  * Effettua una catena di chiamate sequenziali
  * @param {object} options
- * @param {array} sequence
+ * @param {object} sequence
  * @param {function} cb
  */
 function chainOfRequests(options, sequence, cb) {

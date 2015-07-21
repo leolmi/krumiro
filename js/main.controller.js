@@ -64,6 +64,10 @@ angular.module('krumiroApp')
         title:'Con le credenziali INAZ acquisisci i dati reali...',
         desc:'Inserendo le credenziali INAZ puoi scaricare manualmente le bedgiature cliccando sulla nuvoletta.\r\nOppure, attivando l\'interruttore puoi lasciare fare all\'applicazione che allinerà i dati ogni mezzo minuto.'
       },{
+        icon:'fa-bug',
+        title:'Consultare le anomalie...',
+        desc:'Inserendo le credenziali @Assistant puoi scaricare l\'elenco delle anomalie e filtrarle come desideri.'
+      },{
         icon:'fa-calendar',
         title:'Vedere lo storico delle tue bedgiature...',
         desc:'Inserendo le credenziali INAZ puoi scaricare lo storico delle tue bedgiature cliccando sul calendarino sulla destra.'
@@ -128,6 +132,8 @@ angular.module('krumiroApp')
             try {
               $scope.context.user.name = AES.decrypt(storedopt.crd.name, scrt);
               $scope.context.user.password = AES.decrypt(storedopt.crd.pswd, scrt);
+              $scope.context.ass.name = AES.decrypt(storedopt.ass.name, scrt);
+              $scope.context.ass.password = AES.decrypt(storedopt.ass.pswd, scrt);
             }
             catch (err) {
               Logger.error('Impossibile recuperare le credenziali', err);
@@ -142,9 +148,12 @@ angular.module('krumiroApp')
     function updateOptionsStore() {
       if (!localStorage) return;
       $scope.context.options.crd = {};
+      $scope.context.options.ass = {};
       if ($scope.context.options.lockuser) {
         $scope.context.options.crd.name = AES.encrypt($scope.context.user.name, scrt);
         $scope.context.options.crd.pswd = AES.encrypt($scope.context.user.password, scrt);
+        $scope.context.options.ass.name = AES.encrypt($scope.context.ass.name, scrt);
+        $scope.context.options.ass.pswd = AES.encrypt($scope.context.ass.password, scrt);
       }
       var content = JSON.stringify($scope.context.options);
       localStorage.setItem(STORE_OPTIONS, content);
@@ -434,9 +443,11 @@ angular.module('krumiroApp')
      */
     $scope.clear = function() {
       var u = ($scope.context && $scope.context.user) ? $scope.context.user : {};
+      var a = ($scope.context && $scope.context.ass) ? $scope.context.ass : {};
       var opt = $scope.context.options;
       $scope.context = {
         user: u,
+        ass: a,
         o:'8',
         p:'0',
         exit:'?',
@@ -454,6 +465,16 @@ angular.module('krumiroApp')
           date: $scope.getDate('verysmall'),
           advanced: false,
           todate: $scope.getDate('verysmall')
+        },
+        amonalie:{
+          o:{
+            show: false,
+            SSL: true,
+          },
+          show: false,
+          headers:[],
+          items:[],
+          selection:[]
         },
         debug:{}
       };
@@ -477,6 +498,7 @@ angular.module('krumiroApp')
         $scope.context.allDaysItems = [];
       else {
         $scope.context.rap.items = undefined;
+        $scope.context.amonalie.show = false;
         milkinaz(true);
       }
     };
@@ -824,11 +846,12 @@ angular.module('krumiroApp')
       }
       else {
         $scope.context.allDaysItems = [];
+        $scope.context.amonalie.show = false;
         milkrap();
       }
     };
 
-    $scope.reloadRap = function () {
+    $scope.reloadRap = function() {
       milkrap();
     };
 
@@ -841,6 +864,54 @@ angular.module('krumiroApp')
       if ($scope.filtered)
         $scope.filtered.forEach(function(f){ f.selected = false; });
       $scope.getFilteredSummary();
+    };
+
+    $scope.toggleamonalie = function() {
+      if (!$scope.context.amonalie.show) {
+        $scope.context.allDaysItems = [];
+        $scope.context.rap.items = undefined;
+      }
+      $scope.context.amonalie.show = !$scope.context.amonalie.show;
+    };
+
+    function getRows(items) {
+      var rows = [];
+      items.forEach(function(i){
+        rows.push(getValues(i));
+      });
+      return rows;
+    }
+    function getValues(o) {
+      var v = {values:[]};
+      for(var pn in o)
+        v.values.push(o[pn]);
+      return v;
+    }
+
+    $scope.reloadAmonalie = function() {
+      if ($scope.milking) return;
+      updateOptionsStore();
+      $scope.milking = true;
+      var reqopt = {
+        user: $scope.context.ass,
+        SSL: $scope.context.amonalie.o.SSL
+      };
+      $http.post('/api/amonalie', reqopt)
+        .success(function(results) {
+          var rows = getRows(results);
+          $scope.context.amonalie.headers = rows.shift();
+          $scope.context.amonalie.items = rows;
+
+          $scope.milking = false;
+        })
+        .error(function(err){
+          $scope.milking = false;
+          handleError(err, 'ERRORE richiesta amonalie');
+        });
+    };
+
+    $scope.toggleAmonalieOptions = function() {
+      $scope.context.amonalie.o.show = !$scope.context.amonalie.o.show;
     };
 
     $scope.getFilteredSummary = function() {
@@ -887,4 +958,12 @@ angular.module('krumiroApp')
      * Inizializza le opzioni
      */
     $scope.clear();
+
+    //$scope.test = '14/07/2015 17:28					\r\n							(Note interne)						\r\n						\r\n							MAURO CASOLARO\r\n												\r\n							In allegato uno stralcio di  esempio con le informazioni da caricare per il criterio 1. \r\n								\r\n										\r\n						\r\n						\r\n							14/07/2015 11:55					\r\n							(Note interne)						\r\n						\r\n							CLAUDIO CONTI\r\n												\r\n							La cosa � fattibile creando un nuovo programma ad-hoc \r\n								\r\n										\r\n						\r\n						\r\n							14/07/2015 09:32					\r\n							(Note interne)						\r\n						\r\n							MAURO CASOLARO\r\n												\r\n							Buongiorno, il cliente ci ha comunicato che la risposta sulla fattibilit� dell�automatismo gli servirebbe massimo entro venerd�.\r\nNel caso in cui ci servissero ulteriori informazioni su come vogliono passare le nuove soglie, BP � a disposizione ad organizzare anche un incontro.\r\nRimango in attesa di un vostro riscontro in merito.\r\n\r\nSaluti\r\nMauro \r\n								\r\n										\r\n						\r\n						\r\n							13/07/2015 12:13					\r\n							(Note interne)						\r\n						\r\n							CLAUDIO CONTI\r\n												\r\n							Dobbiamo verificare se il programma di recupero delle soglie, fornito a suo tempo, pu� fare al caso, se con lievi modifiche pu� essere adattato allo scopo oppure bisogna fare qualcosa ad hoc. \r\n								\r\n										\r\n						\r\n						\r\n							13/07/2015 11:00					\r\n							(Note interne)						\r\n						\r\n							SONIA BARBINO\r\n												\r\n							Buongiorno, il cliente ci chiede a livello informativo se le nuove soglie possono essere caricate automaticamente.\r\nPotete aiutarci a dare una risposta a Poste?\r\n\r\nestiamo in attesa di un vostro cordiale riscontro.\r\n'
+    //function parsestr(s){
+    //  s = s.replace(/\t/g,'');
+    //  s = s.split(/\r\n\r\n\r\n\r\n/g);
+    //  return s;
+    //}
+    //$scope.test1 = parsestr($scope.test);
   }]);

@@ -9,13 +9,10 @@ var u = require('../utilities/util');
 var w = require('../utilities/web');
 var INAZ = require('./inaz.model');
 
-var content_type_appwww = 'application/x-www-form-urlencoded';
-var user_agent_moz = 'Mozilla/5.0 (Windows NT 6.3; WOW64; Trident/7.0; rv:11.0) like Gecko';
-var content_accept_text = 'text/html, application/xhtml+xml, */*';
 
-
-function check(user, cookies, cb) {
+function check(user, cb) {
   cb = cb || noop;
+
   var data = {
     SuHrWeb:'0',
     IdLogin:user.name,
@@ -23,23 +20,28 @@ function check(user, cookies, cb) {
     ServerLDAP:process.env.INAZ_SERVER_LDAP
   };
   var str_data = w.getData(data,true);
-
   var options = {
+    SSL: true,
     host: process.env.INAZ_HOST,
     method:'POST',
     path: process.env.INAZ_PATH_CHECK,
     keepAlive:true,
+    verbose:false,
     headers:{
-      'cookie': cookies,
-      'content-type':content_type_appwww,
+      'content-type':w.constants.content_type_appwww,
       'content-length':str_data.length,
       'Connection': 'close'
     }
   };
 
+  if (options.verbose)
+    console.log('CHECK data:' + str_data);
+
   w.doHttpsRequest('check', options, str_data, undefined, function(o, r, c) {
     if (r.code!=200)
       return cb(new Error('[check] - terminato con codice: '+r.code));
+    if (options.verbose)
+      console.log('CHECK RESULT: '+c);
     if (!c || c.indexOf("[$OK$]:") != 0)
       return cb(new Error('Verifica password fallita: '+c));
     var encpsw = u.decodeFromEsa(c.substring(7));
@@ -48,6 +50,7 @@ function check(user, cookies, cb) {
 }
 
 function parseInaz(html) {
+  html = html.replace(/<br>/g,'|');
   var table = [];
   var $ = cheerio.load(html);
   $('#ris_umane > tbody > tr').each(function() {
@@ -59,30 +62,25 @@ function parseInaz(html) {
   });
   return table;
 }
-function getToday() {
-  var now = new Date();
-  return u.merge(now.getDate()) + '/' + u.merge((now.getMonth() + 1)) + '/' + now.getFullYear();
-}
-function checkReqOpt(req) {
-  var reqopt = req.body;
-  if (reqopt) reqopt.today = getToday();
-  return (!reqopt || !reqopt.user || !reqopt.user.password || !reqopt.user.name) ? undefined : reqopt;
-}
+
+
 
 exports.data = function(req, res) {
-  var reqopt = checkReqOpt(req);
+  var reqopt = u.checkReqOpt(req);
   if (!reqopt) return w.error(res, new Error('Utente non definito correttamente!'));
 
   var options = {
+    SSL: true,
     host: process.env.INAZ_HOST,
     method:'GET',
     path: process.env.INAZ_PATH_LOGIN,
     keepAlive:true,
+    verbose: false,
     headers:{
-      'accept':content_accept_text,
+      'accept':w.constants.content_accept_text,
       'accept-language':'it-IT',
-      'content-type':content_type_appwww,
-      'user-agent':user_agent_moz,
+      'content-type':w.constants.content_type_appwww,
+      'user-agent':w.constants.user_agent_moz,
       'DNT':'1'
     }
   };
@@ -94,7 +92,7 @@ exports.data = function(req, res) {
 
     cookies = r1.headers['set-cookie'];
 
-    check(reqopt.user, cookies, function(err, encpsw) {
+    check(reqopt.user, function(err, encpsw) {
       if (err) return w.error(res, err);
 
       o1.headers.cookie = cookies;
@@ -324,7 +322,8 @@ function mergeHistory(userdata, cb, today) {
 
 /**
  * Traduce i dati passati in dati utilizzabili nel db
- * @param history
+ * @param {object} user
+ * @param {object} history
  */
 function normalize(user, history) {
   var userdata = {
@@ -346,7 +345,7 @@ function normalize(user, history) {
 }
 
 exports.upload = function(req, res) {
-  var reqopt = checkReqOpt(req);
+  var reqopt = u.checkReqOpt(req);
   if (!reqopt) return w.error(res, new Error('Utente non definito correttamente!'));
   check(reqopt.user, null, function(err) {
     if (err) return w.error(res, err);
@@ -375,7 +374,7 @@ function manageUploadResults(merge, res, reqopt, userdata){
     if (err) return w.error(res, err);
     INAZ.findOne({'user': reqopt.user.name }, function (err, exdata) {
       if (err) return w.error(res, err);
-      var dendata = denormalize(exdata)
+      var dendata = denormalize(exdata);
       return w.ok(res, dendata);
     });
   }, reqopt.today);
@@ -411,14 +410,14 @@ function denormalize(exdata) {
 }
 
 exports.download = function(req, res) {
-  var reqopt = checkReqOpt(req);
+  var reqopt = u.checkReqOpt(req);
   console.log('opzioni: '+JSON.stringify(reqopt));
   if (!reqopt) return w.error(res, new Error('Utente non definito correttamente!'));
   check(reqopt.user, null, function(err) {
     if (err) return w.error(res, err);
     INAZ.findOne({'user': reqopt.user.name }, function (err, exdata) {
       if (err) { w.error(res, err); }
-      var dendata = denormalize(exdata)
+      var dendata = denormalize(exdata);
       w.ok(res, dendata);
     });
   })
@@ -438,7 +437,7 @@ exports.download = function(req, res) {
 
 
 exports.data1 = function(req, res) {
-  var reqopt = checkReqOpt(req);
+  var reqopt = u.checkReqOpt(req);
   if (!reqopt) return w.error(res, new Error('Utente non definito correttamente!'));
 
 
@@ -450,10 +449,10 @@ exports.data1 = function(req, res) {
     keepAlive:true,
     path:process.env.INAZ_PATH_LOGIN,
     headers:{
-      'accept':content_accept_text,
+      'accept': w.constants.content_accept_text,
       'accept-language':'it-IT',
-      'content-type':content_type_appwww,
-      'user-agent':user_agent_moz,
+      'content-type':w.constants.content_type_appwww,
+      'user-agent':w.constants.user_agent_moz,
       'DNT':'1'
     }
   },{
@@ -543,18 +542,5 @@ exports.data1 = function(req, res) {
     }
   }];
 
-  //w.chainOfRequests1(sequence, function(err, c3){
-  //  if (err) return w.error(res, err);
-  //
-  //  var table = parseInaz(c3);
-  //
-  //  manageHistory(reqopt, table, function(err, results) {
-  //    if (err)
-  //      results.error = err;
-  //    if (!reqopt.all)
-  //      results.data = results.data.filter(function (d) { return d['C1'] == reqopt.today; }).reverse();
-  //    console.log('[data] - risultati:'+JSON.stringify(results));
-  //    return w.ok(res, results);
-  //  });
-  //});
+  console.log('sequenza:'+JSON.stringify(sequence1));
 };

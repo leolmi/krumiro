@@ -5,20 +5,9 @@ var cheerio = require("cheerio");
 var u = require('../utilities/util');
 var w = require('../utilities/web');
 
-var content_type_appwww = 'application/x-www-form-urlencoded';
-var user_agent_moz = 'Mozilla/5.0 (Windows NT 6.3; WOW64; Trident/7.0; rv:11.0) like Gecko';
-var content_accept_text = 'text/html, application/xhtml+xml, */*';
-
-
 function getToday() {
   var now = new Date();
   return u.merge(now.getDate()) + '/' + u.merge((now.getMonth() + 1)) + '/' + now.getFullYear();
-}
-
-function checkReqOpt(req) {
-  var reqopt = req.body;
-  if (reqopt) reqopt.today = getToday();
-  return (!reqopt || !reqopt.user || !reqopt.user.password || !reqopt.user.name) ? undefined : reqopt;
 }
 
 function isEmpty(r) { return (!r || !r.hasOwnProperty('C0')); }
@@ -27,7 +16,7 @@ function getType(r) {
   var style = r.attr('style');
   if (style.indexOf('background-color:Snow;')>=0 ||
     style.indexOf('background-color:WhiteSmoke;')>=0) return 'day';
-  if (style.indexOf('background-color:LightCyan;')>=0) return 'work'
+  if (style.indexOf('background-color:LightCyan;')>=0) return 'work';
   return '';
 }
 
@@ -102,7 +91,7 @@ function getMonths(o){
 }
 
 exports.data = function(req, res) {
-  var o = checkReqOpt(req);
+  var o = u.checkReqOpt(req);
   if (!o) return w.error(res, new Error('Utente non definito correttamente!'));
   if (!o.date) return w.error(res, new Error('Data di riferimento non definita correttamente!'));
 
@@ -147,9 +136,10 @@ function multimilk(o, months, cb, index, results) {
 }
 
 function milk(o, cb) {
-  cb = cb || noop;
+  cb = cb || u.noop;
 
   var options = {
+    SSL: true,
     host:  process.env.RAP_HOST,
     method:'GET',
     keepAlive:true,
@@ -161,10 +151,10 @@ function milk(o, cb) {
     ],
     headers:{
       'authorization': w.getBasicAuth(o.user.name,o.user.password),
-      'accept':content_accept_text,
+      'accept': w.constants.content_accept_text,
       'accept-language':'it-IT',
-      'content-type':content_type_appwww,
-      'user-agent':user_agent_moz,
+      'content-type':w.constants.content_type_appwww,
+      'user-agent':w.constants.user_agent_moz,
       'DNT':'1'
     }
   };
@@ -204,7 +194,7 @@ function milk(o, cb) {
     if (err) return cb(err);
 
     var table = parseRap(c);
-    //var txt = JSON.stringify(table);
+    //var txt = JSON.stringify(amonalie);
     //txt = txt.replace(/},{/g,'\r\n');
     //console.log('DATI: '+txt);
     return cb(null, table);
