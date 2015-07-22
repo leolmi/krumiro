@@ -49,7 +49,7 @@ angular.module('krumiroApp')
     };
 
     $scope.instractions = {
-      title:'Cosa puoi fare con QUANDO?',
+      title:'Cosa puoi fare con CRUMIRO?',
       footer:'Se non ti basta .....',
       sections:[{
         icon:'fa-clock-o',
@@ -470,9 +470,12 @@ angular.module('krumiroApp')
           o:{
             show: false,
             SSL: true,
+            multisep: ',',
+            casesens: false,
+            fields:[]
           },
           show: false,
-          headers:[],
+          headers:{ values:['Codice','Data','Applicativo','Funzione','Versione','Stato','Oggetto','Descrizione','Istituto','Note','Tipo','Nome e cognome','eferenteTec','Attribuzioni']},
           items:[],
           selection:[]
         },

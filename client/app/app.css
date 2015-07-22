@@ -56,6 +56,10 @@
   cursor: pointer;
 }
 
+.aslink.checked {
+  color: yellowgreen;
+}
+
 .heightzero {
   height: 0;
   padding: 0;

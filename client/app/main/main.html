@@ -2,9 +2,8 @@
   <div class="header">
     Oggi è {{getDate()}}
     <i class="fa fa-2x fa-trash aslink" ng-click="clear()"></i>
-    <i class="fa fa-2x fa-bars aslink" ng-click="toggleOptions()"></i>
+    <i class="fa fa-2x fa-bars aslink" ng-click="toggleOptions()" ng-class="{'checked':showopt}"></i>
   </div>
-  <!--ng-class="{'heightzero':!showopt}"-->
   <div class="options" ng-style="optstyle">
     <div class="option-values">
       <p ng-class="{'checked':context.options.checkmine}"><i class="fa fa-fw aslink" ng-class="{'fa-toggle-off':!context.options.checkmine, 'fa-toggle-on':context.options.checkmine}" ng-click="toggleOptionValue('checkmine')"></i> Verifica ingresso minimo</p>
@@ -17,7 +16,6 @@
       </div>
     </div>
   </div>
-  <!--<p>onsubmit="angular.element(this).scope().handleSubmit($event)"</p>-->
   <form class="form-horizontal" id="loginform" onsubmit="angular.element(this).scope().handleSubmit(this)">
     <div class="form-group">
       <label class="col-xs-6 control-label">Ore da fare / Permesso</label>
@@ -152,7 +150,7 @@
   <div class="header">
     <span class="header-title">Amonalie</span>
     <i class="fa fa-2x fa-refresh aslink" ng-click="reloadAmonalie()"></i>
-    <i class="fa fa-2x fa-bars aslink" ng-click="toggleAmonalieOptions()"></i>
+    <i class="fa fa-2x fa-bars aslink" ng-click="toggleAmonalieOptions()" ng-class="{'checked':context.amonalie.o.show}"></i>
   </div>
   <amonalie ng-model="context"></amonalie>
 </div>

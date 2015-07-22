@@ -1,0 +1,5 @@
+<div class="tag-editor" ng-class="{'focused':focused}" ng-click="setfocus()">
+  <div class="tag" ng-repeat="t in tags">{{t}}<i class="fa fa-fw fa-times aslink" ng-click="delete($index)"></i></div>
+  <input type="text" ng-model="temptag" typeahead="tag for tag in alltags | filter:$viewValue" class="form-control"
+         ng-keydown="addtag($event)" ng-focus="focused=true" ng-blur="focused=false" placeholder="campi per la ricerca">
+</div>

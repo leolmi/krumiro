@@ -7,18 +7,26 @@
       <i class="fa fa-lock" ng-class="{'checked':context.options.lockuser}"></i>
     </div>
   </div>
-  <div class="input-group">
+  <div class="input-group am-search">
     <span class="input-group-addon">{{filtered.length}}</span>
     <input class="form-control" type="text" ng-model="context.amonalie.filter" placeholder="filtra le anomalie..."/>
     <span class="input-group-addon"><i class="fa fa-search"></i></span>
   </div>
+  <tag-editor tags="context.amonalie.o.fields" alltags="context.amonalie.headers.values"></tag-editor>
 </div>
 <div class="am-options" ng-class="{'visible':context.amonalie.o.show}">
   <div class="am-options-values">
     <p ng-class="{'checked':context.amonalie.o.SSL}"><i class="fa fa-fw aslink" ng-class="{'fa-toggle-off':!context.amonalie.o.SSL, 'fa-toggle-on':context.amonalie.o.SSL}" ng-click="toggleAmOptionValue('SSL')"></i> Connessione criptata (SSL)</p>
+    <p ng-class="{'checked':context.amonalie.o.casesens}"><i class="fa fa-fw aslink" ng-class="{'fa-toggle-off':!context.amonalie.o.casesens, 'fa-toggle-on':context.amonalie.o.casesens}" ng-click="toggleAmOptionValue('casesens')"></i> Case Sensitive</p>
+    <div class="form-group">
+      <label class="control-label" ng-class="{'checked':context.amonalie.o.multisep}">Separatore per i valori multipli:</label>
+      <div class="inline">
+        <input class="form-control" type="text" ng-model="context.amonalie.o.multisep" placeholder="separatore">
+      </div>
+    </div>
   </div>
 </div>
-<div class="am-row" ng-repeat="r in filtered = (context.amonalie.items | filter:context.amonalie.filter)">
+<div class="am-row" ng-repeat="r in filtered = (context.amonalie.items | advfilter:context.amonalie)">
   <div class="am-index">{{$index+1}}</div>
   <!-- Codice / Data -->
   <div class="am-base-data">{{r.values[0]}} <i>{{r.values[1]}}</i></div>
