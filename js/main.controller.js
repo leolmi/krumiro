@@ -36,6 +36,7 @@ angular.module('krumiroApp')
         checklunch: true, //verifica la pausa pranzo
         checkmine: true,  //verifica l'ingresso prima delle 8:30
         canautomilk: false,  //offre la possibilità di attivare l'automilk
+        debug: false,
         halfday: (4*60),
         min_e: (8*60+30),
         max_e: (9*60),
@@ -95,17 +96,29 @@ angular.module('krumiroApp')
 
     function handleError(err, title) {
       title = title || 'ERRORE richiesta file degli storici';
-      var msg = (err && !$.isEmptyObject(err)) ? JSON.stringify(err) : 'verificare le credenziali e riprovare.';
+      var msg = (err && !$.isEmptyObject(err)) ? err.message : 'verificare le credenziali e riprovare.';
       Logger.error(title, msg);
+    }
+
+    function debugPrint(title, content){
+      if (!$scope.context.options.debug) retrun;
+      $scope.debuglines = $scope.debuglines || [];
+      $scope.debuglines.push(title);
+      if ($.isArray(content))
+        $scope.debuglines.push.apply($scope.debuglines, content);
+      else
+        $scope.debuglines.push(JSON.stringify(content));
     }
 
     $scope.toggleOptions = function() {
       $scope.showopt = !$scope.showopt;
-      $scope.optstyle = { height: $scope.showopt ? "165px" : "0" }
+      $scope.optstyle = { height: $scope.showopt ? "190px" : "0" }
     };
 
     $scope.toggleOptionValue = function(opt) {
       $scope.context.options[opt] = !$scope.context.options[opt];
+      if (opt=='debug' && !$scope.context.options[opt])
+        $scope.debuglines = [];
       $scope.recalc();
       updateOptionsStore();
     };
@@ -184,10 +197,12 @@ angular.module('krumiroApp')
         all: all,
         user: $scope.context.user,
         work: getMinutes($scope.context.o),
-        perm: getMinutes($scope.context.p)
+        perm: getMinutes($scope.context.p),
+        debug: $scope.context.options.debug
       };
       $http.post('/api/inaz', reqopt)
         .success(function(results) {
+          debugPrint('Risultati della mungitura inaz:', results.debug);
           if (results && results.data.length){
             if (all) {
               loadAllData(results);
@@ -226,6 +241,8 @@ angular.module('krumiroApp')
           $scope.milking = false;
         })
         .error(function(err){
+          if (err && err.debug)
+            debugPrint('Risultati della mungitura inaz:', err.debug);
           $scope.milking = false;
           handleError(err);
         });
@@ -771,6 +788,7 @@ angular.module('krumiroApp')
       };
       $http.post('/api/inaz/download', reqopt)
         .success(function(history) {
+          debugPrint('Storico completo inaz:', history);
           var content = JSON.stringify(history);
           content = content.replace(/,"\$\$hashKey":"object:\d+"/g,'');
           content = content.replace(/},{/g,'},\r\n{');
@@ -834,6 +852,7 @@ angular.module('krumiroApp')
       };
       $http.post('/api/rap', reqopt)
         .success(function(results) {
+          debugPrint('Risultati della mungitura rapportini:', results);
           $scope.context.rap.items = results;
           $scope.milking = false;
         })
@@ -901,6 +920,7 @@ angular.module('krumiroApp')
       };
       $http.post('/api/amonalie', reqopt)
         .success(function(results) {
+          debugPrint('Risultati della mungitura amonalie:', results);
           var rows = getRows(results);
           $scope.context.amonalie.headers = rows.shift();
           $scope.context.amonalie.items = rows;
@@ -962,7 +982,7 @@ angular.module('krumiroApp')
      */
     $scope.clear();
 
-    //$scope.test = '14/07/2015 17:28					\r\n							(Note interne)						\r\n						\r\n							MAURO CASOLARO\r\n												\r\n							In allegato uno stralcio di  esempio con le informazioni da caricare per il criterio 1. \r\n								\r\n										\r\n						\r\n						\r\n							14/07/2015 11:55					\r\n							(Note interne)						\r\n						\r\n							CLAUDIO CONTI\r\n												\r\n							La cosa � fattibile creando un nuovo programma ad-hoc \r\n								\r\n										\r\n						\r\n						\r\n							14/07/2015 09:32					\r\n							(Note interne)						\r\n						\r\n							MAURO CASOLARO\r\n												\r\n							Buongiorno, il cliente ci ha comunicato che la risposta sulla fattibilit� dell�automatismo gli servirebbe massimo entro venerd�.\r\nNel caso in cui ci servissero ulteriori informazioni su come vogliono passare le nuove soglie, BP � a disposizione ad organizzare anche un incontro.\r\nRimango in attesa di un vostro riscontro in merito.\r\n\r\nSaluti\r\nMauro \r\n								\r\n										\r\n						\r\n						\r\n							13/07/2015 12:13					\r\n							(Note interne)						\r\n						\r\n							CLAUDIO CONTI\r\n												\r\n							Dobbiamo verificare se il programma di recupero delle soglie, fornito a suo tempo, pu� fare al caso, se con lievi modifiche pu� essere adattato allo scopo oppure bisogna fare qualcosa ad hoc. \r\n								\r\n										\r\n						\r\n						\r\n							13/07/2015 11:00					\r\n							(Note interne)						\r\n						\r\n							SONIA BARBINO\r\n												\r\n							Buongiorno, il cliente ci chiede a livello informativo se le nuove soglie possono essere caricate automaticamente.\r\nPotete aiutarci a dare una risposta a Poste?\r\n\r\nestiamo in attesa di un vostro cordiale riscontro.\r\n'
+    //note:
     //function parsestr(s){
     //  s = s.replace(/\t/g,'');
     //  s = s.split(/\r\n\r\n\r\n\r\n/g);

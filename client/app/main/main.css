@@ -1,3 +1,13 @@
+.debug-lines {
+  margin: 0 50px;
+}
+.debug-lines > i {
+  color: #aaa;
+  margin: 0 20px 10px;
+}
+.debug-lines > pre {
+  font-size: 10px;
+}
 .quando-container {
   padding: 24px;
   background-color: #222;

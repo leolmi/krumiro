@@ -10,7 +10,7 @@ var w = require('../utilities/web');
 var INAZ = require('./inaz.model');
 
 
-function check(user, cb) {
+function check(user, o, cb) {
   cb = cb || noop;
 
   var data = {
@@ -22,11 +22,12 @@ function check(user, cb) {
   var str_data = w.getData(data,true);
   var options = {
     SSL: true,
+    debuglines: o.debuglines,
+    debug: o.debug,
     host: process.env.INAZ_HOST,
     method:'POST',
     path: process.env.INAZ_PATH_CHECK,
     keepAlive:true,
-    verbose:true,
     headers:{
       'content-type':w.constants.content_type_appwww,
       'content-length':str_data.length,
@@ -34,14 +35,12 @@ function check(user, cb) {
     }
   };
 
-  if (options.verbose)
-    console.log('CHECK data:' + str_data);
+  u.log('CHECK data:' + str_data,o.debug, o.debuglines);
 
   w.doHttpsRequest('check', options, str_data, undefined, function(o, r, c) {
     if (r.code!=200)
       return cb(new Error('[check] - terminato con codice: '+r.code));
-    if (options.verbose)
-      console.log('CHECK RESULT: '+c);
+    u.log('CHECK RESULT: '+c, o.debug, o.debuglines);
     if (!c || c.indexOf("[$OK$]:") != 0)
       return cb(new Error('Verifica password fallita: '+c));
     var encpsw = u.decodeFromEsa(c.substring(7));
@@ -66,16 +65,18 @@ function parseInaz(html) {
 
 
 exports.data = function(req, res) {
+  var debuglines = [];
   var reqopt = u.checkReqOpt(req);
   if (!reqopt) return w.error(res, new Error('Utente non definito correttamente!'));
 
   var options = {
     SSL: true,
+    debuglines: debuglines,
+    debug: reqopt.debug,
     host: process.env.INAZ_HOST,
     method:'GET',
     path: process.env.INAZ_PATH_LOGIN,
     keepAlive:true,
-    verbose: true,
     headers:{
       'accept':w.constants.content_accept_text,
       'accept-language':'it-IT',
@@ -92,7 +93,7 @@ exports.data = function(req, res) {
 
     cookies = r1.headers['set-cookie'];
 
-    check(reqopt.user, function(err, encpsw) {
+    check(reqopt.user, options, function(err, encpsw) {
       if (err) return w.error(res, err);
 
       o1.headers.cookie = cookies;
@@ -170,7 +171,7 @@ exports.data = function(req, res) {
       }];
 
       w.chainOfRequests(o1, sequence, function(err, c3){
-        if (err) return w.error(res, err);
+        if (err) return w.error(res, err, debuglines);
 
         var table = parseInaz(c3);
 
@@ -179,7 +180,9 @@ exports.data = function(req, res) {
             results.error = err;
           if (!reqopt.all)
             results.data = results.data.filter(function (d) { return d['C1'] == reqopt.today; }).reverse();
-          console.log('[data] - risultati:'+JSON.stringify(results));
+          u.log('[data] - risultati:'+JSON.stringify(results),reqopt.debug, debuglines);
+          if (reqopt.debug)
+            results.debug = debuglines;
           return w.ok(res, results);
         });
       });

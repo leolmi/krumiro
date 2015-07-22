@@ -88,9 +88,12 @@ function decodeFromEsa(s) {
 exports.decodeFromEsa = decodeFromEsa;
 
 
-function getToday() {
+function getToday(time) {
   var now = new Date();
-  return merge(now.getDate()) + '/' + merge((now.getMonth() + 1)) + '/' + now.getFullYear();
+  var date = merge(now.getDate()) + '/' + merge((now.getMonth() + 1)) + '/' + now.getFullYear();
+  if (time)
+    date += ' '+now.getHours()+':'+now.getMinutes()+':'+now.getSeconds()+'.'+now.getMilliseconds();
+  return date;
 }
 exports.getToday = getToday;
 
@@ -103,10 +106,23 @@ function checkReqOpt(req) {
   var reqopt = req.body;
   if (reqopt) {
     reqopt.today = getToday();
-    if (!_.has(reqopt, 'SSL') )
-      reqopt.SSL = true;
+    if (!_.has(reqopt, 'SSL') ) reqopt.SSL = true;
   }
 
   return (!reqopt || !reqopt.user || !reqopt.user.password || !reqopt.user.name) ? undefined : reqopt;
 }
 exports.checkReqOpt = checkReqOpt;
+
+/**
+ * Logga il testo
+ * @param {string} txt
+ * @param {boolean} [totarget]
+ * @param {array} [target]
+ */
+function log(txt, totarget, target) {
+  if (!totarget) return;
+  target = target || [];
+  target.push('['+getToday(true)+'] '+txt);
+  console.log(txt);
+}
+exports.log = log;

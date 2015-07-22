@@ -83,9 +83,13 @@ exports.notfound = notfound;
  * Return standard 500
  * @param res
  * @param err
+ * @param [debug]
  * @returns {*}
  */
-var error = function(res, err) { return res.send(500, err); };
+var error = function(res, err, debug) {
+  if (debug && err) err.debug = debug;
+  return res.send(500, err);
+};
 exports.error = error;
 
 
@@ -127,6 +131,11 @@ var getRedirectPath = function(opt, nxt) {
   return nxt;
 };
 
+function excludeDebug(k,v){
+  if (k=='debug' || k=='debuglines')
+    return undefined;
+  return v;
+}
 
 /**
  * Richiesta
@@ -140,8 +149,7 @@ var doHttpsRequest = function(desc, options, data, target, cb) {
   var skipped = false;
   var download = false;
   cb = cb || noop;
-  if (options.verbose)
-    console.log('['+desc+']-OPTIONS: ' + JSON.stringify(options));
+  u.log('['+desc+']-OPTIONS: ' + JSON.stringify(options, excludeDebug),options.debug, options.debuglines);
 
   var handler = (options.SSL) ? https : http;
   var req = handler.request(options, function(res) {
@@ -149,22 +157,19 @@ var doHttpsRequest = function(desc, options, data, target, cb) {
       code:res.statusCode,
       headers:res.headers
     };
-    if (options.verbose)
-      console.log('['+desc+']-RESULTS: ' + JSON.stringify(result));
+    u.log('['+desc+']-RESULTS: ' + JSON.stringify(result),options.debug, options.debuglines);
 
     var newpath = res.headers.location;
     if ((res.statusCode.toString()=='302' || res.statusCode.toString()=='301') && newpath) {
       skipped = true;
-      if (options.verbose)
-        console.log('new location:'+newpath);
+      u.log('new location:'+newpath,options.debug, options.debuglines);
       var path = getRedirectPath(options ,newpath);
       if (path==options.path){
-        console.log('Location is the same!');
+        u.log('Location is the same!',options.debug, options.debuglines);
         return;
       }
       options.path = path;
-      if (options.verbose)
-        console.log('Redir new path:'+options.path);
+      u.log('Redir new path:'+options.path,options.debug, options.debuglines);
       if (res.headers['set-cookie'])
         options.headers.cookie = res.headers['set-cookie'];
       doHttpsRequest('redir - '+desc, options, data, null, cb);
@@ -175,8 +180,7 @@ var doHttpsRequest = function(desc, options, data, target, cb) {
       res.setEncoding('binary');
       res.pipe(target);
       target.on('finish', function() {
-        if (options.verbose)
-          console.log('Finito di scrivere il file!');
+        u.log('Finito di scrivere il file!',options.debug, options.debuglines);
         target.close(cb(options,result, null));
       });
     }
@@ -185,13 +189,11 @@ var doHttpsRequest = function(desc, options, data, target, cb) {
     var content = '';
 
     res.on('data', function (chunk) {
-      if (options.verbose)
-        console.log('['+desc+']-download data: '+chunk);
+      u.log('['+desc+']-download data: '+chunk,options.debug>=3, options.debuglines);
       content+=chunk;
     });
     res.on('end', function () {
-      if (options.verbose)
-        console.log('['+desc+']-Fine richiesta!   skipped='+skipped+'   download='+download+'  target='+(target ? 'si' : 'no'));
+      u.log('['+desc+']-Fine richiesta!   skipped='+skipped+'   download='+download+'  target='+(target ? 'si' : 'no'),options.debug, options.debuglines);
       if (!skipped && !target && !download) {
         options.headers = _.merge(options.headers, req.headers);
         cb(options, result, content);
@@ -200,12 +202,11 @@ var doHttpsRequest = function(desc, options, data, target, cb) {
   });
 
   req.on('error', function(e) {
-    console.log('['+desc+']-problem with request: ' + e.message);
+    u.log('['+desc+']-problem with request: ' + e.message,options.debug, options.debuglines);
   });
 
   if (data) {
-    if (options.verbose)
-      console.log('['+desc+']-send data: '+data);
+    u.log('['+desc+']-send data: '+data,options.debug, options.debuglines);
     req.write(data);
   }
 
@@ -271,13 +272,11 @@ function chainOfRequestsX(options, sequence, i, cb) {
   options.headers['content-length'] = data_str ? data_str.length : '0';
 
 
-  if (options.verbose)
-    console.log('['+sequence[i].title+']-REQUEST BODY: '+data_str);
+  u.log('['+sequence[i].title+']-REQUEST BODY: '+data_str,options.debug, options.debuglines);
   doHttpsRequest(sequence[i].title, options, data_str, undefined, function(o, r, c) {
     if (r.code!=200)
       return cb(new Error('['+sequence[i].title+'] - terminata con codice: '+r.code));
-    if (options.verbose)
-      console.log('['+(i+1)+' '+sequence[i].title+'] - RICHIESTA EFFETTUATA CON SUCCESSO, CONTENT: '+c);
+    u.log('['+(i+1)+' '+sequence[i].title+'] - RICHIESTA EFFETTUATA CON SUCCESSO, CONTENT: '+c,options.debug>=2, options.debuglines);
 
     if (i>=sequence.length-1 || sequence[i].end)
       return cb(null, c);
