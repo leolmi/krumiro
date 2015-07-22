@@ -26,11 +26,11 @@ function check(user, cb) {
     method:'POST',
     path: process.env.INAZ_PATH_CHECK,
     keepAlive:true,
-    verbose:false,
+    verbose:true,
     headers:{
       'content-type':w.constants.content_type_appwww,
       'content-length':str_data.length,
-      'Connection': 'close'
+      'connection': 'close'
     }
   };
 
@@ -75,7 +75,7 @@ exports.data = function(req, res) {
     method:'GET',
     path: process.env.INAZ_PATH_LOGIN,
     keepAlive:true,
-    verbose: false,
+    verbose: true,
     headers:{
       'accept':w.constants.content_accept_text,
       'accept-language':'it-IT',
@@ -106,7 +106,7 @@ exports.data = function(req, res) {
           IdLogin: reqopt.user.name,
           IdPwdCript: encpsw,
           IdFrom: 'LOGIN',
-          RetturnTo: process.env.INAZ_PATH_REFERER_LOGIN
+          ReturnTo: process.env.INAZ_PATH_REFERER_LOGIN
         }
       },{
         title:'TOPM',

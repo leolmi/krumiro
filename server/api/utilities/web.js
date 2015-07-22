@@ -9,6 +9,33 @@ var https = require('https');
 var http = require('http');
 var querystring = require('querystring');
 
+var automaticHeaders = {
+  connection: true,
+  'content-length': true,
+  'transfer-encoding': true,
+  date: true
+};
+
+http.OutgoingMessage.prototype.setHeader = function(name, value) {
+  if (arguments.length < 2) {
+    throw new Error('`name` and `value` are required for setHeader().');
+  }
+
+  if (this._header) {
+    throw new Error('Can\'t set headers after they are sent.');
+  }
+
+  // NO LOWER CASE
+  var key = name.toLowerCase();
+  this._headers = this._headers || {};
+  this._headerNames = this._headerNames || {};
+  this._headers[key] = value;
+  this._headerNames[key] = name;
+
+  if (automaticHeaders[key]) {
+    this._removedHeader[key] = false;
+  }
+};
 
 exports.constants = {
   content_type_appwww: 'application/x-www-form-urlencoded',
@@ -215,7 +242,7 @@ function chainOfRequestsX(options, sequence, i, cb) {
   if (sequence[i].referer) options.headers.referer = sequence[i].referer;
   if (sequence[i].headers) {
     for(var pn in sequence[i].headers)
-      options.headers[pn.toLowerCase()] = sequence[i].headers[pn];
+      options.headers[pn] = sequence[i].headers[pn];
   }
 
   if (options.keepers && options.keepers.length){
@@ -241,7 +268,7 @@ function chainOfRequestsX(options, sequence, i, cb) {
   else if (sequence[i].data)
     data_str = getData(sequence[i].data);
 
-  options.headers['content-length'] = data_str ? data_str.length : 0;
+  options.headers['content-length'] = data_str ? data_str.length : '0';
 
 
   if (options.verbose)
