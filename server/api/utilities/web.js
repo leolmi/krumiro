@@ -276,7 +276,7 @@ function chainOfRequestsX(options, sequence, i, cb) {
   doHttpsRequest(sequence[i].title, options, data_str, undefined, function(o, r, c) {
     if (r.code!=200)
       return cb(new Error('['+sequence[i].title+'] - terminata con codice: '+r.code));
-    u.log('['+(i+1)+' '+sequence[i].title+'] - RICHIESTA EFFETTUATA CON SUCCESSO, CONTENT: '+c,options.debug>=2, options.debuglines);
+    u.log('['+(i+1)+' '+sequence[i].title+'] - CONTENT: '+c,options.debug, options.debuglines);
 
     if (i>=sequence.length-1 || sequence[i].end)
       return cb(null, c);
