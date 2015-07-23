@@ -140,15 +140,16 @@ function excludeDebug(k,v){
 function parseCookies(cookie, res) {
   var sc = ''+res.headers['set-cookie'];
   if (u.isNotNullOrEmpty(sc)){
-    var m = sc.match(/(.*?)=(.*?);/);
-    if (u.isNotNullOrEmpty(m,2)) {
-      if (u.isNotNullOrEmpty(cookie)) {
-        // se il cookie esiste già non lo valorizza di nuovo
-        if (cookie.indexOf(m[1] + '=') >= 0)
-          return cookie;
-        cookie += ';'+m[1] + '=' + m[2];
+    sc = ','+sc;
+    cookie = cookie ? cookie : '';
+    var rgx = /,([^,;]+?)=(.*?);/g;
+    var m = rgx.exec(sc);
+    while(m!=null) {
+      if (cookie.indexOf(m[1] + '=') < 0) {
+        if (cookie.length>0) cookie += ';';
+        cookie += m[1] + '=' + m[2];
       }
-      else cookie = m[1] + '=' + m[2];
+      m = rgx.exec(sc);
     }
   }
   return cookie;

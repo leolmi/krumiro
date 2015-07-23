@@ -137,7 +137,8 @@ function milk(o, cb) {
     host:  process.env.AMN_HOST,
     method:'GET',
     keepAlive:true,
-    verbose:false,
+    debuglines: o.debuglines,
+    debug: o.debug,
     headers:{
       'accept': w.constants.content_accept_text,
       'accept-language': w.constants.accept_language_iteeng,
@@ -192,8 +193,12 @@ exports.data = function(req, res) {
   var o = u.checkReqOpt(req);
   if (!o) return w.error(res, new Error('Utente non definito correttamente!'));
 
+  o.debuglines = [];
+
   milk(o, function(err, table){
-    if (err) return w.error(res, err);
-    return w.ok(res, table);
+    if (err) return w.error(res, err, o.debuglines);
+    var results = { data: table };
+    if (o.debug) results.debug = o.debuglines;
+    return w.ok(res, results);
   });
 };

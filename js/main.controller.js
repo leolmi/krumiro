@@ -101,7 +101,7 @@ angular.module('krumiroApp')
     }
 
     function debugPrint(title, content){
-      if (!$scope.context.options.debug) retrun;
+      if (!$scope.context.options.debug) return;
       $scope.debuglines = $scope.debuglines || [];
       $scope.debuglines.push(title);
       if ($.isArray(content))
@@ -848,12 +848,13 @@ angular.module('krumiroApp')
         user: $scope.context.user,
         date: $scope.context.rap.date,
         advanced: $scope.context.rap.advanced,
-        todate: $scope.context.rap.todate
+        todate: $scope.context.rap.todate,
+        debug: $scope.context.options.debug
       };
       $http.post('/api/rap', reqopt)
         .success(function(results) {
-          debugPrint('Risultati della mungitura rapportini:', results);
-          $scope.context.rap.items = results;
+          debugPrint('Risultati della mungitura rapportini:', results.debug);
+          $scope.context.rap.items = results.data;
           $scope.milking = false;
         })
         .error(function(err){
@@ -916,12 +917,13 @@ angular.module('krumiroApp')
       $scope.milking = true;
       var reqopt = {
         user: $scope.context.ass,
-        SSL: $scope.context.amonalie.o.SSL
+        SSL: $scope.context.amonalie.o.SSL,
+        debug: $scope.context.options.debug
       };
       $http.post('/api/amonalie', reqopt)
         .success(function(results) {
-          debugPrint('Risultati della mungitura amonalie:', results);
-          var rows = getRows(results);
+          debugPrint('Risultati della mungitura amonalie:', results.debug);
+          var rows = getRows(results.data);
           $scope.context.amonalie.headers = rows.shift();
           $scope.context.amonalie.items = rows;
 

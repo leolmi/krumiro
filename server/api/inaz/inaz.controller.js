@@ -183,8 +183,7 @@ exports.data = function(req, res) {
           if (!reqopt.all)
             results.data = results.data.filter(function (d) { return d['C1'] == reqopt.today; }).reverse();
           u.log('[data] - risultati:'+JSON.stringify(results),reqopt.debug, debuglines);
-          if (reqopt.debug)
-            results.debug = debuglines;
+          if (reqopt.debug) results.debug = debuglines;
           return w.ok(res, results);
         });
       });

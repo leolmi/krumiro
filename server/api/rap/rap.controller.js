@@ -95,18 +95,24 @@ exports.data = function(req, res) {
   if (!o) return w.error(res, new Error('Utente non definito correttamente!'));
   if (!o.date) return w.error(res, new Error('Data di riferimento non definita correttamente!'));
 
+  o.debuglines = [];
+  var results = {};
   if (o.advanced && o.todate){
     var months = getMonths(o);
     multimilk(o, months, function(err, table){
       //console.log('Fine estrazione multipla. errori:'+(err ? 'si' : 'no'));
-      if (err) return w.error(res, err);
-      return w.ok(res, table);
+      if (err) return w.error(res, err, o.debuglines);
+      results.data = table;
+      if (o.debug) results.debug = o.debuglines;
+      return w.ok(res, results);
     });
   }
   else{
     milk(o, function(err, table){
-      if (err) return w.error(res, err);
-      return w.ok(res, table);
+      if (err) return w.error(res, err, o.debuglines);
+      results.data = table;
+      if (o.debug) results.debug = o.debuglines;
+      return w.ok(res, results);
     });
   }
 };
@@ -123,7 +129,9 @@ function multimilk(o, months, cb, index, results) {
   results = results || [];
   var opt = {
     user: o.user,
-    date: months[index]
+    date: months[index],
+    debug: o.debug,
+    debuglines: o.debuglines
   };
   //console.log('Multimilk: '+months[index]);
   milk(opt, function(err, table){
@@ -143,7 +151,8 @@ function milk(o, cb) {
     host:  process.env.RAP_HOST,
     method:'GET',
     keepAlive:true,
-    verbose:false,
+    debug: o.debug,
+    debuglines: o.debuglines,
     keepers:[
       { name:'__VIEWSTATE', pattern:'<input.*?name="__VIEWSTATE".*?value="(.*?)".*?>'},
       { name:'__VIEWSTATEGENERATOR', pattern:'<input.*?name="__VIEWSTATEGENERATOR".*?value="(.*?)".*?>' },
