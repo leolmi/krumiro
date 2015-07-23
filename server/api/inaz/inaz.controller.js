@@ -172,8 +172,10 @@ exports.data = function(req, res) {
 
       w.chainOfRequests(o1, sequence, function(err, c3){
         if (err) return w.error(res, err, debuglines);
+        u.log('[chain] - RESULT: '+JSON.stringify(c3),reqopt.debug, debuglines);
 
         var table = parseInaz(c3);
+        u.log('[table] - parser: '+JSON.stringify(table),reqopt.debug, debuglines);
 
         manageHistory(reqopt, table, function(err, results) {
           if (err)

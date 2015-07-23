@@ -37,6 +37,11 @@ exports.uuid = function(template) {
   return id;
 };
 
+function isNotNullOrEmpty(arr){
+  return arr && arr.length>0;
+}
+exports.isNotNullOrEmpty = isNotNullOrEmpty;
+
 function merge(v, tmpl) {
   tmpl = tmpl || '00';
   v = ''+v;

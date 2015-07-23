@@ -229,7 +229,6 @@ function checkKeepers(options, content) {
   }
 }
 
-
 /**
  * Effettua una catena di chiamate sequenziali
  * @param {object} options
@@ -281,8 +280,8 @@ function chainOfRequestsX(options, sequence, i, cb) {
     if (i>=sequence.length-1 || sequence[i].end)
       return cb(null, c);
 
-    if (r.headers['set-cookie'])
-      options.headers.cookie = r.headers['set-cookie'];
+    if (u.isNotNullOrEmpty(r.headers['set-cookie']))
+      options.headers.cookie = _.union(options.headers.cookie, r.headers['set-cookie']);
 
     checkKeepers(options, c);
 
