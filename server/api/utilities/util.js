@@ -37,8 +37,15 @@ exports.uuid = function(template) {
   return id;
 };
 
-function isNotNullOrEmpty(arr){
-  return arr && arr.length>0;
+/**
+ * Verifica che l'elemento non sia nullo e abbia una lunghezza maggiore di l (default=0)
+ * @param arr
+ * @param l
+ * @returns {*|boolean}
+ */
+function isNotNullOrEmpty(arr, l){
+  l = l || 0;
+  return arr && arr.length>l;
 }
 exports.isNotNullOrEmpty = isNotNullOrEmpty;
 

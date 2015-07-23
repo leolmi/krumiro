@@ -137,6 +137,23 @@ function excludeDebug(k,v){
   return v;
 }
 
+function parseCookies(cookie, res) {
+  var sc = ''+res.headers['set-cookie'];
+  if (u.isNotNullOrEmpty(sc)){
+    var m = sc.match(/(.*?)=(.*?);/);
+    if (u.isNotNullOrEmpty(m,2)) {
+      if (u.isNotNullOrEmpty(cookie)) {
+        // se il cookie esiste già non lo valorizza di nuovo
+        if (cookie.indexOf(m[1] + '=') >= 0)
+          return cookie;
+        cookie += ';'+m[1] + '=' + m[2];
+      }
+      else cookie = m[1] + '=' + m[2];
+    }
+  }
+  return cookie;
+}
+
 /**
  * Richiesta
  * @param desc
@@ -170,8 +187,7 @@ var doHttpsRequest = function(desc, options, data, target, cb) {
       }
       options.path = path;
       u.log('Redir new path:'+options.path,options.debug, options.debuglines);
-      if (res.headers['set-cookie'])
-        options.headers.cookie = res.headers['set-cookie'];
+      options.headers.cookie = parseCookies(options.headers.cookie, res);
       doHttpsRequest('redir - '+desc, options, data, null, cb);
     }
 
@@ -280,8 +296,7 @@ function chainOfRequestsX(options, sequence, i, cb) {
     if (i>=sequence.length-1 || sequence[i].end)
       return cb(null, c);
 
-    if (u.isNotNullOrEmpty(r.headers['set-cookie']))
-      options.headers.cookie = _.union(options.headers.cookie, r.headers['set-cookie']);
+    options.headers.cookie = parseCookies(options.headers.cookie, r);
 
     checkKeepers(options, c);
 
