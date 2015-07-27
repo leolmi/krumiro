@@ -186,6 +186,7 @@ tempi-item > input.alarmed {
   padding: 24px;
   height: auto;
 }
+
 .page-inaz {
   top: 0;
 }
@@ -288,22 +289,42 @@ progress-clock {
 
 
 .analisys {
-  position: absolute;
-  width: 500px;
-  margin-top: -24px;
-  z-index: 8;
-  display: none;
+  height: 0;
+  /*padding: 0 30px;*/
+  margin-bottom: 10px;
+  overflow: hidden;
   -moz-transition: all .50s ease-in-out;
   -o-transition: all .50s ease-in-out;
   -webkit-transition: all .50s ease-in-out;
   transition: all .50s ease-in-out;
 }
+.analisys-internal {
+  height: 0;
+  position: absolute;
+  padding: 0 50px;
+  left: -25px;
+  width: calc(100% + 50px);
+  background-color: #333;
+  overflow: hidden;
+  -moz-transition: all .50s ease-in-out;
+  -o-transition: all .50s ease-in-out;
+  -webkit-transition: all .50s ease-in-out;
+  transition: all .50s ease-in-out;
+}
+.analisys.visible > .analisys-internal {
+  height: 200px;
+  padding: 10px 50px;
+}
+.analisys.visible {
+  height: 200px;
+  /*padding: 10px 30px;*/
+}
+
 .analisys .form-control {
   width: 100px;
 }
 
 .analisys.visible {
-  margin-left: 500px;
   display: block;
 }
 
@@ -313,10 +334,10 @@ progress-clock {
 
 .analisys-results > p {
   color: #777;
+  font-size: 11px;
 }
 
 .details-analisys{
-  /*visibility: hidden;   *//*<< INVISIBILE*/
   position: relative;
   top: 50px;
   width: 62px;

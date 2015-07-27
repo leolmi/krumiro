@@ -1,0 +1,21 @@
+<div class="analisys" ng-class="{'visible':context.inaz.analisys.show}">
+  <div class="analisys-internal">
+    <form class="form-horizontal">
+      <div class="form-group">
+        <label class="col-xs-5 control-label">Periodo:  da / a</label>
+        <div class="col-xs-7">
+          <input class="form-control" type="text" ng-model="context.inaz.analisys.da" ng-change="recalcAnal()"> /
+          <input class="form-control" type="text" ng-model="context.inaz.analisys.a" ng-change="recalcAnal()">
+        </div>
+      </div>
+    </form>
+    <div class="analisys-results" ng-show="context.inaz.analisys.results">
+      <dl class="dl-horizontal">
+        <dt ng-repeat-start="res in context.inaz.analisys.results">{{res.name}}</dt>
+        <dd ng-repeat-end>{{res.value}}</dd>
+      </dl>
+      <p>* Se positiva rappresenta le ore lavorate in più rispetto all'orario concordato.</p>
+    </div>
+  </div>
+</div>
+<line-chart ng-repeat="i in context.inaz.items" ng-model="i"></line-chart>

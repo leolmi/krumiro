@@ -2,7 +2,7 @@
  * Created by Leo on 01/04/2015.
  */
 angular.module('krumiroApp')
-  .controller('TempiCtrl', ['$scope','$http','$interval','$timeout','$window','AES','Logger', function ($scope,$http,$interval,$timeout,$window,AES,Logger) {
+  .controller('TempiCtrl', ['$scope','$http','$interval','$timeout','$window','Utilities','AES','Logger', function ($scope,$http,$interval,$timeout,$window,U,AES,Logger) {
     var alarm = new Audio('assets/media/alarm.mp3');
     var alarmOwner;
     var scrt = '431a12934fc4914912895c5103aa51b0';
@@ -12,7 +12,6 @@ angular.module('krumiroApp')
 
     $scope.helpon = false;
     $scope.helpstyle = { top: helpstyle_hidden };
-    $scope.analisyson = false;
     $scope.showopt = false;
     $scope.optstyle = { height: 0 };
     $scope.progress = {
@@ -312,21 +311,6 @@ angular.module('krumiroApp')
       return (u>0 && e>0 && e>$scope.context.options.start_lunch && u<$scope.context.options.end_lunch);
     }
 
-    /**
-     * Restituisce il valore numerico (minuti) in formato time:
-     * 500 ->  8:20
-     * @param {Number} m
-     * @returns {string}
-     */
-    function getTime(m) {
-      var sign = (m<0) ? -1 : 1;
-      if (m<0) m = -m;
-      var hT = Math.floor(m/60);
-      var mT = m-(hT*60);
-      if (mT.toString().length<2) mT='0'+mT;
-      return (hT*sign)+':'+mT;
-    }
-
     var days = ['Domenica','Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato'];
     var months = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
     /**
@@ -389,7 +373,7 @@ angular.module('krumiroApp')
           var p = m1 - m2;
           if (p<$scope.context.options.min_lunch) { mP = $scope.context.options.min_lunch - p; p = $scope.context.options.min_lunch; }
           if (p>$scope.context.options.max_lunch) { mP = p - $scope.context.options.max_lunch; p = $scope.context.options.max_lunch; }
-          i.L = getTime(p);
+          i.L = U.getTime(p);
         }
         else i.lunch = false;
         m2 = calcMinutes(i,'U');
@@ -397,7 +381,7 @@ angular.module('krumiroApp')
         // se l'intervallo è valido aggiunge le ore di lavoro
         if (lastok) {
           var l = (m2 - m1);
-          i.minutes = getTime(l);
+          i.minutes = U.getTime(l);
           mL += l;
         }
         else i.minutes = 0;
@@ -429,7 +413,7 @@ angular.module('krumiroApp')
 
       $scope.context.startm = firstE;
       $scope.context.exitm = r;
-      $scope.context.exit = (r>0) ? getTime(r) : '?';
+      $scope.context.exit = (r>0) ? U.getTime(r) : '?';
       watchTime();
     };
 
@@ -452,14 +436,15 @@ angular.module('krumiroApp')
           U:''
         }],
         options:opt,
-        analisys:{
-          da:'01/01/2015',
-          a:$scope.getDate('small'),
-          results:[]
-        },
         inaz: {
           show: false,
-          items: []
+          items: [],
+          analisys:{
+            show: false,
+            da:'01/01/2015',
+            a:$scope.getDate('small'),
+            results:[]
+          }
         },
         rap: {
           items:[],
@@ -529,94 +514,9 @@ angular.module('krumiroApp')
     };
 
     $scope.analisys = function() {
-      $scope.analisyson = !$scope.analisyson;
-      if ($scope.analisyson)
-        $scope.recalcAnal();
-    };
-
-    /**
-     * Mergia due stringhe:
-     * esempio: '3'  tmpl='00'  -> '03'
-     * @param {string} v
-     * @param {string} [tmpl]
-     * @returns {string}
-     */
-    function merge(v, tmpl) {
-      tmpl = tmpl || '00';
-      if (v.length<tmpl.length)
-        v = tmpl.substr(0, tmpl.length-v.length)+v;
-      return v;
-    }
-
-    /**
-     * Decifra la stringa che rappresenta la data
-     * @param {string} str
-     * @returns {number}
-     */
-    function parseDate(str) {
-      var pattern = /(\d{1,2})\/(\d{1,2})\/(\d{4})/g;
-      if (!str || str.length > 10 || str.length<8) return 0;
-      var m = pattern.exec(str);
-      if (!m) return 0;
-      return parseInt(m[3]+merge(m[2])+merge(m[1]));
-    }
-
-    /**
-     * Calcola l'intervallo richiesto per il calcolo dei dati
-     * @param interval
-     * @returns {boolean}
-     */
-    function getInterval(interval){
-      interval.da = parseDate($scope.context.analisys.da);
-      interval.a = parseDate($scope.context.analisys.a);
-      return interval.da > 0 && interval.a > 0;
-    }
-
-    /**
-     * Calcola le ore lavorate
-     * @param {[object]} items
-     * @returns {number}
-     */
-    function calcWork(items){
-      var result = 0;
-      var e = 0;
-      items.forEach(function(i){
-        if (e>0) { result += (i.time-e); e=0; }
-        else e = i.time;
-      });
-      return result;
-    }
-
-    /**
-     * Struttura classe item [i]:
-     *    i.day = '01/01/2010'
-     *    i.items = [{time:491},{time:780},...]
-     */
-    $scope.recalcAnal = function() {
-      if (!$scope.context.inaz.items || $scope.context.inaz.items.length<=0) return;
-      var interval = {da:0,a:0};
-      if (!getInterval(interval)) return;
-      var res ={ days:0, work:0, done:0, perm:0 };
-
-      //Calcolo dei valori...
-      $scope.context.inaz.items.forEach(function(i){
-        if (i.dayn>=interval.da && i.dayn<=interval.a){
-          var done = calcWork(i.items);
-          if (done>0) {
-            res.days++;
-            res.work += i.work || (8 * 60);
-            res.done += done;
-            res.perm += i.perm || 0;
-          }
-        }
-      });
-
-      $scope.context.analisys.results = [
-        { name: "Giorni considerati", value:res.days },
-        { name: "Totale ore da lavorare", value:getTime(res.work) },
-        { name: "Totale ore lavorate", value:getTime(res.done) },
-        { name: "Permessi", value:getTime(res.perm) },
-        { name: "Differenza*", value:getTime(res.done - res.work + res.perm) }];
+      $scope.context.inaz.analisys.show = !$scope.context.inaz.analisys.show;
+      if ($scope.context.inaz.analisys.show)
+        $scope.context.inaz.analisys.calc();
     };
 
     /**
@@ -629,7 +529,7 @@ angular.module('krumiroApp')
       if (items.length<=0) return;
       var dayitem = {
         day: day,
-        dayn:parseDate(day),
+        dayn:U.parseDate(day),
         items: items.sort(timeCompare)
       };
       //aggiunge i meta del giorno
@@ -829,7 +729,7 @@ angular.module('krumiroApp')
       var rm = getNowM() - $scope.context.startm;
       var elps = $scope.context.exitm - nm;
       $scope.progress.value = (lm<=0 || rm<=0) ? 0 : Math.floor((rm * 100)/lm);
-      $scope.progress.elapsed = getTime(elps);
+      $scope.progress.elapsed = U.getTime(elps);
     },2000);
 
     function milkrap() {
@@ -918,18 +818,8 @@ angular.module('krumiroApp')
     };
 
 
-
-
     /**
      * Inizializza le opzioni
      */
     $scope.clear();
-
-    //note:
-    //function parsestr(s){
-    //  s = s.replace(/\t/g,'');
-    //  s = s.split(/\r\n\r\n\r\n\r\n/g);
-    //  return s;
-    //}
-    //$scope.test1 = parsestr($scope.test);
   }]);

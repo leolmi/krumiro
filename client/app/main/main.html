@@ -70,33 +70,14 @@
 <i class="details details-amonalie fa fa-2x fa-bug" ng-class="{'active':context.amonalie.show}" ng-click="toggleAmonalie()"></i>
 <i class="details details-history fa fa-2x fa-calendar" ng-class="{'enabled':context.user.name && context.user.password,'active':context.inaz.show}" ng-click="toggleInaz()"></i>
 <i class="details details-works fa fa-2x fa-paw" ng-class="{'enabled':context.user.name && context.user.password,'active':context.rap.show}" ng-click="toggleRap()"></i>
-<i class="details details-analisys fa fa-2x fa-calculator" ng-class="{'enabled':context.allDaysItems.length, 'opened':analisyson}" ng-click="analisys()" ng-show="context.allDaysItems.length"></i>
-<div class="popup-page page-inaz quando-container" ng-class="{'visible':context.inaz.show}">
-  <div class="analisys quando-container" ng-class="{'visible':context.inaz.show && analisyson}" ng-show="context.inaz.items.length">
-    <p>Analisi</p>
-    <form class="form-horizontal">
-      <div class="form-group">
-        <label class="col-xs-5 control-label">Periodo:  da / a</label>
-        <div class="col-xs-7">
-          <input class="form-control" type="text" ng-model="context.analisys.da" ng-change="recalcAnal()"> /
-          <input class="form-control" type="text" ng-model="context.analisys.a" ng-change="recalcAnal()">
-        </div>
-      </div>
-    </form>
-    <div class="analisys-results" ng-show="context.analisys && context.analisys.results">
-      <dl class="dl-horizontal">
-        <dt ng-repeat-start="res in context.analisys.results">{{res.name}}</dt>
-        <dd ng-repeat-end>{{res.value}}</dd>
-      </dl>
-      <p>* Se positiva rappresenta le ore lavorate in più rispetto all'orario concordato.</p>
-    </div>
-  </div>
+<div class="popup-page page-inaz quando-container" ng-class="{'visible':context.inaz.show,'large':context.inaz.analisys.show}">
   <div class="header">
     <span class="header-title">Storico</span>
     <i class="fa fa-2x fa-refresh aslink" ng-click="reloadInaz()"></i>
+    <i class="fa fa-2x fa-calculator aslink" ng-click="analisys()" ng-class="{'checked':context.inaz.analisys.show}"></i>
     <input id="history-file" type="file" class="hidden" ng-model-instant onchange="angular.element(this).scope().uploadHistoryContent(this)"/>
   </div>
-  <line-chart ng-repeat="i in context.inaz.items" ng-model="i"></line-chart>
+  <inaz ng-model="context"></inaz>
 </div>
 <div class="popup-page page-rapportini quando-container" ng-class="{'visible':context.rap.show}">
   <div class="header">
