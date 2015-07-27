@@ -301,27 +301,6 @@ angular.module('krumiroApp')
       return mt;
     }
 
-    /**
-     * Restituisce il numero di minuti dell'orario (per rapportini)
-     * @param t
-     * @returns {number}
-     */
-    function getMinutesRap(t) {
-      if (!t) return 0;
-      var pattern = /\d+/g;
-      var values = t.match(pattern);
-      var mt = 0;
-      if (values && values.length>0) {
-        var h = parse(values[0],0,23);
-        var m = 0;
-        if (values.length>1) {
-          m = parse(values[1],0,99);
-          m = m ? m/100 : 0;
-        }
-        mt = h+m;
-      }
-      return mt;
-    }
 
     /**
      * Determina se l'intervallo entrata - uscita è interpretabile come la pausa pranzo
@@ -348,7 +327,7 @@ angular.module('krumiroApp')
       return (hT*sign)+':'+mT;
     }
 
-    var days = ['Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato','Domenica'];
+    var days = ['Domenica','Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato'];
     var months = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
     /**
      * Restituisce la data nei formati:
@@ -365,7 +344,7 @@ angular.module('krumiroApp')
         return date.getDate()+sep+(date.getMonth()+1)+sep+date.getFullYear();
       if(mode=='verysmall')
         return (date.getMonth()+1)+sep+date.getFullYear();
-      return days[date.getDay()-1]+' '+date.getDate()+' '+months[date.getMonth()]+' '+date.getFullYear();
+      return days[date.getDay()]+' '+date.getDate()+' '+months[date.getMonth()]+' '+date.getFullYear();
     };
 
     /**
@@ -478,10 +457,19 @@ angular.module('krumiroApp')
           a:$scope.getDate('small'),
           results:[]
         },
+        inaz: {
+          show: false,
+          items: []
+        },
         rap: {
+          items:[],
+          show: false,
           date: $scope.getDate('verysmall'),
           advanced: false,
-          todate: $scope.getDate('verysmall')
+          todate: $scope.getDate('verysmall'),
+          headers:['Data','Cliente|Commessa','Lavoro','Attività','Descrizione|Idaol'],
+          fields:[],
+          selection: 0
         },
         amonalie:{
           o:{
@@ -513,14 +501,18 @@ angular.module('krumiroApp')
     /**
      * Avvia o chiude il processo di mungitura di tutte le rilevazioni
      */
-    $scope.inazall = function() {
-      if ($scope.context.allDaysItems && $scope.context.allDaysItems.length)
-        $scope.context.allDaysItems = [];
-      else {
-        $scope.context.rap.items = undefined;
+    $scope.toggleInaz = function() {
+      $scope.context.inaz.show = !$scope.context.inaz.show;
+      if ($scope.context.inaz.show) {
+        $scope.context.rap.show = false;
         $scope.context.amonalie.show = false;
-        milkinaz(true);
+        if (!$scope.context.inaz.items || $scope.context.inaz.items.length<=0)
+          milkinaz(true);
       }
+    };
+
+    $scope.reloadInaz = function() {
+      milkinaz(true);
     };
 
     function validateUser() {
@@ -601,13 +593,13 @@ angular.module('krumiroApp')
      *    i.items = [{time:491},{time:780},...]
      */
     $scope.recalcAnal = function() {
-      if (!$scope.context.allDaysItems || $scope.context.allDaysItems.length<=0) return;
+      if (!$scope.context.inaz.items || $scope.context.inaz.items.length<=0) return;
       var interval = {da:0,a:0};
       if (!getInterval(interval)) return;
       var res ={ days:0, work:0, done:0, perm:0 };
 
       //Calcolo dei valori...
-      $scope.context.allDaysItems.forEach(function(i){
+      $scope.context.inaz.items.forEach(function(i){
         if (i.dayn>=interval.da && i.dayn<=interval.a){
           var done = calcWork(i.items);
           if (done>0) {
@@ -671,7 +663,7 @@ angular.module('krumiroApp')
         items.push(i);
       });
       addItems(daysItems,day,items);
-      $scope.context.allDaysItems = daysItems;
+      $scope.context.inaz.items = daysItems;
     };
 
     /**
@@ -863,36 +855,22 @@ angular.module('krumiroApp')
         });
     }
 
-    $scope.togglerap = function() {
-      if ($scope.context.rap.items) {
-        $scope.context.rap.items = undefined;
-      }
-      else {
-        $scope.context.allDaysItems = [];
+    $scope.toggleRap = function() {
+      $scope.context.rap.show = !$scope.context.rap.show;
+      if ($scope.context.rap.show) {
+        $scope.context.inaz.show = false;
         $scope.context.amonalie.show = false;
-        milkrap();
+        if (!$scope.context.rap.items)
+          milkrap();
       }
     };
 
-    $scope.reloadRap = function() {
-      milkrap();
-    };
+    $scope.reloadRap = function() { milkrap(); };
 
-    $scope.toggleSel = function(i) {
-      i.selected = i.selected ? false : true;
-      $scope.getFilteredSummary();
-    };
-
-    $scope.clearSel = function() {
-      if ($scope.filtered)
-        $scope.filtered.forEach(function(f){ f.selected = false; });
-      $scope.getFilteredSummary();
-    };
-
-    $scope.toggleamonalie = function() {
+    $scope.toggleAmonalie = function() {
       if (!$scope.context.amonalie.show) {
-        $scope.context.allDaysItems = [];
-        $scope.context.rap.items = undefined;
+        $scope.context.inaz.show = false;
+        $scope.context.rap.show = false;
       }
       $scope.context.amonalie.show = !$scope.context.amonalie.show;
     };
@@ -939,45 +917,8 @@ angular.module('krumiroApp')
       $scope.context.amonalie.o.show = !$scope.context.amonalie.o.show;
     };
 
-    $scope.getFilteredSummary = function() {
-      var tot = 0;
-      var totv = 0;
-      var totsel = 0;
-      var totselv = 0;
-      var sel = 0;
-      if ($scope.filtered)
-        $scope.filtered.forEach(function(f){
-          var m = getMinutesRap(f['C5']);
-          var v = getMinutesRap(f['C7']);
-          tot += m;
-          totv += v;
-          if (f.selected) {
-            sel++;
-            totsel += m;
-            totselv += v;
-          }
-        });
-      $scope.rapSummary = tot;
-      $scope.rapSummaryV = totv;
-      $scope.rapSummaryGG = (tot / 8).toFixed(2);
-      $scope.rapSummaryVGG = (totv / 8).toFixed(2);
-      $scope.rapSummarySel = totsel;
-      $scope.rapSummarySelV = totselv;
-      $scope.rapSummarySelGG = (totsel / 8).toFixed(2);
-      $scope.rapSummarySelVGG = (totselv / 8).toFixed(2);
-      $scope.selection = sel;
-      return tot;
-    };
-
-    $scope.hendleKeySearch = function(e) {
-      if (e.keyCode==13)
-        $scope.reloadRap();
-    };
 
 
-    $scope.toggleAdvancedRap = function() {
-      $scope.context.rap.advanced = !$scope.context.rap.advanced;
-    };
 
     /**
      * Inizializza le opzioni
