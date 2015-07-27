@@ -28,7 +28,6 @@ angular.module('krumiroApp')
             scope: {context: '=ngModel'},
             templateUrl: 'components/amonalie/amonalie.html',
             link: function (scope, elm, atr) {
-
               scope.toggleDetails = function(r) {
                 r.details = r.details ? false : true;
               };
@@ -36,27 +35,6 @@ angular.module('krumiroApp')
               scope.toggleAmOptionValue = function(pn){
                 scope.context.amonalie.o[pn] = !scope.context.amonalie.o[pn];
               };
-
-              //scope.isSelected = function(r) { return (scope.context.amonalie.selection.indexOf(r)>=0); };
-              //
-              //scope.getStyle = function(r){
-              //  var s = {};
-              //  if (scope.context.amonalie.selection.indexOf(r)>=0){
-              //    s['row-selected']=true;
-              //  }
-              //  return s;
-              //};
-              //
-              //scope.select = function(r) {
-              //  if (!r) return;
-              //  if (!scope.context.amonalie.selection)
-              //    scope.context.amonalie.selection = [];
-              //  var idx = scope.context.amonalie.selection.indexOf(r);
-              //  if (idx<0)
-              //    scope.context.amonalie.selection.push(a);
-              //  else
-              //    scope.context.amonalie.selection.splice(idx,1);
-              //};
             }
         }
     }]);

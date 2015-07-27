@@ -1,0 +1,48 @@
+<div class="rap-header">
+  <div class="rap-controls-container">
+    <div class="rap-control rap-date">
+      <div class="input-group input-group-sm">
+        <span class="input-group-addon" id="sizing-addon1"><i class="fa fa-calendar"></i></span>
+        <input type="text" class="form-control" ng-model="context.rap.date"  aria-describedby="sizing-addon1" ng-keydown="handleKeySearch($event)"/>
+      </div>
+    </div>
+    <div class="rap-control rap-search">
+      <div class="input-group input-group-sm">
+        <span class="input-group-addon">{{filtered.length}}</span>
+        <input type="text" class="form-control" ng-model="context.rap.filter" />
+        <span class="input-group-addon"><i class="fa fa-search"></i></span>
+      </div>
+    </div>
+    <i class="fa advanced-toggler aslink" ng-class="{'fa-chevron-circle-down':!context.rap.advanced, 'fa-chevron-circle-up':context.rap.advanced}" ng-click="toggleAdvancedRap()"></i>
+  </div>
+  <div class="rap-advanced" ng-show="context.rap.advanced">
+    <div class="rap-control rap-date">
+      <div class="input-group input-group-sm">
+        <span class="input-group-addon" id="sizing-addon3"><i class="fa fa-calendar"></i></span>
+        <input type="text" class="form-control" ng-model="context.rap.todate"  aria-describedby="sizing-addon3" ng-keydown="handleKeySearch($event)"/>
+      </div>
+    </div>
+    <div class="description"><i class="fa fa-fw fa-hand-o-left"></i> ultimo mese di ricerca avanzata.</div>
+  </div>
+  <tag-editor tags="context.rap.fields" alltags="context.rap.headers"></tag-editor>
+</div>
+<div class="rap-results" ng-repeat="rap in filtered=(context.rap.items | rapfilter:context.rap)"
+     ng-click="toggleSel(rap)" ng-class="{'selected':rap.selected}">
+  <div class="index">{{$index+1}}</div>
+  <div class="desc"><p>{{rap['C1']}}</p><p>{{rap['C2']}}</p><p>{{rap['C3']}}</p></div>
+  <div class="idaol" ng-show="rap['C4']">[{{rap['C4']}}]</div>
+  <div class="location">{{rap['C6']}}</div>
+  <div class="date">{{rap['C0']}}</div>
+  <div class="time">{{rap['C5']}}<span ng-show="rap['C7'] && rap['C7']!='0:0'"> / {{rap['C7']}}</span></div>
+</div>
+<div class="no-rap" ng-show="!filtered || filtered.length<=0">Nessun elemento!</div>
+<div class="rap-summary" ng-show="context.rap.items">
+  <span class="value">{{filtered.length}}</span><small> elementi </small>
+  <small>Tot: </small><span class="value">{{getFilteredSummary()}}<span ng-show="rapSummaryV>0"> / {{rapSummaryV}}</span></span>
+  <small>hh (</small><span class="value">{{rapSummaryGG}}<span ng-show="rapSummaryVGG>0"> / {{rapSummaryVGG}}</span></span><small>gg)</small>
+</div>
+<div class="rap-summary rap-summary-sel" ng-show="context.rap.selection">
+  <span class="value">{{context.rap.selection}}</span><small> elementi </small>
+  <small>Tot: </small><span class="value">{{rapSummarySel}}<span ng-show="rapSummarySelV>0"> / {{rapSummarySelV}}</span></span>
+  <small>hh (</small><span class="value">{{rapSummarySelGG}}<span ng-show="rapSummarySelVGG>0"> / {{rapSummarySelVGG}}</span></span><small>gg)</small>
+</div>

@@ -37,6 +37,12 @@ http.OutgoingMessage.prototype.setHeader = function(name, value) {
   }
 };
 
+
+function getError(err, debug) {
+  if (debug && err) err.debug = debug;
+  return err;
+}
+
 exports.constants = {
   content_type_appwww: 'application/x-www-form-urlencoded',
   user_agent_moz: 'Mozilla/5.0 (Windows NT 6.3; WOW64; Trident/7.0; rv:11.0) like Gecko',
@@ -87,13 +93,10 @@ exports.notfound = notfound;
  * @returns {*}
  */
 var error = function(res, err, debug) {
-  if (debug && err) err.debug = debug;
+  err = getError(err, debug);
   return res.send(500, err);
 };
 exports.error = error;
-
-
-
 
 
 function getData(o, encode) {
@@ -220,6 +223,11 @@ var doHttpsRequest = function(desc, options, data, target, cb) {
 
   req.on('error', function(e) {
     u.log('['+desc+']-problem with request: ' + e.message,options.debug, options.debuglines);
+    var result = {
+      code:500,
+      error: e
+    };
+    cb(options, result);
   });
 
   if (data) {
@@ -251,7 +259,7 @@ function checkKeepers(options, content) {
  * @param {object} options
  * @param {array} sequence
  * @param {number} i
- * @param {Function} cb
+ * @param {Function} cb  //cb(error, content)
  */
 function chainOfRequestsX(options, sequence, i, cb) {
   if (sequence[i].method) options.method = sequence[i].method;
@@ -290,8 +298,10 @@ function chainOfRequestsX(options, sequence, i, cb) {
 
   u.log('['+sequence[i].title+']-REQUEST BODY: '+data_str,options.debug, options.debuglines);
   doHttpsRequest(sequence[i].title, options, data_str, undefined, function(o, r, c) {
-    if (r.code!=200)
-      return cb(new Error('['+sequence[i].title+'] - terminata con codice: '+r.code));
+    if (r.code!=200) {
+      var err = (r && r.error) ? r.error : new Error('[' + sequence[i].title + '] - terminata con codice: ' + r.code);
+      return cb(err);
+    }
     u.log('['+(i+1)+' '+sequence[i].title+'] - CONTENT: '+c,options.debug, options.debuglines);
 
     if (i>=sequence.length-1 || sequence[i].end)

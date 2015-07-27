@@ -26,7 +26,7 @@
     </div>
   </div>
 </div>
-<div class="am-row" ng-repeat="r in filtered = (context.amonalie.items | advfilter:context.amonalie)">
+<div class="am-row" ng-repeat="r in filtered = (context.amonalie.items | amfilter:context.amonalie)">
   <div class="am-index">{{$index+1}}</div>
   <!-- Codice / Data -->
   <div class="am-base-data">{{r.values[0]}} <i>{{r.values[1]}}</i></div>

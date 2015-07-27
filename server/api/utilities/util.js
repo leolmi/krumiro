@@ -119,6 +119,7 @@ function checkReqOpt(req) {
   if (reqopt) {
     reqopt.today = getToday();
     if (!_.has(reqopt, 'SSL') ) reqopt.SSL = true;
+    reqopt.debuglines = [];
   }
 
   return (!reqopt || !reqopt.user || !reqopt.user.password || !reqopt.user.name) ? undefined : reqopt;

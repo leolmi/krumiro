@@ -1,11 +1,11 @@
-.debug-lines {
+.page-debug {
   margin: 0 50px;
 }
-.debug-lines > i {
+.page-debug > i {
   color: #aaa;
   margin: 0 20px 10px;
 }
-.debug-lines > pre {
+.page-debug > pre {
   font-size: 10px;
 }
 .quando-container {
@@ -34,13 +34,13 @@ i.checked {
   color: yellowgreen;
 }
 
-.calcolator {
+.page-main {
   position: relative;
   width: 500px;
   margin: 50px 0 20px 50px;
   z-index: 10;
 }
-.calcolator > kbd {
+.page-main > kbd {
   font-size: 10px;
   float: right;
   background-color: darkorange;
@@ -173,39 +173,31 @@ tempi-item > input.alarmed {
   top: 264px;
 }
 
-
-
-.amonalie-container {
-  overflow: hidden;
-}
-.allitems-charts,
-.rap-table {
-  overflow: inherit;
-}
-.allitems-charts,
-.rap-table,
-.amonalie-container{
+.popup-page {
   width: 500px;
   position: relative;
   margin-left: 50px;
   padding: 0 24px;
   height: 0;
   z-index: 10;
+  overflow: hidden;
 }
-
-.allitems-charts.visible,
-.rap-table.visible,
-.amonalie-container.visible {
+.popup-page.visible {
   padding: 24px;
   height: auto;
 }
-
-.amonalie-container.visible {
-  width: calc(100% - 100px);
+.page-inaz {
+  top: 0;
+}
+.page-rapportini {
+  top: -20px;
+}
+.page-amonalie {
+  top: -40px;
 }
 
-.allitems-charts.visible {
-  top: -50px;
+.page-amonalie.visible {
+  width: calc(100% - 100px);
 }
 
 
@@ -222,13 +214,13 @@ tempi-item > input.alarmed {
   margin-top: 2px;
 }
 
-.calcolator > .fa-stack {
+.page-main > .fa-stack {
   position: absolute;
   left: 10px;
   bottom: 10px;
 }
 
-.q-help {
+.page-help {
   position: absolute;
   margin-left: 650px;
   width: 550px;
@@ -239,18 +231,18 @@ tempi-item > input.alarmed {
   transition: all .50s ease-in-out;
 }
 
-.q-help > h1 {
+.page-help > h1 {
   font-size: 30px;
 }
-.q-help > p {
+.page-help > p {
   margin-top: 50px;
 }
-.q-help > p > a {
+.page-help > p > a {
   text-decoration: none;
   color: inherit;
   font-size: 20px;
 }
-.q-help > p > a:hover{
+.page-help > p > a:hover{
   color: #000;
 }
 .q-section > h1 {
@@ -340,112 +332,3 @@ progress-clock {
 }
 
 
-.rap-table {
-  overflow: hidden;
-}
-
-.rap-results {
-  position: relative;
-  padding: 4px;
-  border-radius: 6px;
-  margin: 2px 0;
-}
-.rap-results:hover {
-  background-color: #111;
-}
-.rap-results.selected {
-  background-color: darkorange;
-}
-.rap-results > .index {
-  position: absolute;
-  left: -20px;
-  color: #777;
-  font-size: 10px;
-}
-.rap-results > .location {
-  position: absolute;
-  right: 160px;
-  top: 2px;
-  color: #777;
-  font-size: 12px;
-}
-.rap-results > .date {
-  position: absolute;
-  right: 80px;
-  top: 0;
-}
-.rap-results > .time {
-  position: absolute;
-  right: 0;
-  top: 0;
-}
-.rap-results > .time > span {
-  font-size: 11px;
-}
-.rap-results > .idaol {
-  color: #777;
-  font-size: 10px;
-}
-.rap-results > .desc {
-  font-size: 10px;
-  max-width: 260px;
-  text-overflow: ellipsis;
-  overflow: hidden;
-}
-.rap-results > .desc > p {
-  margin: 0;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  max-width: 260px;
-  overflow: hidden;
-}
-.rap-summary {
-  border-top: #777 1px solid;
-  margin: 20px 0 0;
-  padding: 10px 0 0;
-  text-align: right;
-  color: #777;
-}
-.rap-summary-sel {
-  padding: 5px 0 0;
-  border: none;
-  margin: 0;
-}
-.rap-summary > .value {
-  color: yellowgreen;
-  font-weight: bold;
-}
-.rap-summary-sel > .value {
-  color: darkorange;
-}
-.rap-controls-container {
-  position: relative;
-}
-.rap-control {
-  display: inline-block;
-}
-.rap-date {
-  width: 120px;
-}
-.rap-search {
-  width: 310px;
-}
-.no-rap {
-  text-align: center;
-  color: #777;
-}
-.advanced-toggler {
-  position: absolute;
-  right: 0;
-  top: 8px;
-  font-size: 1.5em;
-}
-.rap-advanced {
-  position: relative;
-}
-.rap-advanced > .description {
-  display: inline-block;
-  position: absolute;
-  font-size: 12px;
-  padding: 10px;
-}

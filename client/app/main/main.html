@@ -1,4 +1,4 @@
-<div class="calcolator quando-container visible">
+<div class="page-main quando-container visible">
   <div class="header">
     Oggi è {{getDate()}}
     <i class="fa fa-2x fa-trash aslink" ng-click="clear()"></i>
@@ -67,12 +67,12 @@
   <kbd>beta</kbd>
 </div>
 <i class="details details-help fa fa-2x fa-user-md" ng-class="{'active':helpon}" ng-click="help()"></i>
-<i class="details details-amonalie fa fa-2x fa-bug" ng-class="{'active':context.amonalie.show}" ng-click="toggleamonalie()"></i>
-<i class="details details-history fa fa-2x fa-calendar" ng-class="{'enabled':context.user.name && context.user.password,'active':context.allDaysItems.length}" ng-click="inazall()"></i>
-<i class="details details-works fa fa-2x fa-paw" ng-class="{'enabled':context.user.name && context.user.password,'active':context.rap.items}" ng-click="togglerap()"></i>
+<i class="details details-amonalie fa fa-2x fa-bug" ng-class="{'active':context.amonalie.show}" ng-click="toggleAmonalie()"></i>
+<i class="details details-history fa fa-2x fa-calendar" ng-class="{'enabled':context.user.name && context.user.password,'active':context.inaz.show}" ng-click="toggleInaz()"></i>
+<i class="details details-works fa fa-2x fa-paw" ng-class="{'enabled':context.user.name && context.user.password,'active':context.rap.show}" ng-click="toggleRap()"></i>
 <i class="details details-analisys fa fa-2x fa-calculator" ng-class="{'enabled':context.allDaysItems.length, 'opened':analisyson}" ng-click="analisys()" ng-show="context.allDaysItems.length"></i>
-<div class="allitems-charts quando-container" ng-class="{'visible':context.allDaysItems.length}">
-  <div class="analisys quando-container" ng-class="{'visible':context.allDaysItems.length && analisyson}" ng-show="context.allDaysItems.length">
+<div class="popup-page page-inaz quando-container" ng-class="{'visible':context.inaz.show}">
+  <div class="analisys quando-container" ng-class="{'visible':context.inaz.show && analisyson}" ng-show="context.inaz.items.length">
     <p>Analisi</p>
     <form class="form-horizontal">
       <div class="form-group">
@@ -93,61 +93,20 @@
   </div>
   <div class="header">
     <span class="header-title">Storico</span>
+    <i class="fa fa-2x fa-refresh aslink" ng-click="reloadInaz()"></i>
     <input id="history-file" type="file" class="hidden" ng-model-instant onchange="angular.element(this).scope().uploadHistoryContent(this)"/>
   </div>
-  <line-chart ng-repeat="i in context.allDaysItems" ng-model="i"></line-chart>
+  <line-chart ng-repeat="i in context.inaz.items" ng-model="i"></line-chart>
 </div>
-<div class="rap-table quando-container" ng-class="{'visible':context.rap.items}">
+<div class="popup-page page-rapportini quando-container" ng-class="{'visible':context.rap.show}">
   <div class="header">
     <span class="header-title">Rapportini</span>
     <i class="fa fa-2x fa-refresh aslink" ng-click="reloadRap()"></i>
-    <i class="fa fa-2x fa-eraser aslink" ng-click="clearSel()" ng-show="selection"></i>
-    <div class="rap-controls-container">
-      <div class="rap-control rap-date">
-        <div class="input-group input-group-sm">
-          <span class="input-group-addon" id="sizing-addon1"><i class="fa fa-calendar"></i></span>
-          <input type="text" class="form-control" ng-model="context.rap.date"  aria-describedby="sizing-addon1" ng-keydown="hendleKeySearch($event)"/>
-        </div>
-      </div>
-      <div class="rap-control rap-search">
-        <div class="input-group input-group-sm">
-          <span class="input-group-addon" id="sizing-addon2"><i class="fa fa-search"></i></span>
-          <input type="text" class="form-control" ng-model="context.rap.filter" aria-describedby="sizing-addon2"/>
-        </div>
-      </div>
-      <i class="fa advanced-toggler aslink" ng-class="{'fa-chevron-circle-down':!context.rap.advanced, 'fa-chevron-circle-up':context.rap.advanced}" ng-click="toggleAdvancedRap()"></i>
-    </div>
-    <div class="rap-advanced" ng-show="context.rap.advanced">
-      <div class="rap-control rap-date">
-        <div class="input-group input-group-sm">
-          <span class="input-group-addon" id="sizing-addon3"><i class="fa fa-calendar"></i></span>
-          <input type="text" class="form-control" ng-model="context.rap.todate"  aria-describedby="sizing-addon3" ng-keydown="hendleKeySearch($event)"/>
-        </div>
-      </div>
-      <div class="description"><i class="fa fa-fw fa-hand-o-left"></i> ultimo mese di ricerca avanzata.</div>
-    </div>
+    <i class="fa fa-2x fa-eraser aslink" ng-click="context.rap.clear()" ng-show="context.rap.selection"></i>
   </div>
-  <div class="rap-results" ng-repeat="rap in filtered=(context.rap.items | filter:context.rap.filter)" ng-click="toggleSel(rap)" ng-class="{'selected':rap.selected}">
-    <div class="index">{{$index+1}}</div>
-    <div class="desc"><p>{{rap['C1']}}</p><p>{{rap['C2']}}</p><p>{{rap['C3']}}</p></div>
-    <div class="idaol" ng-show="rap['C4']">[{{rap['C4']}}]</div>
-    <div class="location">{{rap['C6']}}</div>
-    <div class="date">{{rap['C0']}}</div>
-    <div class="time">{{rap['C5']}}<span ng-show="rap['C7'] && rap['C7']!='0:0'"> / {{rap['C7']}}</span></div>
-  </div>
-  <div class="no-rap" ng-show="!filtered || filtered.length<=0">Nessun elemento!</div>
-  <div class="rap-summary" ng-show="context.rap.items">
-    <span class="value">{{filtered.length}}</span><small> elementi </small>
-    <small>Tot: </small><span class="value">{{getFilteredSummary()}}<span ng-show="rapSummaryV>0"> / {{rapSummaryV}}</span></span>
-    <small>hh (</small><span class="value">{{rapSummaryGG}}<span ng-show="rapSummaryVGG>0"> / {{rapSummaryVGG}}</span></span><small>gg)</small>
-  </div>
-  <div class="rap-summary rap-summary-sel" ng-show="selection">
-    <span class="value">{{selection}}</span><small> elementi </small>
-    <small>Tot: </small><span class="value">{{rapSummarySel}}<span ng-show="rapSummarySelV>0"> / {{rapSummarySelV}}</span></span>
-    <small>hh (</small><span class="value">{{rapSummarySelGG}}<span ng-show="rapSummarySelVGG>0"> / {{rapSummarySelVGG}}</span></span><small>gg)</small>
-  </div>
+  <rapportini ng-model="context"></rapportini>
 </div>
-<div class="amonalie-container quando-container" ng-class="{'visible':context.amonalie.show}">
+<div class="popup-page page-amonalie quando-container" ng-class="{'visible':context.amonalie.show}">
   <div class="header">
     <span class="header-title">Amonalie</span>
     <i class="fa fa-2x fa-refresh aslink" ng-click="reloadAmonalie()"></i>
@@ -155,7 +114,7 @@
   </div>
   <amonalie ng-model="context"></amonalie>
 </div>
-<div class="q-help" ng-style="helpstyle">
+<div class="page-help" ng-style="helpstyle">
   <h1>{{instractions.title}}</h1>
   <div class="q-section" ng-repeat="s in instractions.sections">
     <h1><i class="fa fa-fw fa-3x" ng-class="s.icon"></i> {{s.title}}</h1>
@@ -163,7 +122,7 @@
   </div>
   <p>{{instractions.footer}} <a href="https://github.com/leolmi/Quando/issues"><i class="fa fa-user-md"></i></a></p>
 </div>
-<div class="debug-lines" ng-show="context.options.debug">
+<div class="page-debug" ng-show="context.options.debug">
   <i class="fa fa-eraser aslink" ng-click="debuglines=[]"></i>
   <pre ng-repeat="l in debuglines">{{l}}</pre>
 </div>

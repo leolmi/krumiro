@@ -65,13 +65,12 @@ function parseInaz(html) {
 
 
 exports.data = function(req, res) {
-  var debuglines = [];
   var reqopt = u.checkReqOpt(req);
   if (!reqopt) return w.error(res, new Error('Utente non definito correttamente!'));
 
   var options = {
     SSL: true,
-    debuglines: debuglines,
+    debuglines: reqopt.debuglines,
     debug: reqopt.debug,
     host: process.env.INAZ_HOST,
     method:'GET',
@@ -171,19 +170,19 @@ exports.data = function(req, res) {
       }];
 
       w.chainOfRequests(o1, sequence, function(err, c3){
-        if (err) return w.error(res, err, debuglines);
-        u.log('[chain] - RESULT: '+JSON.stringify(c3),reqopt.debug, debuglines);
+        if (err) return w.error(res, err, reqopt.debuglines);
+        u.log('[chain] - RESULT: '+JSON.stringify(c3),reqopt.debug, reqopt.debuglines);
 
         var table = parseInaz(c3);
-        u.log('[table] - parser: '+JSON.stringify(table),reqopt.debug, debuglines);
+        u.log('[table] - parser: '+JSON.stringify(table),reqopt.debug, reqopt.debuglines);
 
         manageHistory(reqopt, table, function(err, results) {
           if (err)
             results.error = err;
           if (!reqopt.all)
             results.data = results.data.filter(function (d) { return d['C1'] == reqopt.today; }).reverse();
-          u.log('[data] - risultati:'+JSON.stringify(results),reqopt.debug, debuglines);
-          if (reqopt.debug) results.debug = debuglines;
+          u.log('[data] - risultati:'+JSON.stringify(results),reqopt.debug, reqopt.debuglines);
+          if (reqopt.debug) results.debug = reqopt.debuglines;
           return w.ok(res, results);
         });
       });
@@ -211,11 +210,15 @@ function manageHistory(reqopt, data, cb) {
     results.meta.push({day:reqopt.today, perm:reqopt.perm, work:reqopt.work});
 
   var userdata = normalize(reqopt.user, results);
+  if (!reqopt.all) {
+    var partial = denormalize(userdata);
+    cb(null, partial);
+  }
   mergeHistory(userdata, function(err, res){
-    console.log('[manageHistory] - merged data results:'+JSON.stringify(res));
+    u.log('[manageHistory] - merged data results:'+JSON.stringify(res), reqopt.debug, reqopt.debuglines);
     var dendata = denormalize(res);
-    console.log('[manageHistory] - merged data denormalize results:'+JSON.stringify(dendata));
-    cb(err, dendata);
+    u.log('[manageHistory] - merged data denormalize results:'+JSON.stringify(dendata), reqopt.debug, reqopt.debuglines);
+    if (reqopt.all) cb(err, dendata);
   }, reqopt.today);
 }
 

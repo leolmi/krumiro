@@ -2,7 +2,7 @@
 'use strict';
 
 angular.module('krumiroApp')
-  .filter('advfilter', function() {
+  .filter('amfilter', function() {
     //var breakEx = {};
 
     String.prototype.checkCase = function(casesens) {

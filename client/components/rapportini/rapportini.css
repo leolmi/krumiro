@@ -1,0 +1,113 @@
+.rap-header {
+  margin-bottom: 20px;
+}
+
+.rap-results {
+  position: relative;
+  padding: 4px;
+  border-radius: 6px;
+  margin: 2px 0;
+}
+.rap-results:hover {
+  background-color: #111;
+}
+.rap-results.selected {
+  background-color: darkorange;
+}
+.rap-results > .index {
+  position: absolute;
+  left: -20px;
+  color: #777;
+  font-size: 10px;
+}
+.rap-results > .location {
+  position: absolute;
+  right: 160px;
+  top: 2px;
+  color: #777;
+  font-size: 12px;
+}
+.rap-results > .date {
+  position: absolute;
+  right: 80px;
+  top: 0;
+}
+.rap-results > .time {
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+.rap-results > .time > span {
+  font-size: 11px;
+}
+.rap-results > .idaol {
+  color: #777;
+  font-size: 10px;
+}
+.rap-results > .desc {
+  font-size: 10px;
+  max-width: 260px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+.rap-results > .desc > p {
+  margin: 0;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  max-width: 260px;
+  overflow: hidden;
+}
+.rap-summary {
+  border-top: #777 1px solid;
+  margin: 20px 0 0;
+  padding: 10px 0 0;
+  text-align: right;
+  color: #777;
+}
+.rap-summary-sel {
+  padding: 5px 0 0;
+  border: none;
+  margin: 0;
+}
+.rap-summary > .value {
+  color: yellowgreen;
+  font-weight: bold;
+}
+.rap-summary-sel > .value {
+  color: darkorange;
+}
+.rap-controls-container {
+  position: relative;
+}
+.rap-control {
+  display: inline-block;
+}
+.rap-date {
+  width: 120px;
+}
+.rap-search {
+  width: 300px;
+}
+.no-rap {
+  text-align: center;
+  color: #777;
+  margin: 20px;
+}
+
+.rap-advanced {
+  position: relative;
+}
+.rap-advanced > .description {
+  display: inline-block;
+  position: absolute;
+  font-size: 12px;
+  padding: 10px;
+}
+
+.advanced-toggler {
+  position: absolute;
+  right: 0;
+  top: 4px;
+  font-size: 1.5em;
+}
+
