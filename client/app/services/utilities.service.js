@@ -46,11 +46,7 @@ angular.module("krumiroApp")
     }
 
     //note:
-    //function parsestr(s){
-    //  s = s.replace(/\t/g,'');
-    //  s = s.split(/\r\n\r\n\r\n\r\n/g);
-    //  return s;
-    //}
+
     //$scope.test1 = parsestr($scope.test);
 
     return{

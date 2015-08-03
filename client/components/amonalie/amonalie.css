@@ -126,3 +126,11 @@ amonalie {
 .am-search {
   margin-bottom: 2px;
 }
+
+.no-amonalie {
+  text-align: center;
+  height: 100px;
+  vertical-align: middle;
+  padding-top: 50px;
+  color: #555;
+}

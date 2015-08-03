@@ -21,6 +21,7 @@
   "C18":"ReferenteTec",
   "C19":"Attribuzioni"
 */
+
 angular.module('krumiroApp')
     .directive('amonalie', [function () {
         return {

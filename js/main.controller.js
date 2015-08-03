@@ -465,7 +465,7 @@ angular.module('krumiroApp')
             fields:[]
           },
           show: false,
-          headers:{ values:['Codice','Data','Applicativo','Funzione','Versione','Stato','Oggetto','Descrizione','Istituto','Note','Tipo','Nome e cognome','eferenteTec','Attribuzioni']},
+          headers:{ values:['Codice','Data','Applicativo','Funzione','Versione','Stato','Oggetto','Descrizione','Istituto','Note','Tipo','Nome e cognome','ReferenteTec','Attribuzioni']},
           items:[],
           selection:[]
         },
