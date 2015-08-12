@@ -1,0 +1,20 @@
+.test-body {
+  margin: 50px;
+}
+
+.test-body > .form-control {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.test-fa-list {
+  position: relative;
+}
+.test-fa {
+  display: block;
+  color: white;
+  margin: 10px;
+}
+.test-fa > i {
+  margin-right: 20px;
+}

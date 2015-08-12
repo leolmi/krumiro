@@ -11,6 +11,7 @@ var router = express.Router();
 router.post('/', controller.data);
 router.post('/download', controller.download);
 router.post('/upload', controller.upload);
+router.post('/stat', controller.stat);
 
 
 module.exports = router;

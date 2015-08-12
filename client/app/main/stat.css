@@ -1,0 +1,40 @@
+.inaz-stat {
+  overflow: hidden;
+  height: 0;
+  /*background-color: #333;*/
+  /*color: #999;*/
+  /*font-size: 11px;*/
+  -moz-transition: all .50s ease-in-out;
+  -o-transition: all .50s ease-in-out;
+  -webkit-transition: all .50s ease-in-out;
+  transition: all .50s ease-in-out;
+}
+.inaz-stat .value {
+  color: yellowgreen;
+}
+
+.inaz-stat.visible {
+  height: 200px;
+  padding-top: 20px;
+}
+
+.inaz-stat-data {
+  height: 0;
+  overflow: hidden;
+  position: absolute;
+  left: 0;
+  width: 100%;
+  background-color: #333;
+  color: #999;
+  padding: 0 20px;
+  font-size: 12px;
+  -moz-transition: all .50s ease-in-out;
+  -o-transition: all .50s ease-in-out;
+  -webkit-transition: all .50s ease-in-out;
+  transition: all .50s ease-in-out;
+}
+
+.inaz-stat.visible .inaz-stat-data{
+  height: 154px;
+  padding: 10px 20px;
+}

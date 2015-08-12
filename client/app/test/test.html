@@ -1,0 +1,13 @@
+<div ng-controller="TestCtrl" class="test-body">
+  <input class="form-control" type="text" ng-model="testo" ng-change="parse()">
+
+  <pre class="response">{{result}}</pre>
+
+
+  <div class="test-fa-list">
+    Numero di icone: {{icons.length}}
+    <div class="test-fa" ng-repeat="f in icons track by $index">
+      <i class="fa fa-2x" ng-class="'fa-'+f"></i> fa-{{f}}
+    </div>
+  </div>
+</div>

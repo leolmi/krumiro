@@ -352,4 +352,10 @@ progress-clock {
   width: 590px;
 }
 
+.fa-inaz-stat {
+  position: absolute;
+  left: 50px;
+  bottom: 20px;
+}
+
 

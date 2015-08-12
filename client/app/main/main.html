@@ -64,7 +64,14 @@
     <i class="fa fa-bullhorn fa-stack-1x"></i>
     <i class="fa fa-ban fa-stack-2x text-danger" ng-show="!context.options.alarms"></i>
   </span>
+  <i class="fa fa-trophy fa-inaz-stat fa-lg aslink" ng-click="toggleStat()" title="Statistiche inaz" ng-show="context.user.name && context.user.password"></i>
   <kbd>beta</kbd>
+  <div class="inaz-stat" ng-class="{'visible':context.stat.show}">
+    <div ng-show="!context.stat.data || milking">Nessun dato</div>
+    <div class="inaz-stat-data">
+      <div ng-show="context.stat.data && !milking" ng-repeat="d in context.stat.data">{{d.title}}: <span class="value">{{d.value}}</span></div>
+    </div>
+  </div>
 </div>
 <i class="details details-help fa fa-2x fa-user-md" ng-class="{'active':helpon}" ng-click="help()"></i>
 <i class="details details-amonalie fa fa-2x fa-bug" ng-class="{'active':context.amonalie.show}" ng-click="toggleAmonalie()"></i>

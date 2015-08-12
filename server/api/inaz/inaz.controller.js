@@ -52,7 +52,7 @@ function parseInaz(html) {
   html = html.replace(/<br>/g,'|');
   var table = [];
   var $ = cheerio.load(html);
-  $('#ris_umane > tbody > tr').each(function() {
+  $('#ris_umane').find('tbody > tr').each(function() {
     var row = {};
     $(this).children().each(function(i, e){
       row['C'+i] = $(e).text();
@@ -63,8 +63,7 @@ function parseInaz(html) {
 }
 
 
-
-exports.data = function(req, res) {
+function enterInaz(req, res, steps, cb){
   var reqopt = u.checkReqOpt(req);
   if (!reqopt) return w.error(res, new Error('Utente non definito correttamente!'));
 
@@ -86,16 +85,16 @@ exports.data = function(req, res) {
   };
 
   var cookies = {};
-  w.doHttpsRequest('accesso', options, undefined, undefined, function(o1, r1) {
-    if (r1.code!=200)
-      return w.error(res, new Error('[accesso] - terminata con codice: '+r1.code));
+  w.doHttpsRequest('accesso', options, undefined, undefined, function(opt, result) {
+    if (result.code!=200)
+      return w.error(res, new Error('[accesso] - terminata con codice: '+result.code));
 
-    cookies = r1.headers['set-cookie'];
+    cookies = result.headers['set-cookie'];
 
     check(reqopt.user, options, function(err, encpsw) {
       if (err) return w.error(res, err);
 
-      o1.headers.cookie = cookies;
+      opt.headers.cookie = cookies;
 
       var sequence = [{
         title:'DEFAULT',
@@ -129,7 +128,24 @@ exports.data = function(req, res) {
           VoceMenu:'',
           ParamPage:''
         }
-      },{
+      }];
+      //Aggiunge gli step
+      steps.forEach(function(s){
+        sequence.push(s);
+      });
+
+      w.chainOfRequests(opt, sequence, function(err, content){
+        if (err) return w.error(res, err, reqopt.debuglines);
+        u.log('[chain] - RESULT: '+JSON.stringify(content),reqopt.debug, reqopt.debuglines);
+
+        cb(reqopt, content)
+      });
+    });
+  });
+}
+
+exports.data = function(req, res) {
+  var steps = [{
         title:'START',
         method:'POST',
         path:process.env.INAZ_PATH_START,
@@ -168,32 +184,210 @@ exports.data = function(req, res) {
           Matches:''
         }
       }];
+  enterInaz(req, res, steps, function(opt, content) {
+    var table = parseInaz(content);
+    u.log('[table] - timbrature: '+JSON.stringify(table),opt.debug, opt.debuglines);
 
-      w.chainOfRequests(o1, sequence, function(err, c3){
-        if (err) return w.error(res, err, reqopt.debuglines);
-        u.log('[chain] - RESULT: '+JSON.stringify(c3),reqopt.debug, reqopt.debuglines);
-
-        var table = parseInaz(c3);
-        u.log('[table] - parser: '+JSON.stringify(table),reqopt.debug, reqopt.debuglines);
-
-        manageHistory(reqopt, table, function(err, results) {
-          if (err)
-            results.error = err;
-          if (!reqopt.all)
-            results.data = results.data.filter(function (d) { return d['C1'] == reqopt.today; }).reverse();
-          u.log('[data] - risultati:'+JSON.stringify(results),reqopt.debug, reqopt.debuglines);
-          if (reqopt.debug) results.debug = reqopt.debuglines;
-          return w.ok(res, results);
-        });
-      });
+    manageHistory(opt, table, function(err, results) {
+      if (err)
+        results.error = err;
+      if (!opt.all)
+        results.data = results.data.filter(function (d) { return d['C1'] == opt.today; }).reverse();
+      u.log('[data] - risultati:'+JSON.stringify(results), opt.debug, opt.debuglines);
+      if (opt.debug) results.debug = opt.debuglines;
+      return w.ok(res, results);
     });
   });
 };
+
+exports.stat = function(req, res) {
+  var steps = [{
+    title:'START',
+    method:'POST',
+    path:process.env.INAZ_PATH_START,
+    referer:process.env.INAZ_PATH_REFERER_TOPM,
+    data:{
+      AccessCode:process.env.INAZ_P2_AccessCode,
+      ParamFrame:paramsReplace(process.env.INAZSTAT_START_ParamFrame),
+      VoceMenu:process.env.INAZ_P4_VoceMenu,
+      KKmenu:process.env.INAZSTAT_PARAM_KKMENU,
+      KAction:process.env.INAZSTAT_PARAM_KACTION,
+      ParamPage:''
+    }
+  },{
+    title:'FIND',
+    method:'POST',
+    path:process.env.INAZ_PATH_FIND,
+    referer:process.env.INAZ_PATH_REFERER_START,
+    data: {
+      AccessCode:process.env.INAZ_P2_AccessCode,
+      ParamPage:paramsReplace(process.env.INAZSTAT_FIND_ParamPage)   //TODO: change
+    }
+  },{
+    title:'TIMB',
+    method:'POST',
+    path:process.env.INAZ_PATH_TIMB,
+    referer:process.env.INAZ_PATH_REFERER_FIND,
+    data: {
+      AccessCode:process.env.INAZ_P2_AccessCode,
+      ParamPage:paramsReplace(process.env.INAZSTAT_TIMB_ParamPage),
+      ListaSel:'',
+      ActionPage:'',
+      NomeFunzione:process.env.INAZSTAT_TIMB_NomeFunzione,
+      ValCampo:'',
+      ValoriCampo:'',
+      CampoKey:'',
+      StatoRiga:'',
+      ParPagina:'',
+      Matches:''
+    }
+  }];
+
+  enterInaz(req, res, steps, function(opt, content) {
+    var table = parseInaz(content);
+    u.log('[table] - stat: '+JSON.stringify(table),opt.debug, opt.debuglines);
+    var results = {
+      data: table
+    };
+    if (opt.debug) results.debug = opt.debuglines;
+    return w.ok(res, results);
+  });
+};
+
+
+//exports.data = function(req, res) {
+//  var reqopt = u.checkReqOpt(req);
+//  if (!reqopt) return w.error(res, new Error('Utente non definito correttamente!'));
+//
+//  var options = {
+//    SSL: true,
+//    debuglines: reqopt.debuglines,
+//    debug: reqopt.debug,
+//    host: process.env.INAZ_HOST,
+//    method:'GET',
+//    path: process.env.INAZ_PATH_LOGIN,
+//    keepAlive:true,
+//    headers:{
+//      'accept':w.constants.content_accept_text,
+//      'accept-language':'it-IT',
+//      'content-type':w.constants.content_type_appwww,
+//      'user-agent':w.constants.user_agent_moz,
+//      'DNT':'1'
+//    }
+//  };
+//
+//  var cookies = {};
+//  w.doHttpsRequest('accesso', options, undefined, undefined, function(o1, r1) {
+//    if (r1.code!=200)
+//      return w.error(res, new Error('[accesso] - terminata con codice: '+r1.code));
+//
+//    cookies = r1.headers['set-cookie'];
+//
+//    check(reqopt.user, options, function(err, encpsw) {
+//      if (err) return w.error(res, err);
+//
+//      o1.headers.cookie = cookies;
+//
+//      var sequence = [{
+//        title:'DEFAULT',
+//        method:'POST',
+//        path:process.env.INAZ_PATH_DEFAULT,
+//        referer:process.env.INAZ_PATH_REFERER_LOGIN,
+//        data: {
+//          IdLogin: reqopt.user.name,
+//          IdPwdCript: encpsw,
+//          IdFrom: 'LOGIN',
+//          ReturnTo: process.env.INAZ_PATH_REFERER_LOGIN
+//        }
+//      },{
+//        title:'TOPM',
+//        method:'GET',
+//        path:process.env.INAZ_PATH_TOPM,
+//        referer:process.env.INAZ_PATH_REFERER_DEFAULT
+//      },{
+//        title:'BLANK',
+//        method:'GET',
+//        path:process.env.INAZ_PATH_BLANK,
+//        referer:process.env.INAZ_PATH_REFERER_DEFAULT
+//      },{
+//        title:'HOME',
+//        method:'POST',
+//        path:process.env.INAZ_PATH_HOME,
+//        referer:process.env.INAZ_PATH_REFERER_TOPM,
+//        data: {
+//          AccessCode:process.env.INAZ_P2_AccessCode,
+//          ParamFrame:'',
+//          VoceMenu:'',
+//          ParamPage:''
+//        }
+//      },{
+//        title:'START',
+//        method:'POST',
+//        path:process.env.INAZ_PATH_START,
+//        referer:process.env.INAZ_PATH_REFERER_TOPM,
+//        data:{
+//          AccessCode:process.env.INAZ_P2_AccessCode,
+//          ParamFrame:paramsReplace(process.env.INAZ_START_ParamFrame),
+//          ParamPage:'',
+//          VoceMenu:process.env.INAZ_P1_VoceMenu
+//        }
+//      },{
+//        title:'FIND',
+//        method:'POST',
+//        path:process.env.INAZ_PATH_FIND,
+//        referer:process.env.INAZ_PATH_REFERER_START,
+//        data: {
+//          AccessCode:process.env.INAZ_P2_AccessCode,
+//          ParamPage:paramsReplace(process.env.INAZ_FIND_ParamPage)
+//        }
+//      },{
+//        title:'TIMB',
+//        method:'POST',
+//        path:process.env.INAZ_PATH_TIMB,
+//        referer:process.env.INAZ_PATH_REFERER_FIND,
+//        data: {
+//          AccessCode:process.env.INAZ_P2_AccessCode,
+//          ParamPage:paramsReplace(process.env.INAZ_TIMB_ParamPage),
+//          ListaSel:'',
+//          ActionPage:'',
+//          NomeFunzione:process.env.INAZ_TIMB_NomeFunzione,
+//          ValCampo:'',
+//          ValoriCampo:'',
+//          CampoKey:'',
+//          StatoRiga:'',
+//          ParPagina:'',
+//          Matches:''
+//        }
+//      }];
+//
+//      w.chainOfRequests(o1, sequence, function(err, c3){
+//        if (err) return w.error(res, err, reqopt.debuglines);
+//        u.log('[chain] - RESULT: '+JSON.stringify(c3),reqopt.debug, reqopt.debuglines);
+//
+//        var table = parseInaz(c3);
+//        u.log('[table] - parser: '+JSON.stringify(table),reqopt.debug, reqopt.debuglines);
+//
+//        manageHistory(reqopt, table, function(err, results) {
+//          if (err)
+//            results.error = err;
+//          if (!reqopt.all)
+//            results.data = results.data.filter(function (d) { return d['C1'] == reqopt.today; }).reverse();
+//          u.log('[data] - risultati:'+JSON.stringify(results),reqopt.debug, reqopt.debuglines);
+//          if (reqopt.debug) results.debug = reqopt.debuglines;
+//          return w.ok(res, results);
+//        });
+//      });
+//    });
+//  });
+//};
+
 
 function paramsReplace(voice) {
   voice = voice.replace('[P1]',process.env.INAZ_P1_VoceMenu);
   voice = voice.replace('[P2]',process.env.INAZ_P2_AccessCode);
   voice = voice.replace('[P3]',process.env.INAZ_P3_Query);
+  voice = voice.replace('[P4]',process.env.INAZ_P4_VoceMenu);
+  voice = voice.replace('[P5]',process.env.INAZ_P5_Query);
   return voice;
 }
 
@@ -238,14 +432,15 @@ function getTimeM(d) {
 function getValues(d) {
   var v = [];
   for(var p in d)
-    v.push(d[p]);
+    if (d.hasOwnProperty(p))
+      v.push(d[p]);
   return v;
 }
 
 function replaceHistory(userdata, cb) {
   cb = cb || noop;
   console.log('[replaceHistory] - userdata:'+JSON.stringify(userdata));
-  INAZ.remove({'user': userdata.user }, function(err){
+  INAZ.remove({'user': userdata.user }, function(){
     INAZ.create(userdata, function (err) {
       cb(err, userdata);
     });

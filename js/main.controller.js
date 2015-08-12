@@ -247,6 +247,42 @@ angular.module('krumiroApp')
         });
     }
 
+
+    function milkinazstat() {
+      if ($scope.milking) return;
+      //simula il submit per memorizzare password e login
+      updateOptionsStore();
+
+      $scope.milking = true;
+      var reqopt = {
+        user: $scope.context.user,
+        debug: $scope.context.options.debug
+      };
+      $http.post('/api/inaz/stat', reqopt)
+        .success(function(results) {
+          if (results && results.data.length){
+            var row = results.data[0];
+            var data = [];
+            data.push({title:'Anno', value:row['C1']});
+            data.push({title:'Mese', value:months[parseInt(row['C2'])-1]});
+            data.push({title:'Residuo Anno Prec.', value:row['C3']+'gg'});
+            data.push({title:'Maturato Anno', value:row['C4']+'gg'});
+            data.push({title:'Goduti al mese corrente', value:row['C5']+'gg'});
+            data.push({title:'Obiettivo al mese corrente', value:row['C6']+'gg'});
+            data.push({title:'Differenza', value:row['C7']+'gg'});
+            data.push({title:'Residuo attuale', value:row['C8']+'gg'});
+            $scope.context.stat.data = data;
+          }
+          $scope.milking = false;
+        })
+        .error(function(err){
+          if (err && err.debug)
+            debugPrint('Risultati della mungitura inaz:', err.debug);
+          $scope.milking = false;
+          handleError(err);
+        });
+    }
+
     var automilk;
     $scope.start = function() {
       $scope.stop();
@@ -445,6 +481,9 @@ angular.module('krumiroApp')
             a:$scope.getDate('small'),
             results:[]
           }
+        },
+        stat: {
+          show: false
         },
         rap: {
           items:[],
@@ -817,6 +856,11 @@ angular.module('krumiroApp')
       $scope.context.amonalie.o.show = !$scope.context.amonalie.o.show;
     };
 
+    $scope.toggleStat = function() {
+      $scope.context.stat.show = !$scope.context.stat.show;
+      if ($scope.context.stat.show && !$scope.context.stat.data)
+        milkinazstat();
+    };
 
     /**
      * Inizializza le opzioni
