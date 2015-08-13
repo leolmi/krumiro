@@ -67,8 +67,8 @@
   <i class="fa fa-trophy fa-inaz-stat fa-lg aslink" ng-click="toggleStat()" title="Statistiche inaz" ng-show="context.user.name && context.user.password"></i>
   <kbd>beta</kbd>
   <div class="inaz-stat" ng-class="{'visible':context.stat.show}">
-    <div ng-show="!context.stat.data || milking">Nessun dato</div>
     <div class="inaz-stat-data">
+      <div ng-show="!context.stat.data || milking">Nessun dato</div>
       <div ng-show="context.stat.data && !milking" ng-repeat="d in context.stat.data">{{d.title}}: <span class="value">{{d.value}}</span></div>
     </div>
   </div>
