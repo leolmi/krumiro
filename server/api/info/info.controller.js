@@ -7,7 +7,7 @@ exports.info = function(req, res) {
   var infos = {
     product: {
       name:'crumiro',
-      version:'1.5.3'
+      version:process.env.APP_VERSION || '?'
     }
   };
   return w.ok(res, infos);
