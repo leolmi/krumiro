@@ -64,8 +64,10 @@
     <i class="fa fa-bullhorn fa-stack-1x"></i>
     <i class="fa fa-ban fa-stack-2x text-danger" ng-show="!context.options.alarms"></i>
   </span>
-  <i class="fa fa-trophy fa-inaz-stat fa-lg aslink" ng-click="toggleStat()" title="Statistiche inaz" ng-show="context.user.name && context.user.password"></i>
-  <kbd>beta</kbd>
+  <i class="fa fa-trophy fa-inaz-stat fa-lg aslink" ng-click="toggleStat()"
+     title="Statistiche inaz" ng-class="{'active':context.stat.show}"
+     ng-show="context.user.name && context.user.password"></i>
+  <kbd>beta {{product ? product.version : '...'}}</kbd>
   <div class="inaz-stat" ng-class="{'visible':context.stat.show}">
     <div class="inaz-stat-data">
       <div ng-show="!context.stat.data || milking">Nessun dato</div>
@@ -73,10 +75,10 @@
     </div>
   </div>
 </div>
-<i class="details details-help fa fa-2x fa-user-md" ng-class="{'active':helpon}" ng-click="help()"></i>
-<i class="details details-amonalie fa fa-2x fa-bug" ng-class="{'active':context.amonalie.show}" ng-click="toggleAmonalie()"></i>
-<i class="details details-history fa fa-2x fa-calendar" ng-class="{'enabled':context.user.name && context.user.password,'active':context.inaz.show}" ng-click="toggleInaz()"></i>
-<i class="details details-works fa fa-2x fa-paw" ng-class="{'enabled':context.user.name && context.user.password,'active':context.rap.show}" ng-click="toggleRap()"></i>
+<i class="details details-help fa fa-2x fa-user-md" ng-class="{'active':helpon}" ng-click="help()" title="Help"></i>
+<i class="details details-amonalie fa fa-2x fa-bug" ng-class="{'active':context.amonalie.show}" ng-click="toggleAmonalie()" title="Amonalie"></i>
+<i class="details details-history fa fa-2x fa-calendar" ng-class="{'enabled':context.user.name && context.user.password,'active':context.inaz.show}" ng-click="toggleInaz()" title="Storico Bedgiature"></i>
+<i class="details details-works fa fa-2x fa-paw" ng-class="{'enabled':context.user.name && context.user.password,'active':context.rap.show}" ng-click="toggleRap()" title="Rapportini"></i>
 <div class="popup-page page-inaz quando-container" ng-class="{'visible':context.inaz.show,'large':context.inaz.analisys.show}">
   <div class="header">
     <span class="header-title">Storico</span>

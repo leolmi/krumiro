@@ -41,10 +41,10 @@ i.checked {
   z-index: 10;
 }
 .page-main > kbd {
+  position: absolute;
+  right: 8px;
   font-size: 10px;
-  float: right;
   background-color: darkorange;
-  margin-top: -10px;
 }
 
 .header {

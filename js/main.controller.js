@@ -81,6 +81,7 @@ angular.module('krumiroApp')
         desc:'Attivando il megafonino in basso a sinistra puoi farti avvisare acusticamente (quindi devi avere il volume e degli altoparlanti attivi) all\'ora d\'uscita e, attivandoli separatamente ad ogni orario definito (altoparlantino nella cella dell\'orario valorizzato).'
       }]
     };
+
     /**
      * Compara i tempi
      * @param r1
@@ -861,6 +862,11 @@ angular.module('krumiroApp')
       if ($scope.context.stat.show && !$scope.context.stat.data)
         milkinazstat();
     };
+
+    $http.get('/api/info')
+      .success(function(info){
+        $scope.product = info.product;
+      });
 
     /**
      * Inizializza le opzioni

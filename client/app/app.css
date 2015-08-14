@@ -56,7 +56,9 @@
   cursor: pointer;
 }
 
-.aslink.checked {
+.aslink.checked,
+.aslink.active,
+.aslink:hover {
   color: yellowgreen;
 }
 
