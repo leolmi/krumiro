@@ -857,6 +857,10 @@ angular.module('krumiroApp')
       $scope.context.amonalie.o.show = !$scope.context.amonalie.o.show;
     };
 
+    $scope.getIcon = function(r) {
+        return {'fa-bug':'true'};
+    };
+
     $scope.toggleStat = function() {
       $scope.context.stat.show = !$scope.context.stat.show;
       if ($scope.context.stat.show && !$scope.context.stat.data)

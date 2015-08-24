@@ -27,13 +27,22 @@
   </div>
 </div>
 <div class="am-row" ng-repeat="r in filtered = (context.amonalie.items | amfilter:context.amonalie)">
-  <div class="am-index">{{$index+1}}</div>
-  <!-- Codice / Data -->
-  <div class="am-base-data">{{r.values[0]}} <i>{{r.values[1]}}</i></div>
-  <!--Applicativo / Funzione / Oggetto -->
-  <div class="am-info">{{r.values[2]}} <i>{{r.values[3]}}:</i><i>{{r.values[8]}}</i></div>
-  <!--Descrizione-->
-  <div class="am-description">{{r.values[9]}}</div>
+  <div class="am-top-area">
+    <div class="am-left-area">
+      <div class="am-index">{{$index+1}}</div>
+      <i class="fa am-fa-type" ng-class="{'fa-bug':r.values[13]=='AN','fa-magic':r.values[13]=='IM','fa-medkit':r.values[13]=='RI'}"></i>
+      <!-- Codice / Data -->
+      <div class="am-base-data">{{r.values[0]}} <i>{{r.values[1]}}</i></div>
+      <i class="fa" ng-class="{'fa-book':r.values[7]=='Analisi', 'fa-inbox':r.values[7]=='Da assegnare', 'fa-ban':r.values[7]=='Chiusa', 'fa-cogs':r.values[7]=='In risoluzione', 'fa-envelope':r.values[7]=='Consegnata', 'fa-download':r.values[7]=='In rilascio', 'fa-pause':r.values[7]=='Sospesa', 'fa-question':r.values[7]=='Default'}"></i>
+      <span class="area-text">{{r.values[7]}}</span>
+    </div>
+    <div class="am-right-area">
+      <!--Applicativo / Funzione / Oggetto -->
+      <div class="am-info">{{r.values[2]}} <i>{{r.values[3]}}:</i><i>{{r.values[8]}}</i></div>
+      <!--Descrizione-->
+      <div class="am-description">{{r.values[9]}}</div>
+    </div>
+  </div>
   <div class="am-details" ng-class="{'visible':r.details}">
     <div class="am-details-row" ng-repeat="d in r.values track by $index">
       <div class="am-detail-name">{{context.amonalie.headers.values[$index]}}</div>
