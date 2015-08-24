@@ -79,6 +79,10 @@ angular.module('krumiroApp')
         icon:'fa-bullhorn',
         title:'Aggiungere un allarme per ogni orario che desideri...',
         desc:'Attivando il megafonino in basso a sinistra puoi farti avvisare acusticamente (quindi devi avere il volume e degli altoparlanti attivi) all\'ora d\'uscita e, attivandoli separatamente ad ogni orario definito (altoparlantino nella cella dell\'orario valorizzato).'
+      },{
+        icon:'fa-trophy',
+        title:'Consultare lo stato dei permessi e delle ferie...',
+        desc:'Inserendo le credenziali INAZ puoi consultare lo stato delle tue ferie e permessi utilizzati e rimanenti nell\'anno in corso.'
       }]
     };
 
@@ -855,10 +859,6 @@ angular.module('krumiroApp')
 
     $scope.toggleAmonalieOptions = function() {
       $scope.context.amonalie.o.show = !$scope.context.amonalie.o.show;
-    };
-
-    $scope.getIcon = function(r) {
-        return {'fa-bug':'true'};
     };
 
     $scope.toggleStat = function() {
