@@ -42,9 +42,15 @@ i.checked {
 }
 .page-main > kbd {
   position: absolute;
-  right: 8px;
+  right: 0;
+  bottom: 0;
   font-size: 10px;
   background-color: darkorange;
+  color: #222;
+  border-radius: 3px 0 3px 0;
+  box-shadow: none;
+  font-weight: bold;
+  padding: 2px 8px;
 }
 
 .header {
