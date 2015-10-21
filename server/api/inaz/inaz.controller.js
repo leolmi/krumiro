@@ -273,7 +273,7 @@ function manageHistory(reqopt, data, cb) {
     meta: []
   };
   // inserisce le peculiarità del giorno se esistono
-  if (reqopt.perm>0 || reqopt.work!=480)
+  //if (reqopt.perm>0 || reqopt.work!=480)
     results.meta.push({day:reqopt.today, perm:reqopt.perm, work:reqopt.work});
 
   var userdata = normalize(reqopt.user, results);

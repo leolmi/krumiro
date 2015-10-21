@@ -432,8 +432,8 @@ angular.module('krumiroApp')
           if (firstE == 0) {
             firstE = m1;
             // l'ingresso dopo le 9:00 va scaglionato sulle mezz'ore
-            // se non si è definito un permesso e l'opzione è attiva
-            if (firstE>$scope.context.options.max_e && mPP<=0 && $scope.context.options.checknine){
+            // se l'opzione è attiva
+            if (firstE>$scope.context.options.max_e && $scope.context.options.checknine){
               var meT = firstE - $scope.context.options.max_e;
               var meM = Math.floor(meT / 30);
               if (meM*30<meT) meM++;
