@@ -42,7 +42,7 @@ angular.module('krumiroApp')
         max_u: (23*60),
         min_lunch: 30,
         max_lunch: 90,
-        start_lunch:(12*60+30),
+        start_lunch:(12*60+15),
         end_lunch:(14*60+30)
       },
       debug:{}
@@ -268,14 +268,15 @@ angular.module('krumiroApp')
           if (results && results.data.length){
             var row = results.data[0];
             var data = [];
-            data.push({title:'Anno', value:row['C1']});
-            data.push({title:'Mese', value:months[parseInt(row['C2'])-1]});
-            data.push({title:'Residuo Anno Prec.', value:row['C3']+'gg'});
-            data.push({title:'Maturato Anno', value:row['C4']+'gg'});
-            data.push({title:'Goduti al mese corrente', value:row['C5']+'gg'});
-            data.push({title:'Obiettivo al mese corrente', value:row['C6']+'gg'});
-            data.push({title:'Differenza', value:row['C7']+'gg'});
-            data.push({title:'Residuo attuale', value:row['C8']+'gg'});
+            var today = new Date();
+            data.push({title:'Anno', value:today.getFullYear()});
+            data.push({title:'Mese', value:months[today.getMonth()+1]});
+            data.push({title:'Residuo Anno Prec.', value:row['C1']+'gg'});
+            data.push({title:'Maturato Anno', value:row['C2']+'gg'});
+            data.push({title:'Goduti al mese corrente', value:row['C3']+'gg'});
+            data.push({title:'Obiettivo al mese corrente', value:row['C4']+'gg'});
+            data.push({title:'Differenza', value:row['C5']+'gg'});
+            data.push({title:'Residuo attuale', value:row['C6']+'gg'});
             $scope.context.stat.data = data;
           }
           $scope.milking = false;
