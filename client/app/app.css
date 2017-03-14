@@ -55,11 +55,18 @@
 .aslink {
   cursor: pointer;
 }
-
+.aslink.blad {
+  color: rgba(250,250,250,.3);
+}
 .aslink.checked,
 .aslink.active,
 .aslink:hover {
   color: yellowgreen;
+}
+.aslink.blad.checked,
+.aslink.blad.active,
+.aslink.blad:hover {
+  color: orange;
 }
 
 .heightzero {

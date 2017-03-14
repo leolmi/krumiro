@@ -48,6 +48,9 @@ function check(user, o, cb) {
   });
 }
 
+exports.check = check;
+
+
 function parseInaz(html) {
   html = html.replace(/<br>/g,'|');
   var table = [];
