@@ -100,7 +100,7 @@ exports.error = error;
 
 
 function getData(o, encode) {
-  if (typeof o == 'string') {
+  if (typeof o === 'string') {
     return o;
   } else if (encode) {
     var eo = {}
@@ -121,7 +121,7 @@ exports.getBasicAuth = getBasicAuth;
 
 
 var getRedirectPath = function(opt, nxt) {
-  if (nxt.indexOf('..')==0) {
+  if (nxt.indexOf('..')===0) {
     nxt = nxt.slice(2);
   } else {
     var prev = opt.path.split('/');
@@ -135,7 +135,7 @@ var getRedirectPath = function(opt, nxt) {
 };
 
 function excludeDebug(k,v){
-  if (k=='debug' || k=='debuglines')
+  if (k==='debug' || k==='debuglines')
     return undefined;
   return v;
 }
@@ -147,7 +147,7 @@ function parseCookies(cookie, res) {
     cookie = cookie ? cookie : '';
     var rgx = /,([^,;]+?)=(.*?);/g;
     var m = rgx.exec(sc);
-    while(m!=null) {
+    while(m!==null) {
       if (cookie.indexOf(m[1] + '=') < 0) {
         if (cookie.length>0) cookie += ';';
         cookie += m[1] + '=' + m[2];
@@ -181,11 +181,11 @@ var doHttpsRequest = function(desc, options, data, target, cb) {
     u.log('['+desc+']-RESULTS: ' + JSON.stringify(result),options.debug, options.debuglines);
 
     var newpath = res.headers.location;
-    if ((res.statusCode.toString()=='302' || res.statusCode.toString()=='301') && newpath) {
+    if ((res.statusCode.toString()==='302' || res.statusCode.toString()==='301') && newpath) {
       skipped = true;
       u.log('new location:'+newpath,options.debug, options.debuglines);
       var path = getRedirectPath(options ,newpath);
-      if (path==options.path){
+      if (path===options.path){
         u.log('Location is the same!',options.debug, options.debuglines);
         return;
       }
@@ -239,18 +239,62 @@ var doHttpsRequest = function(desc, options, data, target, cb) {
 };
 exports.doHttpsRequest = doHttpsRequest;
 
+function checkKeeper(options, name, value) {
+  options.keepers = options.keepers || [];
+  var ex = _.find(options.keepers, function (k) {
+    return k.name === name;
+  });
+  if (!ex) {
+    ex = {name: name};
+    options.keepers.push(ex);
+  }
+  ex.value = value;
+}
+exports.checkKeeper = checkKeeper;
 
-function checkKeepers(options, content) {
-  if (options.keepers && options.keepers.length && content){
-    options.keepers.forEach(function(k){
-      if (k.mode && k.mode=='onetime' && k.value) {
+
+function checkKeepers(item, options, content) {
+  // carica i keepers definiti a livello di item di sequenza
+  if (((item || {}).keepers || []).length) {
+    options.keepers = options.keepers || [];
+    options.keepers = options.keepers.concat((item || {}).keepers);
+  }
+  // ricerca i valori nel content
+  if ((options.keepers || []).length && content) {
+    options.keepers.forEach(function (k) {
+      if (k.mode === 'onetime' && k.value) {
         //skip keeper
-      } else {
-        var rgx = new RegExp(k.pattern, 'g');
+      } else if (k.pattern) {
+        var rgx = new RegExp(k.pattern, k.patternOptions || 'g');
         var v = rgx.exec(content);
         if (v && v.length) k.value = v[1];
+      } else if (_.isFunction(k.action)) {
+        k.value = k.action(item, options, content);
       }
     });
+  }
+}
+
+function _repaceKeepers(txt, keepers) {
+  if (_.isString(txt)) {
+    keepers.forEach(function (k) {
+      var rgx = new RegExp('{' + k.name + '}', 'g');
+      txt = (txt || '').replace(rgx, k.value);
+    });
+  }
+  return txt;
+}
+
+function _replaceData(data, options) {
+  u.log('[KEEPERS]: '+JSON.stringify((options||{}).keepers||[]),options.debug, options.debuglines);
+  if (((options||{}).keepers||[]).length){
+    if (_.isObject(data)) {
+      _.keys(data).forEach(function(dp){
+        if (_.isString(data[dp])) {
+          data[dp] = _repaceKeepers(data[dp], options.keepers);
+        }
+      });
+    }
   }
 }
 
@@ -270,15 +314,6 @@ function chainOfRequestsX(options, sequence, i, cb) {
       options.headers[pn] = sequence[i].headers[pn];
   }
 
-  if (options.keepers && options.keepers.length){
-    options.keepers.forEach(function(k){
-      if (k.value) {
-        if (!sequence[i].data)
-          sequence[i].data = {};
-        sequence[i].data[k.name] = k.value;
-      }
-    });
-  }
   if (sequence[i].noheaders) {
     sequence[i].noheaders.forEach(function (noh) {
       if (options.headers[noh]) {
@@ -290,15 +325,19 @@ function chainOfRequestsX(options, sequence, i, cb) {
   var data_str = undefined;
   if (sequence[i].data_str)
     data_str = sequence[i].data_str;
-  else if (sequence[i].data)
+  else if (sequence[i].data) {
+    u.log('['+sequence[i].title+']-CHECK REPLACE DATA: '+JSON.stringify(sequence[i].data),options.debug, options.debuglines);
+    _replaceData(sequence[i].data, options);
     data_str = getData(sequence[i].data);
+  }
+
 
   options.headers['content-length'] = data_str ? data_str.length : '0';
 
 
   u.log('['+sequence[i].title+']-REQUEST BODY: '+data_str,options.debug, options.debuglines);
   doHttpsRequest(sequence[i].title, options, data_str, undefined, function(o, r, c) {
-    if (r.code!=200) {
+    if (r.code!==200) {
       var err = (r && r.error) ? r.error : new Error('[' + sequence[i].title + '] - terminata con codice: ' + r.code);
       return cb(err);
     }
@@ -309,7 +348,7 @@ function chainOfRequestsX(options, sequence, i, cb) {
 
     options.headers.cookie = parseCookies(options.headers.cookie, r);
 
-    checkKeepers(options, c);
+    checkKeepers(sequence[i], options, c);
 
     chainOfRequestsX(options, sequence, i + 1, cb);
   });

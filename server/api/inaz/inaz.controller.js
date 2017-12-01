@@ -83,6 +83,7 @@ function enterInaz(req, res, steps, cb){
       'accept-language':'it-IT',
       'content-type':w.constants.content_type_appwww,
       'user-agent':w.constants.user_agent_moz,
+      'upgrade-insecure-requests':'1',
       'DNT':'1'
     }
   };
@@ -114,7 +115,16 @@ function enterInaz(req, res, steps, cb){
         title:'TOPM',
         method:'GET',
         path:process.env.INAZ_PATH_TOPM,
-        referer:process.env.INAZ_PATH_REFERER_DEFAULT
+        referer:process.env.INAZ_PATH_REFERER_DEFAULT,
+        keepers:[{
+          name: 'AccessCode2',
+          mode: 'onetime',
+          pattern: '<.*id="AccessCode2".*value="(.*)">'
+        },{
+          name: '_KeepMenuInfo',
+          mode: 'onetime',
+          action: keepKeys
+        }]
       },{
         title:'BLANK',
         method:'GET',
@@ -127,6 +137,7 @@ function enterInaz(req, res, steps, cb){
         referer:process.env.INAZ_PATH_REFERER_TOPM,
         data: {
           AccessCode:process.env.INAZ_P2_AccessCode,
+          AccessCode2: '{AccessCode2}',
           ParamFrame:'',
           VoceMenu:'',
           ParamPage:''
@@ -155,10 +166,20 @@ exports.data = function(req, res) {
         referer:process.env.INAZ_PATH_REFERER_TOPM,
         data:{
           AccessCode:process.env.INAZ_P2_AccessCode,
-          ParamFrame:paramsReplace(process.env.INAZ_START_ParamFrame),
-          ParamPage:'',
-          VoceMenu:process.env.INAZ_P1_VoceMenu
-        }
+          AccessCode2: '{AccessCode2}',
+          ParamFrame: process.env.INAZSTAT_START_ParamFrame,
+          Page:'NONE',
+          VoceMenu:process.env.INAZ_P1_VoceMenu,
+          KKmenu:'{KKmenu}',
+          KAction:'{KAction}',
+          ParamPage: '',
+          ForceTop3: ''
+        },
+        keepers:[{
+          name: 'MyPageId',
+          mode: 'onetime',
+          pattern: '<.*id="MyPageId".*value="(.*)">'
+        }]
       },{
         title:'FIND',
         method:'POST',
@@ -166,7 +187,9 @@ exports.data = function(req, res) {
         referer:process.env.INAZ_PATH_REFERER_START,
         data: {
           AccessCode:process.env.INAZ_P2_AccessCode,
-          ParamPage:paramsReplace(process.env.INAZ_FIND_ParamPage)
+          AccessCode2: '{AccessCode2}',
+          ParamPage:paramsReplace(process.env.INAZ_FIND_ParamPage),
+          TipoPerm:process.env.INAZ_START_TipoPerm
         }
       },{
         title:'TIMB',
@@ -175,16 +198,20 @@ exports.data = function(req, res) {
         referer:process.env.INAZ_PATH_REFERER_FIND,
         data: {
           AccessCode:process.env.INAZ_P2_AccessCode,
+          AccessCode2: '{AccessCode2}',
+          MyPageId: '{MyPageId}',
           ParamPage:paramsReplace(process.env.INAZ_TIMB_ParamPage),
           ListaSel:'',
-          ActionPage:'',
+          ListaSelCrypt: '',
+          ActionPage: '',
           NomeFunzione:process.env.INAZ_TIMB_NomeFunzione,
           ValCampo:'',
           ValoriCampo:'',
           CampoKey:'',
           StatoRiga:'',
           ParPagina:'',
-          Matches:''
+          TipoPerm: process.env.INAZ_START_TipoPerm,
+          Matches: ''
         }
       }];
   enterInaz(req, res, steps, function(opt, content) {
@@ -224,7 +251,7 @@ exports.stat = function(req, res) {
     referer:process.env.INAZ_PATH_REFERER_START,
     data: {
       AccessCode:process.env.INAZ_P2_AccessCode,
-      ParamPage:paramsReplace(process.env.INAZSTAT_FIND_ParamPage)   //TODO: change
+      ParamPage:paramsReplace(process.env.INAZSTAT_FIND_ParamPage)
     }
   },{
     title:'TIMB',
@@ -622,3 +649,58 @@ exports.data1 = function(req, res) {
 
   console.log('sequenza:'+JSON.stringify(sequence1));
 };
+
+
+
+function _getList(menu, txt) {
+  const rgx = new RegExp('\\s' + menu + '=(.*?)(?=;)', 'g');
+  const m = rgx.exec(txt);
+  const list_str = m ? m[1] : '[]';
+  return JSON.parse(list_str);
+}
+
+function _deepClone(o) {
+  return JSON.parse(JSON.stringify(o));
+}
+
+function _find(cll, voice, cb, indices) {
+  indices = indices || [];
+  cll.forEach(function (ci, idx) {
+    if (ci === voice) {
+      indices.push(idx);
+      return cb(indices);
+    } else if (_.isArray(ci)) {
+      const idc = _deepClone(indices);
+      idc.push(idx);
+      _find(ci, voice, cb, idc);
+    }
+  });
+}
+
+function _getAt(cll, indices) {
+  var v = cll;
+  if (_.isArray(v)) (indices||[]).forEach(function(i){v = v[i];})
+  return v;
+}
+
+function parseMenuVoice(content, voice, menus, cb) {
+  var voices = _getList(menus[0], content);
+  _find(voices, voice, function(indices) {
+    const result = {};
+    menus.forEach(function(mn){
+      const m = _getList(mn, content);
+      result[mn] = _getAt(m, indices);
+    });
+    cb(result)
+  });
+}
+
+function keepKeys(item, options, content) {
+  const menus = process.env.INAZ_START_MenuTree.split(',');
+  const code = parseInt(process.env.INAZ_P1_VoceMenu);
+  parseMenuVoice(content, code, menus, function(data){
+    w.checkKeeper(options, process.env.INAZ_START_MenuName, (data||{})[process.env.INAZ_START_MenuName_V]);
+    w.checkKeeper(options, process.env.INAZ_START_MenuAction, (data||{})[process.env.INAZ_START_MenuAction_V]);
+  });
+  return 'executed';
+}

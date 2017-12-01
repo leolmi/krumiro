@@ -115,6 +115,10 @@
 <!--<trullo ng-hide="helpon"></trullo>-->
 <div class="page-debug" ng-show="context.options.debug">
   <i class="fa fa-eraser aslink" ng-click="debuglines=[]"></i>
-  <pre ng-repeat="l in debuglines">{{l}}</pre>
+  <pre class="page-debug-item" ng-repeat="l in debuglines" ng-class="{'expanded':expanded[$index]}">{{l}}<i
+    class="debug-item-button fa fa-2x fa-copy"
+    ng-click="copyToClipboard(l)" title="copy to clipboard"></i><i
+    class="debug-item-button btn-2 fa fa-2x" ng-class="{'fa-plus-square-o':!expanded[$index], 'fa-minus-square-o':expanded[$index]}"
+    ng-click="toggle($index)" title="expand/collapse area"></i></pre>
 </div>
 

@@ -1,13 +1,3 @@
-.page-debug {
-  margin: 0 50px;
-}
-.page-debug > i {
-  color: #aaa;
-  margin: 0 20px 10px;
-}
-.page-debug > pre {
-  font-size: 10px;
-}
 .quando-container {
   padding: 24px;
   background-color: #222;
@@ -364,4 +354,43 @@ progress-clock {
   bottom: 20px;
 }
 
+.page-debug {
+  margin: 0 50px;
+}
+.page-debug > i {
+  color: #aaa;
+  margin: 0 20px 10px;
+}
+.page-debug > pre {
+  font-size: 10px;
+  padding-right: 50px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.page-debug > pre:not(.expanded) {
+  max-height: 38px;
+}
+.page-debug > pre.expanded {
+  white-space: pre-wrap;
+  background-color: bisque;
+}
+.page-debug-item {
+  position: relative;
+}
+.page-debug-item .debug-item-button {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  font-size: 1.4em;
+  cursor: pointer;
+}
+.page-debug-item .debug-item-button:hover {
+  color: orange;
+}
+.page-debug-item .debug-item-button.active {
+  color: yellowgreen;
+}
+.page-debug-item .debug-item-button.btn-2 {
+  right: 30px;
+}
 

@@ -45,13 +45,19 @@ angular.module("krumiroApp")
       return (hT*sign)+':'+mT;
     }
 
-    //note:
-
-    //$scope.test1 = parsestr($scope.test);
+    function copyToClipboard(text) {
+      if (!text) return;
+      var $temp = $("<input>");
+      $("body").append($temp);
+      $temp.val(text).select();
+      document.execCommand("copy");
+      $temp.remove();
+    }
 
     return{
       merge:merge,
       getTime:getTime,
-      parseDate:parseDate
+      parseDate:parseDate,
+      copyToClipboard: copyToClipboard
     }
   }]);
