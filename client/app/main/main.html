@@ -1,9 +1,11 @@
 <div class="page-main quando-container visible">
+  <!-- HEADER -->
   <div class="header">
     Oggi è {{getDate()}}
     <i class="fa fa-2x fa-trash aslink" ng-click="clear()"></i>
     <i class="fa fa-2x fa-bars aslink" ng-click="toggleOptions()" ng-class="{'checked':showopt}"></i>
   </div>
+  <!-- OPTIONS -->
   <div class="options" ng-style="optstyle">
     <div class="option-values">
       <p ng-class="{'checked':context.options.checkmine}"><i class="fa fa-fw aslink" ng-class="{'fa-toggle-off':!context.options.checkmine, 'fa-toggle-on':context.options.checkmine}" ng-click="toggleOptionValue('checkmine')"></i> Verifica ingresso minimo</p>
@@ -60,13 +62,18 @@
       </div>
     </div>
   </form>
+  <!-- ALARMS -->
   <span class="fa-stack fa-lg aslink" ng-click="toggleAlarms()" title="Attiva gli allarmi">
     <i class="fa fa-bullhorn fa-stack-1x"></i>
     <i class="fa fa-ban fa-stack-2x text-danger" ng-show="!context.options.alarms"></i>
   </span>
+  <!--  -->
   <i class="fa fa-trophy fa-inaz-stat fa-lg aslink" ng-click="toggleStat()"
      title="Statistiche inaz" ng-class="{'active':context.stat.show}"
      ng-show="context.user.name && context.user.password"></i>
+  <!--<i class="fa fa-money fa-inaz-ced fa-lg aslink" ng-click="downloadCed()"-->
+     <!--title="Scarica ultima busta paga"-->
+     <!--ng-show="context.user.name && context.user.password"></i>-->
   <kbd>beta {{product ? product.version : '...'}}</kbd>
   <div class="inaz-stat" ng-class="{'visible':context.stat.show}">
     <div class="inaz-stat-data">

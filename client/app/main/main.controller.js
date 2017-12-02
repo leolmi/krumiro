@@ -898,6 +898,29 @@ angular.module('krumiroApp')
           milkinazstat();
       };
 
+
+      $scope.downloadCed = function() {
+        if ($scope.milking) return;
+        _updateOptionsStore();
+
+        $scope.milking = true;
+        var reqopt = {
+          user: $scope.context.user,
+          debug: $scope.context.options.debug
+        };
+        $http.post('/api/inaz/paycheck', reqopt)
+          .then(function (resp) {
+            var results = resp.data;
+            debugPrint('Risultati della mungitura busta paga:', results.debug);
+            $scope.milking = false;
+          }, function (err) {
+            if (err && err.debug)
+              debugPrint('Risultati della mungitura busta paga:', err.debug);
+            $scope.milking = false;
+            handleError(err);
+          });
+      };
+
       $scope.expanded = {};
       $scope.toggle = function(index) {
         $scope.expanded[index] = !$scope.expanded[index];

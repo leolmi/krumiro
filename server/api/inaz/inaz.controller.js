@@ -3,30 +3,37 @@
  */
 'use strict';
 
-var _ = require('lodash');
-var cheerio = require("cheerio");
-var u = require('../utilities/util');
-var w = require('../utilities/web');
-var INAZ = require('./inaz.model');
+const _ = require('lodash');
+const cheerio = require("cheerio");
+const u = require('../utilities/util');
+const w = require('../utilities/web');
+const uz = require('./inaz.utilities');
+const INAZ = require('./inaz.model');
+const C = process.env;
 
-
+/**
+ * Check delle credenziali
+ * @param user
+ * @param o
+ * @param cb
+ */
 function check(user, o, cb) {
   cb = cb || noop;
 
   var data = {
-    SuHrWeb:'0',
-    IdLogin:user.name,
-    IdPwd:user.password,
-    ServerLDAP:process.env.INAZ_SERVER_LDAP
+    SuHrWeb: '0',
+    IdLogin: user.name,
+    IdPwd: user.password,
+    ServerLDAP: C.INAZ_SERVER_LDAP
   };
   var str_data = w.getData(data,true);
   var options = {
     SSL: true,
     debuglines: o.debuglines,
     debug: o.debug,
-    host: process.env.INAZ_HOST,
+    host: C.INAZ_HOST,
     method:'POST',
-    path: process.env.INAZ_PATH_CHECK,
+    path: C.INAZ_PATH_CHECK,
     keepAlive:true,
     headers:{
       'content-type':w.constants.content_type_appwww,
@@ -47,36 +54,29 @@ function check(user, o, cb) {
     return cb(null, encpsw);
   });
 }
-
 exports.check = check;
 
-
-function parseInaz(html) {
-  html = html.replace(/<br>/g,'|');
-  var table = [];
-  var $ = cheerio.load(html);
-  $('#ris_umane').find('tbody > tr').each(function() {
-    var row = {};
-    $(this).children().each(function(i, e){
-      row['C'+i] = $(e).text();
-    });
-    table.push(row);
-  });
-  return table;
-}
-
-
-function enterInaz(req, res, steps, cb){
+/**
+ * Accede e verifica le credenziali
+ * @param req
+ * @param res
+ * @param o
+ * @param cb
+ * @returns {*}
+ * @private
+ */
+function _enterInaz(req, res, o, cb){
   var reqopt = u.checkReqOpt(req);
   if (!reqopt) return w.error(res, new Error('Utente non definito correttamente!'));
 
-  var options = {
+
+  const options = {
     SSL: true,
     debuglines: reqopt.debuglines,
     debug: reqopt.debug,
-    host: process.env.INAZ_HOST,
+    host: C.INAZ_HOST,
     method:'GET',
-    path: process.env.INAZ_PATH_LOGIN,
+    path: C.INAZ_PATH_LOGIN,
     keepAlive:true,
     headers:{
       'accept':w.constants.content_accept_text,
@@ -88,9 +88,14 @@ function enterInaz(req, res, steps, cb){
     }
   };
 
+  _.keys(o.parameters||{}).forEach(function(p){
+    w.checkKeeper(options, p, o.parameters[p]);
+  });
+
+
   var cookies = {};
   w.doHttpsRequest('accesso', options, undefined, undefined, function(opt, result) {
-    if (result.code!=200)
+    if (result.code!==200)
       return w.error(res, new Error('[accesso] - terminata con codice: '+result.code));
 
     cookies = result.headers['set-cookie'];
@@ -103,19 +108,19 @@ function enterInaz(req, res, steps, cb){
       var sequence = [{
         title:'DEFAULT',
         method:'POST',
-        path:process.env.INAZ_PATH_DEFAULT,
-        referer:process.env.INAZ_PATH_REFERER_LOGIN,
+        path:C.INAZ_PATH_DEFAULT,
+        referer:C.INAZ_PATH_REFERER_LOGIN,
         data: {
           IdLogin: reqopt.user.name,
           IdPwdCript: encpsw,
           IdFrom: 'LOGIN',
-          ReturnTo: process.env.INAZ_PATH_REFERER_LOGIN
+          ReturnTo: C.INAZ_PATH_REFERER_LOGIN
         }
       },{
         title:'TOPM',
         method:'GET',
-        path:process.env.INAZ_PATH_TOPM,
-        referer:process.env.INAZ_PATH_REFERER_DEFAULT,
+        path:C.INAZ_PATH_TOPM,
+        referer:C.INAZ_PATH_REFERER_DEFAULT,
         keepers:[{
           name: 'AccessCode2',
           mode: 'onetime',
@@ -123,20 +128,20 @@ function enterInaz(req, res, steps, cb){
         },{
           name: '_KeepMenuInfo',
           mode: 'onetime',
-          action: keepKeys
+          action: uz.keepMenuKeys(o)
         }]
       },{
         title:'BLANK',
         method:'GET',
-        path:process.env.INAZ_PATH_BLANK,
-        referer:process.env.INAZ_PATH_REFERER_DEFAULT
+        path:C.INAZ_PATH_BLANK,
+        referer:C.INAZ_PATH_REFERER_DEFAULT
       },{
         title:'HOME',
         method:'POST',
-        path:process.env.INAZ_PATH_HOME,
-        referer:process.env.INAZ_PATH_REFERER_TOPM,
+        path:C.INAZ_PATH_HOME,
+        referer:C.INAZ_PATH_REFERER_TOPM,
         data: {
-          AccessCode:process.env.INAZ_P2_AccessCode,
+          AccessCode:C.INAZ_P2_AccessCode,
           AccessCode2: '{AccessCode2}',
           ParamFrame:'',
           VoceMenu:'',
@@ -144,7 +149,7 @@ function enterInaz(req, res, steps, cb){
         }
       }];
       //Aggiunge gli step
-      steps.forEach(function(s){
+      o.steps.forEach(function(s){
         sequence.push(s);
       });
 
@@ -158,67 +163,77 @@ function enterInaz(req, res, steps, cb){
   });
 }
 
-exports.data = function(req, res) {
-  var steps = [{
-        title:'START',
-        method:'POST',
-        path:process.env.INAZ_PATH_START,
-        referer:process.env.INAZ_PATH_REFERER_TOPM,
-        data:{
-          AccessCode:process.env.INAZ_P2_AccessCode,
-          AccessCode2: '{AccessCode2}',
-          ParamFrame: process.env.INAZSTAT_START_ParamFrame,
-          Page:'NONE',
-          VoceMenu:process.env.INAZ_P1_VoceMenu,
-          KKmenu:'{KKmenu}',
-          KAction:'{KAction}',
-          ParamPage: '',
-          ForceTop3: ''
-        },
-        keepers:[{
-          name: 'MyPageId',
-          mode: 'onetime',
-          pattern: '<.*id="MyPageId".*value="(.*)">'
-        }]
-      },{
-        title:'FIND',
-        method:'POST',
-        path:process.env.INAZ_PATH_FIND,
-        referer:process.env.INAZ_PATH_REFERER_START,
-        data: {
-          AccessCode:process.env.INAZ_P2_AccessCode,
-          AccessCode2: '{AccessCode2}',
-          ParamPage:paramsReplace(process.env.INAZ_FIND_ParamPage),
-          TipoPerm:process.env.INAZ_START_TipoPerm
-        }
-      },{
-        title:'TIMB',
-        method:'POST',
-        path:process.env.INAZ_PATH_TIMB,
-        referer:process.env.INAZ_PATH_REFERER_FIND,
-        data: {
-          AccessCode:process.env.INAZ_P2_AccessCode,
-          AccessCode2: '{AccessCode2}',
-          MyPageId: '{MyPageId}',
-          ParamPage:paramsReplace(process.env.INAZ_TIMB_ParamPage),
-          ListaSel:'',
-          ListaSelCrypt: '',
-          ActionPage: '',
-          NomeFunzione:process.env.INAZ_TIMB_NomeFunzione,
-          ValCampo:'',
-          ValoriCampo:'',
-          CampoKey:'',
-          StatoRiga:'',
-          ParPagina:'',
-          TipoPerm: process.env.INAZ_START_TipoPerm,
-          Matches: ''
-        }
-      }];
-  enterInaz(req, res, steps, function(opt, content) {
-    var table = parseInaz(content);
+/**
+ * Recupera le informazioni sulle bedgiature
+ * @param req
+ * @param res
+ */
+exports.bedge = function(req, res) {
+  const o = {
+    parameters: {
+      VoceMenu: C.INAZ_P1_VoceMenu
+    },
+    steps: [{
+      title: 'START',
+      method: 'POST',
+      path: C.INAZ_PATH_START,
+      referer: C.INAZ_PATH_REFERER_TOPM,
+      data: {
+        AccessCode: C.INAZ_P2_AccessCode,
+        AccessCode2: '{AccessCode2}',
+        ParamFrame: C.INAZSTAT_START_ParamFrame,
+        Page: 'NONE',
+        VoceMenu: '{VoceMenu}',
+        KKmenu: '{KKmenu}',
+        KAction: '{KAction}',
+        ParamPage: '',
+        ForceTop3: ''
+      },
+      keepers: [{
+        name: 'MyPageId',
+        mode: 'onetime',
+        pattern: '<.*id="MyPageId".*value="(.*)">'
+      }]
+    }, {
+      title: 'FIND',
+      method: 'POST',
+      path: C.INAZ_PATH_FIND,
+      referer: C.INAZ_PATH_REFERER_START,
+      data: {
+        AccessCode: C.INAZ_P2_AccessCode,
+        AccessCode2: '{AccessCode2}',
+        ParamPage: uz.replace(C.INAZ_FIND_ParamPage),
+        TipoPerm: C.INAZ_START_TipoPerm
+      }
+    }, {
+      title: 'TIMB',
+      method: 'POST',
+      path: C.INAZ_PATH_TIMB,
+      referer: C.INAZ_PATH_REFERER_FIND,
+      data: {
+        AccessCode: C.INAZ_P2_AccessCode,
+        AccessCode2: '{AccessCode2}',
+        MyPageId: '{MyPageId}',
+        ParamPage: uz.replace(C.INAZ_TIMB_ParamPage),
+        ListaSel: '',
+        ListaSelCrypt: '',
+        ActionPage: '',
+        NomeFunzione: C.INAZ_TIMB_NomeFunzione,
+        ValCampo: '',
+        ValoriCampo: '',
+        CampoKey: '',
+        StatoRiga: '',
+        ParPagina: '',
+        TipoPerm: C.INAZ_START_TipoPerm,
+        Matches: ''
+      }
+    }]
+  };
+  _enterInaz(req, res, o, function(opt, content) {
+    var table = uz.parse(content);
     u.log('[table] - timbrature: '+JSON.stringify(table),opt.debug, opt.debuglines);
 
-    manageHistory(opt, table, function(err, results) {
+    _manageHistory(opt, table, function(err, results) {
       if (err)
         results.error = err;
       if (!opt.all)
@@ -230,73 +245,134 @@ exports.data = function(req, res) {
   });
 };
 
+/**
+ * Recupera le informazioni sullo stato ferie-permessi
+ * @param req
+ * @param res
+ */
 exports.stat = function(req, res) {
-  var steps = [{
-    title:'START',
-    method:'POST',
-    path:process.env.INAZ_PATH_START,
-    referer:process.env.INAZ_PATH_REFERER_TOPM,
-    data:{
-      AccessCode:process.env.INAZ_P2_AccessCode,
-      ParamFrame:paramsReplace(process.env.INAZSTAT_START_ParamFrame),
-      VoceMenu:process.env.INAZ_P4_VoceMenu,
-      KKmenu:process.env.INAZSTAT_PARAM_KKMENU,
-      KAction:process.env.INAZSTAT_PARAM_KACTION,
-      ParamPage:''
-    }
-  },{
-    title:'FIND',
-    method:'POST',
-    path:process.env.INAZ_PATH_FIND,
-    referer:process.env.INAZ_PATH_REFERER_START,
-    data: {
-      AccessCode:process.env.INAZ_P2_AccessCode,
-      ParamPage:paramsReplace(process.env.INAZSTAT_FIND_ParamPage)
-    }
-  },{
-    title:'TIMB',
-    method:'POST',
-    path:process.env.INAZ_PATH_TIMB,
-    referer:process.env.INAZ_PATH_REFERER_FIND,
-    data: {
-      AccessCode:process.env.INAZ_P2_AccessCode,
-      ParamPage:paramsReplace(process.env.INAZSTAT_TIMB_ParamPage),
-      ListaSel:'',
-      ActionPage:'',
-      NomeFunzione:process.env.INAZSTAT_TIMB_NomeFunzione,
-      ValCampo:'',
-      ValoriCampo:'',
-      CampoKey:'',
-      StatoRiga:'',
-      ParPagina:'',
-      Matches:''
-    }
-  }];
+  const o = {
+    parameters: {
+      VoceMenu: C.INAZ_P4_VoceMenu,
+    },
+    steps: [{
+      title: 'START',
+      method: 'POST',
+      path: C.INAZ_PATH_START,
+      referer: C.INAZ_PATH_REFERER_TOPM,
+      data: {
+        AccessCode: C.INAZ_P2_AccessCode,
+        AccessCode2: '{AccessCode2}',
+        ParamFrame: C.INAZSTAT_START_ParamFrame,
+        Page: 'NONE',
+        VoceMenu: '{VoceMenu}',
+        KKmenu: '{KKmenu}',
+        KAction: '{KAction}',
+        ParamPage: '',
+        ForceTop3: ''
+      },
+      keepers: [{
+        name: 'MyPageId',
+        mode: 'onetime',
+        pattern: '<.*id="MyPageId".*value="(.*)">'
+      }]
+    }, {
+      title: 'FIND',
+      method: 'POST',
+      path: C.INAZ_PATH_FIND,
+      referer: C.INAZ_PATH_REFERER_START,
+      data: {
+        AccessCode: C.INAZ_P2_AccessCode,
+        AccessCode2: '{AccessCode2}',
+        ParamPage: uz.replace(C.INAZSTAT_FIND_ParamPage),
+        TipoPerm: C.INAZ_START_TipoPerm
+      }
+    }, {
+      title: 'TIMB',
+      method: 'POST',
+      path: C.INAZ_PATH_TIMB,
+      referer: C.INAZ_PATH_REFERER_FIND,
+      data: {
+        AccessCode: C.INAZ_P2_AccessCode,
+        AccessCode2: '{AccessCode2}',
+        MyPageId: '{MyPageId}',
+        ParamPage: uz.replace(C.INAZSTAT_TIMB_ParamPage),
+        ListaSel: '',
+        ListaSelCrypt: '',
+        ActionPage: '',
+        NomeFunzione: C.INAZSTAT_TIMB_NomeFunzione,
+        ValCampo: '',
+        ValoriCampo: '',
+        CampoKey: '',
+        StatoRiga: '',
+        ParPagina: '',
+        TipoPerm: C.INAZ_START_TipoPerm,
+        Matches: ''
+      }
+    }]
+  };
 
-  enterInaz(req, res, steps, function(opt, content) {
-    var table = parseInaz(content);
+  _enterInaz(req, res, o, function(opt, content) {
+    const table = uz.parse(content);
     u.log('[table] - stat: '+JSON.stringify(table),opt.debug, opt.debuglines);
-    var results = {
-      data: table
-    };
+    const results = {data: table};
+    if (opt.debug) results.debug = opt.debuglines;
+    return w.ok(res, results);
+  });
+};
+
+exports.paycheck = function(req, res) {
+  const o = {
+    parameters: {
+      VoceMenu: C.INAZ_P6_VoceMenu
+    },
+    steps: [{
+      title: 'START',
+      method: 'POST',
+      path: C.INAZ_PATH_START,
+      referer: C.INAZ_PATH_REFERER_TOPM,
+      data: {
+        AccessCode: C.INAZ_P2_AccessCode,
+        AccessCode2: '{AccessCode2}',
+        ParamFrame: C.INAZCED_START_ParamFrame,
+        VoceMenu: '{VoceMenu}',
+        KKmenu: '{KKmenu}',
+        KAction: '{KAction}',
+        ParamPage: '',
+        ForceTop3: ''
+      }
+    }, {
+      title: 'CED',
+      method: 'POST',
+      path: C.INAZ_PATH_CED,
+      referer: C.INAZ_PATH_REFERER_START,
+      data: {
+        AccessCode: C.INAZ_P2_AccessCode,
+        AccessCode2: '{AccessCode2}',
+        ParamPage: uz.replace(C.INAZ_CED_ParamPage),
+        TipoPerm: C.INAZ_START_TipoPerm
+      },
+      keepers: [{
+        name: 'CEDURL',
+        mode: 'onetime',
+        action: uz.keepPdfUrl
+      }]
+    },{
+      title: 'CED',
+      method: 'GET',
+      path: C.INAZ_CED_DocFilePath+'{CEDURL}'
+    }]
+  };
+  _enterInaz(req, res, o, function(opt) {
+    const results = {};
+    u.log('[table] - busta paga', opt.debug, opt.debuglines);
     if (opt.debug) results.debug = opt.debuglines;
     return w.ok(res, results);
   });
 };
 
 
-function paramsReplace(voice) {
-  voice = voice.replace('[P1]',process.env.INAZ_P1_VoceMenu);
-  voice = voice.replace('[P2]',process.env.INAZ_P2_AccessCode);
-  voice = voice.replace('[P3]',process.env.INAZ_P3_Query);
-  voice = voice.replace('[P4]',process.env.INAZ_P4_VoceMenu);
-  voice = voice.replace('[P5]',process.env.INAZ_P5_Query);
-  return voice;
-}
-
-
-
-function manageHistory(reqopt, data, cb) {
+function _manageHistory(reqopt, data, cb) {
   // STRUTTURA DEI RISULTATI:
   var results = {
     data: data,
@@ -306,41 +382,20 @@ function manageHistory(reqopt, data, cb) {
   //if (reqopt.perm>0 || reqopt.work!=480)
     results.meta.push({day:reqopt.today, perm:reqopt.perm, work:reqopt.work});
 
-  var userdata = normalize(reqopt.user, results);
+  var userdata = uz.normalize(reqopt.user, results);
   if (!reqopt.all) {
-    var partial = denormalize(userdata);
+    var partial = uz.denormalize(userdata);
     cb(null, partial);
   }
-  mergeHistory(userdata, function(err, res){
+  _mergeHistory(userdata, function(err, res){
     u.log('[manageHistory] - merged data results:'+JSON.stringify(res), reqopt.debug, reqopt.debuglines);
-    var dendata = denormalize(res);
+    var dendata = uz.denormalize(res);
     u.log('[manageHistory] - merged data denormalize results:'+JSON.stringify(dendata), reqopt.debug, reqopt.debuglines);
     if (reqopt.all) cb(err, dendata);
   }, reqopt.today);
 }
 
-/**
- * Restituisce un valore numerico univoco per l'item
- * @param d
- * @returns {Number}
- */
-function getDataN(d) {
-  return parseInt(d['C1'].substr(6,4)+d['C1'].substr(3,2)+d['C1'].substr(0,2)+ u.merge(d['C2'])+u.merge(d['C3']));
-}
-
-function getTimeM(d) {
-  return (parseInt(d['C2'])*60)+parseInt(d['C3']);
-}
-
-function getValues(d) {
-  var v = [];
-  for(var p in d)
-    if (d.hasOwnProperty(p))
-      v.push(d[p]);
-  return v;
-}
-
-function replaceHistory(userdata, cb) {
+function _replaceHistory(userdata, cb) {
   cb = cb || noop;
   console.log('[replaceHistory] - userdata:'+JSON.stringify(userdata));
   INAZ.remove({'user': userdata.user }, function(){
@@ -350,45 +405,6 @@ function replaceHistory(userdata, cb) {
   });
 }
 
-function sortData(userdata, inverse){
-  var sign = inverse ? -1 : 1;
-  userdata.data.sort(function(d1,d2){ return sign*(d1.key - d2.key); });
-}
-
-function mergeData(userdata, exdata) {
-  if (userdata.data && userdata.data.length>0) {
-    console.log('[mergeData] - userdata:' + JSON.stringify(userdata));
-    //deve eliminare tutti quelli le cui date sono presenti nei nuovi record
-    // giorni delle nuove rilevazioni
-    var days = [];
-    userdata.data.forEach(function (d) {
-      if (days.indexOf(d.C[1]) < 0)
-        days.push(d.C[1]);
-    });
-    console.log('[mergeData] - userdata days:' + JSON.stringify(days));
-    // rimuove tutte le rilevazioni ai giorni specificati
-    console.log('[mergeData] - before remove:' + JSON.stringify(exdata.data));
-    _.remove(exdata.data, function (d) {
-      return (days.indexOf(d.C[1]) >= 0);
-    });
-    console.log('[mergeData] - after remove:' + JSON.stringify(exdata.data));
-    exdata.data = exdata.data.concat(userdata.data);
-    sortData(exdata);
-  }
-}
-function mergeMeta(userdata, exdata, today) {
-  if (userdata.meta && userdata.meta.length>0) {
-    var days = [];
-    userdata.meta.forEach(function (m) {
-      if (days.indexOf(m.day) < 0) days.push(m.day);
-    });
-    days.push(today);
-    var metas = exdata.meta.filter(function (m) {
-      return (days.indexOf(m.day) < 0);
-    });
-    exdata.meta = metas.concat(userdata.meta);
-  }
-}
 
 /**
  *
@@ -396,7 +412,7 @@ function mergeMeta(userdata, exdata, today) {
  * @param today
  * @param cb
  */
-function mergeHistory(userdata, cb, today) {
+function _mergeHistory(userdata, cb, today) {
   cb = cb || noop;
   console.log('[mergeHistory] - userdata:'+JSON.stringify(userdata));
 
@@ -404,7 +420,7 @@ function mergeHistory(userdata, cb, today) {
     if (err) { return cb(err, userdata); }
     //se non è mai stato censito inserisce i dati come sono
     if(!exdata) {
-      sortData(userdata);
+      uz.sortData(userdata);
       INAZ.create(userdata, function(err) {
         cb(err, userdata);
       });
@@ -412,8 +428,8 @@ function mergeHistory(userdata, cb, today) {
     //se esiste gia effettua il merge
     else {
       console.log('[mergeHistory] - exdata:'+JSON.stringify(exdata));
-      mergeData(userdata, exdata);
-      mergeMeta(userdata, exdata, today);
+      uz.mergeData(userdata, exdata);
+      uz.mergeMeta(userdata, exdata, today);
       console.log('[mergeHistory] - final exdata:'+JSON.stringify(exdata));
       exdata.save(function (err) {
         cb(err, exdata);
@@ -422,31 +438,15 @@ function mergeHistory(userdata, cb, today) {
   });
 }
 
-
-
-
-/**
- * Traduce i dati passati in dati utilizzabili nel db
- * @param {object} user
- * @param {object} history
- */
-function normalize(user, history) {
-  var userdata = {
-    user: user.name,
-    data: [],
-    meta: []
-  };
-  if (history && history.data && history.data.length)
-    history.data.forEach(function (h) {
-      userdata.data.push({
-        key:getDataN(h),
-        time:getTimeM(h),
-        C:getValues(h)
-      })
+function _manageUploadResults(merge, res, reqopt, userdata){
+  merge(userdata, function (err) {
+    if (err) return w.error(res, err);
+    INAZ.findOne({'user': reqopt.user.name }, function (err, exdata) {
+      if (err) return w.error(res, err);
+      var dendata = uz.denormalize(exdata);
+      return w.ok(res, dendata);
     });
-  if (history && history.meta && history.meta.length)
-    userdata.meta = userdata.meta.concat(history.meta);
-  return userdata;
+  }, reqopt.today);
 }
 
 exports.upload = function(req, res) {
@@ -468,51 +468,11 @@ exports.upload = function(req, res) {
     if (dataempty && metaempty)
       return w.error(res, new Error('Storico senza valori significativi!'));
 
-    var userdata = normalize(reqopt.user, history);
-    var merge = history.replace ? replaceHistory : mergeHistory;
-    manageUploadResults(merge, res, reqopt, userdata);
+    var userdata = uz.normalize(reqopt.user, history);
+    var merge = history.replace ? _replaceHistory : _mergeHistory;
+    _manageUploadResults(merge, res, reqopt, userdata);
   });
 };
-
-function manageUploadResults(merge, res, reqopt, userdata){
-  merge(userdata, function (err) {
-    if (err) return w.error(res, err);
-    INAZ.findOne({'user': reqopt.user.name }, function (err, exdata) {
-      if (err) return w.error(res, err);
-      var dendata = denormalize(exdata);
-      return w.ok(res, dendata);
-    });
-  }, reqopt.today);
-}
-
-
-function getDenRow(d) {
-  var result = {};
-  d.C.forEach(function(v,i){
-    result['C'+i]=v;
-  });
-  result.key= d.key;
-  return result;
-}
-
-function denormalize(exdata) {
-  var result = {
-    data:[],
-    meta:[]
-  };
-
-  if (exdata){
-    if (exdata.data && exdata.data.length) {
-      exdata.data.forEach(function(d) {
-        result.data.push(getDenRow(d));
-      });
-      sortData(result, true);
-    }
-    if (exdata.meta && exdata.meta.length)
-      result.meta = result.meta.concat(exdata.meta);
-  }
-  return result;
-}
 
 exports.download = function(req, res) {
   var reqopt = u.checkReqOpt(req);
@@ -522,185 +482,9 @@ exports.download = function(req, res) {
     if (err) return w.error(res, err);
     INAZ.findOne({'user': reqopt.user.name }, function (err, exdata) {
       if (err) { w.error(res, err); }
-      var dendata = denormalize(exdata);
+      var dendata = uz.denormalize(exdata);
       w.ok(res, dendata);
     });
   })
 };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-exports.data1 = function(req, res) {
-  var reqopt = u.checkReqOpt(req);
-  if (!reqopt) return w.error(res, new Error('Utente non definito correttamente!'));
-
-
-  var sequence1 = [{
-    usecookies: true,
-    host: process.env.INAZ_HOST,
-    title:'ACCESS',
-    method:'GET',
-    keepAlive:true,
-    path:process.env.INAZ_PATH_LOGIN,
-    headers:{
-      'accept': w.constants.content_accept_text,
-      'accept-language':'it-IT',
-      'content-type':w.constants.content_type_appwww,
-      'user-agent':w.constants.user_agent_moz,
-      'DNT':'1'
-    }
-  },{
-    title:'CHECK',
-    method:'POST',
-    path: process.env.INAZ_PATH_CHECK,
-    encodedata: true,
-    data: {
-      SuHrWeb:'0',
-      IdLogin:reqopt.user.name,
-      IdPwd:reqopt.user.password,
-      ServerLDAP:process.env.INAZ_SERVER_LDAP
-    },
-    headers:{
-      'Connection': 'close'
-    }
-  },{
-    title:'DEFAULT',
-    method:'POST',
-    path:process.env.INAZ_PATH_DEFAULT,
-    referer:process.env.INAZ_PATH_REFERER_LOGIN,
-    validations: [{target:'IdPwdCript', func: u.decodeFromEsa}],
-    data: {
-      IdLogin: reqopt.user.name,
-      IdPwdCript: '',
-      IdFrom: 'LOGIN',
-      RetturnTo: process.env.INAZ_PATH_REFERER_LOGIN
-    }
-  },{
-    title:'TOPM',
-    method:'GET',
-    path:process.env.INAZ_PATH_TOPM,
-    referer:process.env.INAZ_PATH_REFERER_DEFAULT
-  },{
-    title:'BLANK',
-    method:'GET',
-    path:process.env.INAZ_PATH_BLANK,
-    referer:process.env.INAZ_PATH_REFERER_DEFAULT
-  },{
-    title:'HOME',
-    method:'POST',
-    path:process.env.INAZ_PATH_HOME,
-    referer:process.env.INAZ_PATH_REFERER_TOPM,
-    data: {
-      AccessCode:process.env.INAZ_P2_AccessCode,
-      ParamFrame:'',
-      VoceMenu:'',
-      ParamPage:''
-    }
-  },{
-    title:'START',
-    method:'POST',
-    path:process.env.INAZ_PATH_START,
-    referer:process.env.INAZ_PATH_REFERER_TOPM,
-    data:{
-      AccessCode:process.env.INAZ_P2_AccessCode,
-      ParamFrame:paramsReplace(process.env.INAZ_START_ParamFrame),
-      ParamPage:'',
-      VoceMenu:process.env.INAZ_P1_VoceMenu
-    }
-  },{
-    title:'FIND',
-    method:'POST',
-    path:process.env.INAZ_PATH_FIND,
-    referer:process.env.INAZ_PATH_REFERER_START,
-    data: {
-      AccessCode:process.env.INAZ_P2_AccessCode,
-      ParamPage:paramsReplace(process.env.INAZ_FIND_ParamPage)
-    }
-  },{
-    title:'TIMB',
-    method:'POST',
-    path:process.env.INAZ_PATH_TIMB,
-    referer:process.env.INAZ_PATH_REFERER_FIND,
-    data: {
-      AccessCode:process.env.INAZ_P2_AccessCode,
-      ParamPage:paramsReplace(process.env.INAZ_TIMB_ParamPage),
-      ListaSel:'',
-      ActionPage:'',
-      NomeFunzione:process.env.INAZ_TIMB_NomeFunzione,
-      ValCampo:'',
-      ValoriCampo:'',
-      CampoKey:'',
-      StatoRiga:'',
-      ParPagina:'',
-      Matches:''
-    }
-  }];
-
-  console.log('sequenza:'+JSON.stringify(sequence1));
-};
-
-
-
-function _getList(menu, txt) {
-  const rgx = new RegExp('\\s' + menu + '=(.*?)(?=;)', 'g');
-  const m = rgx.exec(txt);
-  const list_str = m ? m[1] : '[]';
-  return JSON.parse(list_str);
-}
-
-function _deepClone(o) {
-  return JSON.parse(JSON.stringify(o));
-}
-
-function _find(cll, voice, cb, indices) {
-  indices = indices || [];
-  cll.forEach(function (ci, idx) {
-    if (ci === voice) {
-      indices.push(idx);
-      return cb(indices);
-    } else if (_.isArray(ci)) {
-      const idc = _deepClone(indices);
-      idc.push(idx);
-      _find(ci, voice, cb, idc);
-    }
-  });
-}
-
-function _getAt(cll, indices) {
-  var v = cll;
-  if (_.isArray(v)) (indices||[]).forEach(function(i){v = v[i];})
-  return v;
-}
-
-function parseMenuVoice(content, voice, menus, cb) {
-  var voices = _getList(menus[0], content);
-  _find(voices, voice, function(indices) {
-    const result = {};
-    menus.forEach(function(mn){
-      const m = _getList(mn, content);
-      result[mn] = _getAt(m, indices);
-    });
-    cb(result)
-  });
-}
-
-function keepKeys(item, options, content) {
-  const menus = process.env.INAZ_START_MenuTree.split(',');
-  const code = parseInt(process.env.INAZ_P1_VoceMenu);
-  parseMenuVoice(content, code, menus, function(data){
-    w.checkKeeper(options, process.env.INAZ_START_MenuName, (data||{})[process.env.INAZ_START_MenuName_V]);
-    w.checkKeeper(options, process.env.INAZ_START_MenuAction, (data||{})[process.env.INAZ_START_MenuAction_V]);
-  });
-  return 'executed';
-}

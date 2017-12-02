@@ -353,6 +353,11 @@ progress-clock {
   left: 50px;
   bottom: 20px;
 }
+.fa-inaz-ced {
+  position: absolute;
+  left: 80px;
+  bottom: 20px;
+}
 
 .page-debug {
   margin: 0 50px;

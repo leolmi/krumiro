@@ -308,6 +308,8 @@ function _replaceData(data, options) {
 function chainOfRequestsX(options, sequence, i, cb) {
   if (sequence[i].method) options.method = sequence[i].method;
   if (sequence[i].path) options.path = sequence[i].path;
+  options.path = _repaceKeepers(options.path, options.keepers);
+
   if (sequence[i].referer) options.headers.referer = sequence[i].referer;
   if (sequence[i].headers) {
     for(var pn in sequence[i].headers)

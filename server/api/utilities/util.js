@@ -29,12 +29,11 @@ exports.uiid_templates = {
 exports.uuid = function(template) {
   template = template || 'xxxxxxxxxxxx';
   var d = new Date().getTime();
-  var id = template.replace(/[xy]/g, function(c) {
+  return template.replace(/[xy]/g, function(c) {
     var r = (d + Math.random()*16)%16 | 0;
     d = Math.floor(d/16);
-    return (c=='x' ? r : (r&0x3|0x8)).toString(16);
+    return (c==='x' ? r : (r&0x3|0x8)).toString(16);
   });
-  return id;
 };
 
 /**
@@ -61,6 +60,7 @@ exports.merge = merge;
 
 
 function getCharEsa(cc, upper){
+  if (!cc) return '';
   var h = cc.toString(16);
   if (upper) h = h.toUpperCase();
   if (h.length < 2)
@@ -73,17 +73,17 @@ function isLitteral(cc) {
 }
 
 function encodeToEsa(s, pswmode) {
+  console.log('TO ESA: %s', s);
   var res = '';
   for (var i = 0,n = s.length; i<n; i++) {
     if (pswmode) {
       if (isLitteral(s.charCodeAt(i)))
         res += s[i];
       else {
-        res += '%'+getCharEsa(s.charCodeAt(i), true);
+        res += '%'+(s?getCharEsa(s.charCodeAt(i), true):'');
       }
-    }
-    else {
-      res += getCharEsa(s.charCodeAt(i));
+    } else {
+      res += s?getCharEsa(s.charCodeAt(i)):'';
     }
   }
   return res;
@@ -126,11 +126,17 @@ function checkReqOpt(req) {
 }
 exports.checkReqOpt = checkReqOpt;
 
+function deepClone(o) {
+  return JSON.parse(JSON.stringify(o));
+}
+exports.deepClone = deepClone;
+
+
 /**
  * Logga il testo
  * @param {string} txt
  * @param {boolean} [totarget]
- * @param {array} [target]
+ * @param {[]} [target]
  */
 function log(txt, totarget, target) {
   if (!totarget) return;
@@ -139,3 +145,26 @@ function log(txt, totarget, target) {
   console.log(txt);
 }
 exports.log = log;
+
+
+function findInCll(cll, voice, cb, indices) {
+  indices = indices || [];
+  (cll||[]).forEach(function (ci, idx) {
+    if (ci === voice) {
+      indices.push(idx);
+      return cb(indices);
+    } else if (_.isArray(ci)) {
+      const idc = deepClone(indices);
+      idc.push(idx);
+      findInCll(ci, voice, cb, idc);
+    }
+  });
+}
+exports.findInCll = findInCll;
+
+function getAt(cll, indices) {
+  var v = cll;
+  if (_.isArray(v)) (indices||[]).forEach(function(i){v = v[i];});
+  return v;
+}
+exports.getAt = getAt;
