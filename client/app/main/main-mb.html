@@ -1,4 +1,4 @@
-<div class="page-main quando-container visible">
+<div class="page-main-mobile quando-mobile-container visible">
   <!-- HEADER -->
   <div class="header">
     Oggi è {{getDate()}}
@@ -20,7 +20,7 @@
     </div>
   </div>
   <!-- MAIN PANEL -->
-  <form class="form-horizontal" id="loginform" onsubmit="angular.element(this).scope().handleSubmit(this)">
+  <form class="form-horizontal main-panel" id="loginform" onsubmit="angular.element(this).scope().handleSubmit(this)">
     <div class="form-group">
       <label class="col-xs-6 control-label">Ore da fare / Permesso</label>
       <div class="col-xs-6">
@@ -36,7 +36,7 @@
         <tempi-item ng-repeat="i in context.items" ng-model="i" ng-change="recalc()"></tempi-item>
       </div>
     </div>
-    <div class="form-group">
+    <div class="form-group totals">
       <label class="col-xs-6 control-label">Uscita prevista alle:</label>
       <div class="col-xs-6">
         <div class="form-control result transition" ng-class="{'alarmed':alarmed}">{{context.exit}}</div>
@@ -63,70 +63,23 @@
       </div>
     </div>
   </form>
-  <!-- ALARMS -->
-  <span class="fa-stack fa-lg aslink" ng-click="toggleAlarms()" title="Attiva gli allarmi">
-    <i class="fa fa-bullhorn fa-stack-1x"></i>
-    <i class="fa fa-ban fa-stack-2x text-danger" ng-show="!context.options.alarms"></i>
-  </span>
-  <!--  -->
-  <i class="fa fa-trophy fa-inaz-stat fa-lg aslink" ng-click="toggleStat()"
-     title="Statistiche inaz" ng-class="{'active':context.stat.show}"
-     ng-show="context.user.name && context.user.password"></i>
-  <!--<i class="fa fa-money fa-inaz-ced fa-lg aslink" ng-click="downloadCed()"-->
-     <!--title="Scarica ultima busta paga"-->
-     <!--ng-show="context.user.name && context.user.password"></i>-->
-  <kbd>beta {{product ? product.version : '...'}}</kbd>
+  <!-- INAZ STAT -->
   <div class="inaz-stat" ng-class="{'visible':context.stat.show}">
     <div class="inaz-stat-data">
       <div ng-show="!context.stat.data || milking">Nessun dato</div>
       <div ng-show="context.stat.data && !milking" ng-repeat="d in context.stat.data">{{d.title}}: <span class="value">{{d.value}}</span></div>
     </div>
   </div>
-</div>
-<i class="details details-help fa fa-2x fa-user-md" ng-class="{'active':helpon}" ng-click="help()" title="Help"></i>
-<i class="details details-amonalie fa fa-2x fa-bug" ng-class="{'active':context.amonalie.show}" ng-click="toggleAmonalie()" title="Amonalie"></i>
-<i class="details details-history fa fa-2x fa-calendar" ng-class="{'enabled':context.user.name && context.user.password,'active':context.inaz.show}" ng-click="toggleInaz()" title="Storico Bedgiature"></i>
-<i class="details details-works fa fa-2x fa-paw" ng-class="{'enabled':context.user.name && context.user.password,'active':context.rap.show}" ng-click="toggleRap()" title="Rapportini"></i>
-<div class="popup-page page-inaz quando-container" ng-class="{'visible':context.inaz.show,'large':context.inaz.analisys.show}">
-  <div class="header">
-    <span class="header-title">Storico</span>
-    <i class="fa fa-2x fa-refresh aslink" ng-click="reloadInaz()"></i>
-    <i class="fa fa-2x fa-calculator aslink" ng-click="analisys()" ng-class="{'checked':context.inaz.analisys.show}"></i>
-    <input id="history-file" type="file" class="hidden" ng-model-instant onchange="angular.element(this).scope().uploadHistoryContent(this)"/>
+  <div class="bottom-space"></div>
+  <!-- BOTTOM TOOLBAR -->
+  <div class="bottom-bar">
+    <span class="fa-stack fa-lg aslink" ng-click="toggleAlarms()" title="Attiva gli allarmi">
+      <i class="fa fa-bullhorn fa-stack-1x"></i>
+      <i class="fa fa-ban fa-stack-2x text-danger" ng-show="!context.options.alarms"></i>
+    </span>
+    <i class="fa fa-trophy fa-lg aslink" ng-click="toggleStat()"
+       title="Statistiche inaz" ng-class="{'active':context.stat.show}"
+       ng-show="context.user.name && context.user.password"></i>
+    <span class="version">beta {{product ? product.version : '...'}}</span>
   </div>
-  <inaz ng-model="context"></inaz>
 </div>
-<div class="popup-page page-rapportini quando-container" ng-class="{'visible':context.rap.show}">
-  <div class="header">
-    <span class="header-title">Rapportini</span>
-    <i class="fa fa-2x fa-refresh aslink" ng-click="reloadRap()"></i>
-    <i class="fa fa-2x fa-eraser aslink" ng-click="context.rap.clear()" ng-show="context.rap.selection"></i>
-  </div>
-  <rapportini ng-model="context"></rapportini>
-</div>
-<div class="popup-page page-amonalie quando-container" ng-class="{'visible':context.amonalie.show}">
-  <div class="header">
-    <span class="header-title">Amonalie</span>
-    <i class="fa fa-2x fa-refresh aslink" ng-click="reloadAmonalie()"></i>
-    <i class="fa fa-2x fa-bars aslink" ng-click="toggleAmonalieOptions()" ng-class="{'checked':context.amonalie.o.show}"></i>
-  </div>
-  <amonalie ng-model="context"></amonalie>
-</div>
-<div class="page-help" ng-style="helpstyle">
-  <h1>{{instractions.title}}</h1>
-  <div class="q-section" ng-repeat="s in instractions.sections">
-    <h1><i class="fa fa-fw fa-3x" ng-class="s.icon"></i> {{s.title}}</h1>
-    <p>{{s.desc}}</p>
-  </div>
-  <p>{{instractions.footer}} <a href="https://github.com/leolmi/krumiro/issues"><i class="fa fa-user-md"></i></a></p>
-</div>
-<!--<trullo ng-hide="helpon"></trullo>-->
-<div class="page-debug" ng-show="context.options.debug">
-  <i class="fa fa-eraser aslink" ng-click="debuglines=[]"></i>
-  <pre class="page-debug-item" ng-repeat="l in debuglines" ng-class="{'expanded':expanded[$index]}">{{l}}<i
-    class="debug-item-button fa fa-2x fa-copy"
-    ng-click="copyToClipboard(l)" title="copy to clipboard"></i><i
-    class="debug-item-button btn-2 fa fa-2x" ng-class="{'fa-plus-square-o':!expanded[$index], 'fa-minus-square-o':expanded[$index]}"
-    ng-click="toggle($index)" title="expand/collapse area"></i></pre>
-</div>
-

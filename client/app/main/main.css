@@ -399,3 +399,71 @@ progress-clock {
   right: 30px;
 }
 
+.page-main-mobile {
+  /*height: 100%;*/
+}
+
+.quando-mobile-container {
+  padding: 24px;
+  background-color: #222;
+  color: #eee;
+  overflow: hidden;
+  -moz-transition: all .50s ease-in-out;
+  -o-transition: all .50s ease-in-out;
+  -webkit-transition: all .50s ease-in-out;
+  transition: all .50s ease-in-out;
+}
+
+.quando-mobile-container .options-commands,
+.quando-mobile-container .tempi-item{
+  display: none;
+}
+
+.quando-mobile-container .main-panel {
+  font-size: .8em;
+}
+
+.quando-mobile-container .col-xs-6 {
+  padding-left: 0;
+  padding-right: 0;
+}
+.quando-mobile-container .option-values {
+  padding: 10px;
+}
+
+
+.quando-mobile-container .main-panel .form-control {
+  width: 60px;
+}
+.quando-mobile-container .main-panel .form-group.totals {
+  margin-top: 50px;
+}
+
+.quando-mobile-container .main-panel progress-clock {
+  right: 70px;
+}
+.quando-mobile-container .inaz-stat.visible .inaz-stat-data {
+  height: 190px;
+}
+.quando-mobile-container .bottom-space {
+  width: 100%;
+  height: 50px;
+  position: absolute;
+  left: 0;
+}
+.quando-mobile-container .bottom-bar {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  left: 0;
+  z-index: 10;
+  background-color: #222;
+}
+.quando-mobile-container .bottom-bar .version {
+  float: right;
+  background-color: orange;
+  height: 40px;
+  line-height: 40px;
+  padding: 0 10px;
+  opacity: .7;
+}

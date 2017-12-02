@@ -781,7 +781,7 @@ angular.module('krumiroApp')
               Logger.ok("Storici aggiornati correttamente!");
               loadAllData(results);
             }, function (err) {
-              Logger.error('Errore in fase di richiesta rapportini', err);
+              Logger.error('Errore in richiesta di aggiornamento storici', err);
             });
         };
         reader.readAsText(args.files[0]);

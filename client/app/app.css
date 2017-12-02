@@ -38,7 +38,14 @@
     padding: 0.2em 0;
 }
 
-.background {
+html.mobile,
+html.mobile body,
+html.mobile body [ng-view] {
+  height: 100%;
+  background-color: #222;
+}
+
+html:not(.mobile) body .background {
   top: 0;
   left: 0;
   background: url('../assets/images/bg.jpg') no-repeat center center;
