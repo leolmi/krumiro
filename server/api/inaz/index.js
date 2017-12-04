@@ -12,7 +12,7 @@ router.post('/', controller.bedge);
 router.post('/download', controller.download);
 router.post('/upload', controller.upload);
 router.post('/stat', controller.stat);
-// router.post('/paycheck', controller.paycheck);
+router.post('/paycheck', controller.paycheck);
 
 
 module.exports = router;

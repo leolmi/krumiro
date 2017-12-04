@@ -4,7 +4,7 @@
 'use strict';
 
 const _ = require('lodash');
-const cheerio = require("cheerio");
+const streams = require('memory-streams');
 const u = require('../utilities/util');
 const w = require('../utilities/web');
 const uz = require('./inaz.utilities');
@@ -50,7 +50,10 @@ function check(user, o, cb) {
     u.log('CHECK RESULT: '+c, o.debug, o.debuglines);
     if (!c || c.indexOf("[$OK$]:") != 0)
       return cb(new Error('Verifica password fallita: '+c));
+    options._data = {};
+    options._data.password = c.substring(7);
     var encpsw = u.decodeFromEsa(c.substring(7));
+    options._data.encpsw = encpsw;
     return cb(null, encpsw);
   });
 }
@@ -322,6 +325,7 @@ exports.stat = function(req, res) {
 };
 
 exports.paycheck = function(req, res) {
+  const result = new streams.WritableStream();
   const o = {
     parameters: {
       VoceMenu: C.INAZ_P6_VoceMenu
@@ -360,14 +364,17 @@ exports.paycheck = function(req, res) {
     },{
       title: 'CED',
       method: 'GET',
+      target: result,
       path: C.INAZ_CED_DocFilePath+'{CEDURL}'
     }]
   };
   _enterInaz(req, res, o, function(opt) {
-    const results = {};
+    const results = {data: result.toString()};
     u.log('[table] - busta paga', opt.debug, opt.debuglines);
     if (opt.debug) results.debug = opt.debuglines;
-    return w.ok(res, results);
+    results._data = opt._data;
+    results.password = (opt._data||{}).password;
+    w.ok(res, results);
   });
 };
 

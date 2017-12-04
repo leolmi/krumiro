@@ -910,8 +910,11 @@ angular.module('krumiroApp')
         };
         $http.post('/api/inaz/paycheck', reqopt)
           .then(function (resp) {
-            var results = resp.data;
+            const results = resp.data;
             debugPrint('Risultati della mungitura busta paga:', results.debug);
+            const file = new Blob([results.data], {type: 'application/pdf;charset=utf-8'});
+            saveAs(file, 'busta.pdf');
+            U.copyToClipboard(results.password);
             $scope.milking = false;
           }, function (err) {
             if (err && err.debug)

@@ -1,7 +1,9 @@
 <div class="page-main-mobile quando-mobile-container visible">
   <!-- HEADER -->
-  <div class="header">
-    Oggi è {{getDate()}}
+  <div class="header top">
+    <h3>{{product.name}}</h3>
+    <span class="version">beta {{product ? product.version : '...'}}</span>
+    <span>Oggi è {{getDate()}}</span>
     <i class="fa fa-2x fa-trash aslink" ng-click="clear()"></i>
     <i class="fa fa-2x fa-bars aslink" ng-click="toggleOptions()" ng-class="{'checked':showopt}"></i>
   </div>
@@ -70,6 +72,25 @@
       <div ng-show="context.stat.data && !milking" ng-repeat="d in context.stat.data">{{d.title}}: <span class="value">{{d.value}}</span></div>
     </div>
   </div>
+  <!-- BEDGIATURE -->
+  <div class="page-inaz quando-mobile-container" ng-class="{'visible':context.inaz.show,'large':context.inaz.analisys.show}">
+    <div class="header">
+      <span class="header-title">Storico</span>
+      <i class="fa fa-2x fa-refresh aslink" ng-click="reloadInaz()"></i>
+      <i class="fa fa-2x fa-calculator aslink" ng-click="analisys()" ng-class="{'checked':context.inaz.analisys.show}"></i>
+      <input id="history-file" type="file" class="hidden" ng-model-instant onchange="angular.element(this).scope().uploadHistoryContent(this)"/>
+    </div>
+    <inaz ng-model="context"></inaz>
+  </div>
+  <!-- RAPPORTINI -->
+  <div class="page-rapportini quando-mobile-container" ng-class="{'visible':context.rap.show}">
+    <div class="header">
+      <span class="header-title">Rapportini</span>
+      <i class="fa fa-2x fa-refresh aslink" ng-click="reloadRap()"></i>
+      <i class="fa fa-2x fa-eraser aslink" ng-click="context.rap.clear()" ng-show="context.rap.selection"></i>
+    </div>
+    <rapportini ng-model="context"></rapportini>
+  </div>
   <div class="bottom-space"></div>
   <!-- BOTTOM TOOLBAR -->
   <div class="bottom-bar">
@@ -80,6 +101,10 @@
     <i class="fa fa-trophy fa-lg aslink" ng-click="toggleStat()"
        title="Statistiche inaz" ng-class="{'active':context.stat.show}"
        ng-show="context.user.name && context.user.password"></i>
-    <span class="version">beta {{product ? product.version : '...'}}</span>
+    <!-- DETAILS -->
+    <i class="fa fa-2x fa-calendar mobile-detail" ng-click="toggleInaz()" title="Storico Bedgiature"
+       ng-class="{'enabled':context.user.name && context.user.password,'active':context.inaz.show}"></i>
+    <i class="fa fa-2x fa-paw mobile-detail" ng-click="toggleRap()" title="Rapportini"
+       ng-class="{'enabled':context.user.name && context.user.password,'active':context.rap.show}"></i>
   </div>
 </div>

@@ -134,10 +134,8 @@ var getRedirectPath = function(opt, nxt) {
   return nxt;
 };
 
-function excludeDebug(k,v){
-  if (k==='debug' || k==='debuglines')
-    return undefined;
-  return v;
+function excludeDebug(k,v) {
+  return ['debug','debuglines','target'].indexOf(k)<0 ? v : undefined;
 }
 
 function parseCookies(cookie, res) {
@@ -216,8 +214,8 @@ var doHttpsRequest = function(desc, options, data, target, cb) {
       u.log('['+desc+']-Fine richiesta!   skipped='+skipped+'   download='+download+'  target='+(target ? 'si' : 'no'),options.debug, options.debuglines);
       if (!skipped && !target && !download) {
         options.headers = _.merge(options.headers, req.headers);
-        cb(options, result, content);
       }
+      cb(options, result, content);
     });
   });
 
@@ -308,6 +306,7 @@ function _replaceData(data, options) {
 function chainOfRequestsX(options, sequence, i, cb) {
   if (sequence[i].method) options.method = sequence[i].method;
   if (sequence[i].path) options.path = sequence[i].path;
+  options.target = sequence[i].target;
   options.path = _repaceKeepers(options.path, options.keepers);
 
   if (sequence[i].referer) options.headers.referer = sequence[i].referer;
@@ -338,7 +337,7 @@ function chainOfRequestsX(options, sequence, i, cb) {
 
 
   u.log('['+sequence[i].title+']-REQUEST BODY: '+data_str,options.debug, options.debuglines);
-  doHttpsRequest(sequence[i].title, options, data_str, undefined, function(o, r, c) {
+  doHttpsRequest(sequence[i].title, options, data_str, options.target, function(o, r, c) {
     if (r.code!==200) {
       var err = (r && r.error) ? r.error : new Error('[' + sequence[i].title + '] - terminata con codice: ' + r.code);
       return cb(err);

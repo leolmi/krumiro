@@ -399,12 +399,19 @@ progress-clock {
   right: 30px;
 }
 
+
+
+
+
+
+
+
 .page-main-mobile {
   /*height: 100%;*/
 }
 
 .quando-mobile-container {
-  padding: 24px;
+  /*padding: 24px;*/
   background-color: #222;
   color: #eee;
   overflow: hidden;
@@ -413,24 +420,62 @@ progress-clock {
   -webkit-transition: all .50s ease-in-out;
   transition: all .50s ease-in-out;
 }
+.quando-mobile-container.page-main-mobile {
+  padding-top: 76px;
+}
+.quando-mobile-container:not(.visible) {
+  height: 0;
+}
 
+/* HEADER */
+.quando-mobile-container .header {
+  margin-bottom: 0;
+  padding: 10px;
+  background-color: orange;
+}
+.quando-mobile-container .header > h3 {
+  margin-top: 0;
+}
+.quando-mobile-container .header .version {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+.quando-mobile-container .header.top {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
+}
+
+/* OPTIONS */
+.quando-mobile-container .options {
+  margin: 0;
+}
+.quando-mobile-container .option-values {
+  padding: 10px;
+}
 .quando-mobile-container .options-commands,
 .quando-mobile-container .tempi-item{
   display: none;
 }
 
+/* MAIN PANEL */
 .quando-mobile-container .main-panel {
   font-size: .8em;
+  padding-top: 10px;
 }
 
 .quando-mobile-container .col-xs-6 {
   padding-left: 0;
   padding-right: 0;
 }
-.quando-mobile-container .option-values {
-  padding: 10px;
-}
 
+.quando-mobile-container .form-horizontal .form-group {
+  margin-right: 0;
+  margin-left: 0;
+  padding: 0 10px;
+}
 
 .quando-mobile-container .main-panel .form-control {
   width: 60px;
@@ -440,10 +485,10 @@ progress-clock {
 }
 
 .quando-mobile-container .main-panel progress-clock {
-  right: 70px;
+  right: 60px;
 }
 .quando-mobile-container .inaz-stat.visible .inaz-stat-data {
-  height: 190px;
+  height: 174px;
 }
 .quando-mobile-container .bottom-space {
   width: 100%;
@@ -456,14 +501,40 @@ progress-clock {
   bottom: 0;
   width: 100%;
   left: 0;
-  z-index: 10;
+  z-index: 1000;
   background-color: #222;
 }
-.quando-mobile-container .bottom-bar .version {
+
+.quando-mobile-container .header-title {
+  text-transform: none;
+}
+
+.quando-mobile-container .mobile-detail {
   float: right;
-  background-color: orange;
-  height: 40px;
-  line-height: 40px;
+  padding: 4px 10px;
+  background-color: rgba(100, 100, 100, .1);
+}
+.quando-mobile-container .mobile-detail.active {
+  color: yellowgreen;
+}
+
+.quando-mobile-container .header > i {
+  margin: 0;
   padding: 0 10px;
-  opacity: .7;
+}
+.quando-mobile-container .rap-controls-container {
+  padding-top: 10px;
+}
+.quando-mobile-container .rap-advanced > .description {
+  font-size: 9px;
+}
+.quando-mobile-container .rap-search {
+  width: 100%;
+}
+
+.quando-mobile-container .analisys.visible > .analisys-internal {
+  width: 100%;
+  left: 0;
+  height: 200px;
+  padding: 10px 0 0;
 }
