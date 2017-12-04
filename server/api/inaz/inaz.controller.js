@@ -50,10 +50,7 @@ function check(user, o, cb) {
     u.log('CHECK RESULT: '+c, o.debug, o.debuglines);
     if (!c || c.indexOf("[$OK$]:") != 0)
       return cb(new Error('Verifica password fallita: '+c));
-    options._data = {};
-    options._data.password = c.substring(7);
-    var encpsw = u.decodeFromEsa(c.substring(7));
-    options._data.encpsw = encpsw;
+    const encpsw = u.decodeFromEsa(c.substring(7));
     return cb(null, encpsw);
   });
 }
@@ -372,8 +369,6 @@ exports.paycheck = function(req, res) {
     const results = {data: result.toString()};
     u.log('[table] - busta paga', opt.debug, opt.debuglines);
     if (opt.debug) results.debug = opt.debuglines;
-    results._data = opt._data;
-    results.password = (opt._data||{}).password;
     w.ok(res, results);
   });
 };
