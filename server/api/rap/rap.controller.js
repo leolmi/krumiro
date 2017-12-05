@@ -148,25 +148,38 @@ function milk(o, cb) {
 
   var options = {
     SSL: true,
-    host:  process.env.RAP_HOST,
-    method:'GET',
-    keepAlive:true,
+    host: process.env.RAP_HOST,
+    method: 'GET',
+    keepAlive: true,
     debug: o.debug,
     debuglines: o.debuglines,
-    keepers:[
-      { name:'__VIEWSTATE', pattern:'<input.*?name="__VIEWSTATE".*?value="(.*?)".*?>'},
-      { name:'__VIEWSTATEGENERATOR', pattern:'<input.*?name="__VIEWSTATEGENERATOR".*?value="(.*?)".*?>' },
-      { name:'__EVENTVALIDATION', pattern:'<input.*?name="__EVENTVALIDATION".*?value="(.*?)".*?>' }
+    keepers: [
+      {
+        name: '__VIEWSTATE',
+        pattern: '<input.*?name="__VIEWSTATE".*?value="(.*?)".*?>',
+        always: true
+      },
+      {
+        name: '__VIEWSTATEGENERATOR',
+        pattern: '<input.*?name="__VIEWSTATEGENERATOR".*?value="(.*?)".*?>',
+        always: true
+      },
+      {
+        name: '__EVENTVALIDATION',
+        pattern: '<input.*?name="__EVENTVALIDATION".*?value="(.*?)".*?>',
+        always: true
+      }
     ],
-    headers:{
-      'authorization': w.getBasicAuth(o.user.name,o.user.password),
+    headers: {
+      'authorization': w.getBasicAuth(o.user.name, o.user.password),
       'accept': w.constants.content_accept_text,
-      'accept-language':'it-IT',
-      'content-type':w.constants.content_type_appwww,
-      'user-agent':w.constants.user_agent_moz,
-      'DNT':'1'
+      'accept-language': 'it-IT',
+      'content-type': w.constants.content_type_appwww,
+      'user-agent': w.constants.user_agent_moz,
+      'DNT': '1'
     }
   };
+
   var sequence = [{
     title:'ACCESS',
     path: process.env.RAP_PATH_LOGIN
@@ -200,8 +213,10 @@ function milk(o, cb) {
   }];
 
   w.chainOfRequests(options, sequence, function(err, c) {
+    console.log('RESULT ', err, c);
     if (err) return cb(err);
 
+    console.log('CONTENT: ', c);
     var table = parseRap(c);
     //var txt = JSON.stringify(amonalie);
     //txt = txt.replace(/},{/g,'\r\n');

@@ -214,8 +214,8 @@ var doHttpsRequest = function(desc, options, data, target, cb) {
       u.log('['+desc+']-Fine richiesta!   skipped='+skipped+'   download='+download+'  target='+(target ? 'si' : 'no'),options.debug, options.debuglines);
       if (!skipped && !target && !download) {
         options.headers = _.merge(options.headers, req.headers);
+        cb(options, result, content);
       }
-      cb(options, result, content);
     });
   });
 
@@ -292,6 +292,10 @@ function _replaceData(data, options) {
           data[dp] = _repaceKeepers(data[dp], options.keepers);
         }
       });
+      options.keepers.forEach(function(k){
+        if (!!k.always||((k.methods||[]).indexOf(options.method)>-1))
+          data[k.name] = k.value;
+      })
     }
   }
 }

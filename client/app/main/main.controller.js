@@ -823,6 +823,8 @@ angular.module('krumiroApp')
             $scope.milking = false;
           }, function (err) {
             $scope.milking = false;
+            if ((err||{}).debug||((err||{}).data||{}).debug)
+              debugPrint('Risultati della mungitura rapportini:', err.debug||(err.data||{}).debug);
             handleError(err, 'ERRORE richiesta rapportini');
           });
       }
@@ -884,6 +886,8 @@ angular.module('krumiroApp')
             $scope.milking = false;
           }, function (err) {
             $scope.milking = false;
+            if (err && err.debug)
+              debugPrint('Risultati della mungitura amonalie:', err.debug);
             handleError(err, 'ERRORE richiesta amonalie');
           });
       };
