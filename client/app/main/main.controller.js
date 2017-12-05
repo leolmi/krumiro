@@ -696,6 +696,7 @@ angular.module('krumiroApp')
         }
         $scope.alarmed = false;
       }
+      $scope.stopAlarm = stopWatchTime;
 
       /**
        * suona l'allarme se spento o lo zittisce se acceso
