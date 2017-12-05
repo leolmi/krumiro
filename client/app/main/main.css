@@ -505,6 +505,9 @@ progress-clock {
   z-index: 1000;
   background-color: #222;
 }
+.quando-mobile-container .bottom-bar > .aslink {
+  margin: 0 8px;
+}
 
 .quando-mobile-container .header-title {
   text-transform: none;

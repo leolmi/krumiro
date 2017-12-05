@@ -85,3 +85,9 @@ html:not(.mobile) body .background {
 .inline {
   display: inline-block;
 }
+
+.no-outline {
+  outline: none !Important;
+  border: none !Important;
+  box-shadow: none !Important;
+}
