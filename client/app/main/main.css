@@ -432,6 +432,7 @@ progress-clock {
   margin-bottom: 0;
   padding: 10px;
   background-color: orange;
+  color: #111;
 }
 .quando-mobile-container .header > h3 {
   margin-top: 0;

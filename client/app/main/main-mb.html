@@ -103,8 +103,8 @@
        ng-show="context.user.name && context.user.password"></i>
     <!-- DETAILS -->
     <i class="fa fa-2x fa-calendar mobile-detail" ng-click="toggleInaz()" title="Storico Bedgiature"
-       ng-class="{'enabled':context.user.name && context.user.password,'active':context.inaz.show}"></i>
+       ng-if="context.user.name && context.user.password" ng-class="{'active':context.inaz.show}"></i>
     <i class="fa fa-2x fa-paw mobile-detail" ng-click="toggleRap()" title="Rapportini"
-       ng-class="{'enabled':context.user.name && context.user.password,'active':context.rap.show}"></i>
+       ng-if="context.user.name && context.user.password" ng-class="{'active':context.rap.show}"></i>
   </div>
 </div>
