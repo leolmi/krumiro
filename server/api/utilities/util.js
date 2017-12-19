@@ -73,7 +73,6 @@ function isLitteral(cc) {
 }
 
 function encodeToEsa(s, pswmode) {
-  console.log('TO ESA: %s', s);
   var res = '';
   for (var i = 0,n = s.length; i<n; i++) {
     if (pswmode) {

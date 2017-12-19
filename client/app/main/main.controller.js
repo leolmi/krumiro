@@ -122,7 +122,7 @@ angular.module('krumiroApp')
 
       $scope.toggleOptionValue = function (opt) {
         $scope.context.options[opt] = !$scope.context.options[opt];
-        if (opt == 'debug' && !$scope.context.options[opt])
+        if (opt === 'debug' && !$scope.context.options[opt])
           $scope.debuglines = [];
         $scope.recalc();
         _updateOptionsStore();
@@ -136,12 +136,12 @@ angular.module('krumiroApp')
 
       function _decrypt(name) {
         var v = AES.decrypt(name, SCRT);
-        return (v && v != 'undefined') ? v : '';
+        return (v && v !== 'undefined') ? v : '';
       }
 
-      function _encrypt(value, name) {
+      function _encrypt(value) {
         var v = AES.encrypt(value, SCRT);
-        return (v && v != 'undefined') ? v : '';
+        return (v && v !== 'undefined') ? v : '';
       }
 
       function loadOptionsStore() {
@@ -236,14 +236,14 @@ angular.module('krumiroApp')
                 results.data.sort(timeCompare);
 
                 results.data.forEach(function (r) {
-                  if (r['C4'] == 'E') {
+                  if (r['C4'] === 'E') {
                     if (i.E) {
                       items.push(i);
                       i = {};
                     }
                     i.E = r['C2'] + ':' + r['C3'];
                   }
-                  else if (r['C4'] == 'U') {
+                  else if (r['C4'] === 'U') {
                     if (i.U) {
                       items.push(i);
                       i = {};
@@ -284,16 +284,13 @@ angular.module('krumiroApp')
           .then(function (resp) {
             var results = resp.data;
             if (results && results.data.length) {
-              var row = results.data[0];
-              var data = [];
-              var today = new Date();
-              data.push({title: 'Anno', value: today.getFullYear()});
-              data.push({title: 'Mese', value: months[today.getMonth() + 1]});
+              const row = results.data[0];
+              const data = [];
               data.push({title: 'Residuo Anno Prec.', value: row['C1'] + 'gg'});
               data.push({title: 'Maturato Anno', value: row['C2'] + 'gg'});
-              data.push({title: 'Goduti al mese corrente', value: row['C3'] + 'gg'});
+              data.push({title: 'Goduti ad oggi', value: row['C3'] + 'gg'});
               data.push({title: 'Obiettivo al mese corrente', value: row['C4'] + 'gg'});
-              data.push({title: 'Differenza', value: row['C5'] + 'gg'});
+              data.push({title: 'Scostamento', value: row['C5'] + 'gg'});
               data.push({title: 'Residuo attuale', value: row['C6'] + 'gg'});
               $scope.context.stat.data = data;
             }
@@ -384,9 +381,9 @@ angular.module('krumiroApp')
       $scope.getDate = function (mode, sep) {
         sep = sep || '/';
         var date = new Date();
-        if (mode == 'small')
+        if (mode === 'small')
           return date.getDate() + sep + (date.getMonth() + 1) + sep + date.getFullYear();
-        if (mode == 'verysmall')
+        if (mode === 'verysmall')
           return (date.getMonth() + 1) + sep + date.getFullYear();
         return days[date.getDay()] + ' ' + date.getDate() + ' ' + months[date.getMonth()] + ' ' + date.getFullYear();
       };
@@ -454,7 +451,7 @@ angular.module('krumiroApp')
 
           if (m1 > 0 && i.E) {
             lastE = m1;
-            if (firstE == 0) {
+            if (firstE === 0) {
               firstE = m1;
               // l'ingresso dopo le 9:00 va scaglionato sulle mezz'ore
               // se l'opzione è attiva
@@ -604,11 +601,11 @@ angular.module('krumiroApp')
         //aggiunge i meta del giorno
         if ($scope.context.meta.length > 0) {
           var metas = $.grep($scope.context.meta, function (m) {
-            return m.day == day;
+            return m.day === day;
           });
           if (metas && metas.length > 0) {
             if (metas[0].perm > 0) dayitem.perm = metas[0].perm;
-            if (metas[0].work != (8 * 60)) dayitem.work = metas[0].work;
+            if (metas[0].work !== (8 * 60)) dayitem.work = metas[0].work;
           }
         }
         daysItems.push(dayitem);
@@ -626,7 +623,7 @@ angular.module('krumiroApp')
         var items = [], daysItems = [];
         var day = '';
         $scope.context.allitems.forEach(function (i) {
-          if (day != i['C1']) {
+          if (day !== i['C1']) {
             addItems(daysItems, day, items);
             day = i['C1'];
             items = [];
@@ -863,7 +860,7 @@ angular.module('krumiroApp')
       function getValues(o) {
         var v = {values: []};
         for (var pn in o)
-          v.values.push(o[pn]);
+          v.values.push(o[''+pn]);
         return v;
       }
 
