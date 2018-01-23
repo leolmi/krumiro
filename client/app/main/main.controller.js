@@ -35,6 +35,7 @@ angular.module('krumiroApp')
           checknine: true,  //verifica l'ingresso dopo le 9:00
           checklunch: true, //verifica la pausa pranzo
           checkmine: true,  //verifica l'ingresso prima delle 8:30
+          milkstart: true,  // munge all'avvio
           canautomilk: false,  //offre la possibilità di attivare l'automilk
           debug: false,
           halfday: (4 * 60),
@@ -151,11 +152,13 @@ angular.module('krumiroApp')
         try {
           var storedopt = JSON.parse(content);
           if (storedopt) {
-            $scope.context.options.lockuser = storedopt.lockuser;
-            $scope.context.options.alarms = storedopt.alarms;
-            $scope.context.options.checklunch = storedopt.checklunch;
-            $scope.context.options.checkmine = storedopt.checkmine;
-            $scope.context.options.checknine = storedopt.checknine;
+            $scope.context.options.lockuser = !!storedopt.lockuser;
+            $scope.context.options.alarms = !!storedopt.alarms;
+            $scope.context.options.checklunch = _.isUndefined(storedopt.checklunch)?true:storedopt.checklunch;
+            $scope.context.options.checkmine = _.isUndefined(storedopt.checkmine)?true:storedopt.checkmine;
+            $scope.context.options.checknine = _.isUndefined(storedopt.checknine)?true:storedopt.checknine;
+            $scope.context.options.milkstart = _.isUndefined(storedopt.milkstart)?true:storedopt.milkstart;
+            $scope.context.options.canautomilk = !!storedopt.canautomilk;
             $scope.context.amonalie.filter = storedopt.amonalieFilter;
             if ($scope.context.options.lockuser && storedopt.crd && storedopt.crd.name && storedopt.crd.pswd) {
               try {
@@ -947,4 +950,5 @@ angular.module('krumiroApp')
        * Inizializza le opzioni
        */
       $scope.clear();
+      if ($scope.context.user.name && $scope.context.user.password && $scope.context.options.milkstart) $scope.inaz();
     }]);
