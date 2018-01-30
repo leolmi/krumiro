@@ -1,0 +1,17 @@
+<div class="mobile-layout">
+  <div class="klok-view">
+    <svg width="100%" height="100%" viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg" version="1.1">
+      <path id="klok" fill="none" stroke="#333" stroke-width="60" />
+      <text x="300" y="220" text-anchor="middle" id="maindesc" fill="#444">exit at</text>
+      <path ng-attr-d="{{klok.d}}" fill="none" stroke="rgba(154,205,50,.3)" stroke-width="60"></path>
+      <path ng-repeat="i in klok.items" ng-attr-d="{{i.d}}" fill="none" stroke="yellowgreen" stroke-width="60"></path>
+      <text x="300" y="300" text-anchor="middle" id="maintime" ng-class="{'alarmed':alarmed}" fill="yellowgreen" ng-click="stopAlarm()"></text>
+      <text x="300" y="360" text-anchor="middle" id="worktime" fill="yellowgreen"></text>
+      <text x="300" y="380" text-anchor="middle" id="workdesc" fill="#444">work time</text>
+    </svg>
+    <tempi-item ng-repeat="i in context.items" ng-model="i" ng-change="recalc()"></tempi-item>
+  </div>
+  <div class="toolbar">
+
+  </div>
+</div>

@@ -2,8 +2,8 @@
  * Created by Leo on 01/04/2015.
  */
 angular.module('krumiroApp')
-  .controller('TempiCtrl', ['$scope','$http','$interval','$timeout','$window','Utilities','AES','Logger',
-    function ($scope,$http,$interval,$timeout,$window,U,AES,Logger) {
+  .controller('TempiCtrl', ['$scope','$http','$interval','$timeout','$window','Utilities','AES','Logger','klok',
+    function ($scope,$http,$interval,$timeout,$window,U,AES,Logger,klok) {
       var alarm = new Audio('assets/media/alarm.mp3');
       var alarmOwner;
       var SCRT = '431a12934fc4914912895c5103aa51b0';
@@ -25,6 +25,7 @@ angular.module('krumiroApp')
         o: '8',  //ore di lavora da contratto
         p: '',   // permessi / malattie
         exit: '?', // orario d'uscita
+        work: '', // tempo lavorato
         items: [{
           E: '8:30',
           U: ''
@@ -403,6 +404,13 @@ angular.module('krumiroApp')
         return m;
       }
 
+      function _caclKlok() {
+        klok.arc();
+        $scope.klok = klok.calc($scope.context.items);
+        klok.text($scope.context.exit, $scope.klok.work);
+        console.log('KLOK', $scope.klok);
+      }
+
       /**
        * Ricalcola l'orario d'uscita
        */
@@ -481,6 +489,7 @@ angular.module('krumiroApp')
         $scope.context.exitm = r;
         $scope.context.exit = (r > 0) ? U.getTime(r) : '?';
         watchTime();
+        _caclKlok();
       };
 
       /**
@@ -950,5 +959,6 @@ angular.module('krumiroApp')
        * Inizializza le opzioni
        */
       $scope.clear();
+
       if ($scope.context.user.name && $scope.context.user.password && $scope.context.options.milkstart) $scope.inaz();
     }]);
