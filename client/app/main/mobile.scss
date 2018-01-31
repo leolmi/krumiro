@@ -1,5 +1,16 @@
 .mobile-layout {
   padding-bottom: 100px;
+  .label {
+    opacity: .5;
+  }
+  .aslink {
+    &:not(.checked) {
+      color: #666;
+      &:hover {
+        color: #666;
+      }
+    }
+  }
   text {
     -webkit-transition: text-shadow 1s linear;
     -moz-transition: text-shadow 1s linear;
@@ -59,9 +70,14 @@
     &.active {
       max-height: 1000px;
     }
+    input {
+      background-color: #666;
+      border: none;
+      color: #ddd;
+      box-shadow: none !important;
+    }
   }
   .sts-view {
-    //padding: 10px 0;
     > p {
       font-variant: small-caps;
       padding: 5px 10px;
@@ -73,7 +89,7 @@
         color: yellowgreen;
       }
     }
-    .inaz-credentials {
+    .options-inputs {
       padding: 10px;
       input {
         width: 40%;

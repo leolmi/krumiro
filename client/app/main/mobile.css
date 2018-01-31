@@ -1,5 +1,9 @@
 .mobile-layout {
   padding-bottom: 100px; }
+  .mobile-layout .aslink:not(.checked) {
+    color: #666; }
+    .mobile-layout .aslink:not(.checked):hover {
+      color: #666; }
   .mobile-layout text {
     -webkit-transition: text-shadow 1s linear;
     -moz-transition: text-shadow 1s linear;
@@ -41,6 +45,11 @@
     transition: max-height 1s ease-in-out; }
     .mobile-layout .mobile-view.active {
       max-height: 1000px; }
+    .mobile-layout .mobile-view input {
+      background-color: #666;
+      border: none;
+      color: #ddd;
+      box-shadow: none !important; }
   .mobile-layout .sts-view > p {
     font-variant: small-caps;
     padding: 5px 10px;
@@ -50,11 +59,11 @@
     font-weight: 100; }
     .mobile-layout .sts-view > p.checked {
       color: yellowgreen; }
-  .mobile-layout .sts-view .inaz-credentials {
+  .mobile-layout .sts-view .options-inputs {
     padding: 10px; }
-    .mobile-layout .sts-view .inaz-credentials input {
+    .mobile-layout .sts-view .options-inputs input {
       width: 40%; }
-    .mobile-layout .sts-view .inaz-credentials > i {
+    .mobile-layout .sts-view .options-inputs > i {
       font-size: 2em;
       position: absolute;
       width: 20%;
