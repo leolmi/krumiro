@@ -19,9 +19,10 @@ angular.module('krumiroApp')
       _.isUndefined(value) ? e.innerHTML = atrb : e.setAttribute(atrb, value);
     }
 
-    function _text(main, work) {
-      _set('maintime', main||'');
-      _set('worktime', work||'none');
+    function _text(info) {
+      _set('maintime', info.exit||'');
+      _set('worktime', info.work||'');
+      _set('pausetime', info.pause||'');
     }
 
     function init(context) {
@@ -83,17 +84,10 @@ angular.module('krumiroApp')
         if (i.E) {
           if (!info.start) info.start = i.EM;
           const item = {};
-          // ora di entrata
           item.EM = pre && pre.UM > i.EM ? pre.UM + 10 : i.EM;
           item.UM = i.UM > item.EM ? i.UM : 0;
           item.dt = item.UM > item.EM ? item.UM - item.EM : 0;
-          // const item = {
-          //   EM: i.EM,
-          //   UM: i.UM,
-          //   dt: i.UM ? i.UM - i.EM : 0
-          // };
           if (pre && item.dt <= 0) item.dt = pre.EM - 1 - item.EM;
-          info.workM += item.dt;
           info.items.push(item);
           pre = item;
         }
@@ -103,7 +97,6 @@ angular.module('krumiroApp')
       if (!last.UM) {
         last.UM = info.nowM >= last.EM ? info.nowM : last.EM + 10;
         last.dt = last.UM - last.EM;
-        info.workM += last.dt;
       }
       info.str = first.EM;
       info.tot = info.exitM - first.EM;
@@ -111,6 +104,7 @@ angular.module('krumiroApp')
         i.start = info.angle(i.EM);
         i.end = info.angle(i.UM);
         i.d = _d(i);
+        info.workM += i.UM - i.EM;
       });
       info.work = U.getTime(info.workM);
       info.d = _d(first.start + 1, last.end - 1);
@@ -125,10 +119,13 @@ angular.module('krumiroApp')
         info.out.end = info.angle(info.start + max - info.exitM);
         info.out.d = _d(info.out);
       }
-      console.log('ITEMS', _context.items);
-      console.log('KLOK', info);
+      if (max - info.start > info.workM) {
+        info.pause = U.getTime(max - info.workM - info.start);
+      }
+      // console.log('ITEMS', _context.items);
+      // console.log('KLOK', info);
       _arc();
-      _text(info.exit, info.work);
+      _text(info);
       return info;
     }
 

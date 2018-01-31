@@ -21,7 +21,7 @@
   #maintime {
     font-size: 90px;
   }
-  #worktime {
+  #worktime, #pausetime {
     font-size: 30px;
   }
   #maindesc {
@@ -47,6 +47,46 @@
   .tempi-item {
     display: none;
   }
+  .mobile-view {
+    position: relative;
+    max-height: 0;
+    overflow: hidden;
+    background-color: #333;
+    -moz-transition: max-height 1s ease-in-out;
+    -o-transition: max-height 1s ease-in-out;
+    -webkit-transition: max-height 1s ease-in-out;
+    transition: max-height 1s ease-in-out;
+    &.active {
+      max-height: 1000px;
+    }
+  }
+  .sts-view {
+    //padding: 10px 0;
+    > p {
+      font-variant: small-caps;
+      padding: 5px 10px;
+      margin: 0;
+      color: #999;
+      line-height: 1.5em;
+      font-weight: 100;
+      &.checked {
+        color: yellowgreen;
+      }
+    }
+    .inaz-credentials {
+      padding: 10px;
+      input {
+        width: 40%;
+      }
+      > i {
+        font-size: 2em;
+        position: absolute;
+        width: 20%;
+        text-align: center;
+        padding-top: 2px;
+      }
+    }
+  }
   .toolbar {
     position: fixed;
     bottom: 0;
@@ -59,6 +99,10 @@
     i {
       width: 24%;
       text-align: center;
+      &[disabled] {
+        color: rgba(200, 200, 200, 0.03);
+        pointer-events: none;
+      }
     }
   }
 }

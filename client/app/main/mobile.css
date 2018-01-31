@@ -10,7 +10,7 @@
       text-shadow: 0 0 10px yellowgreen, 0 0 20px yellowgreen, 0 0 30px yellowgreen, 0 0 40px tomato, 0 0 70px tomato, 0 0 80px tomato, 0 0 100px tomato, 0 0 150px tomato; }
   .mobile-layout #maintime {
     font-size: 90px; }
-  .mobile-layout #worktime {
+  .mobile-layout #worktime, .mobile-layout #pausetime {
     font-size: 30px; }
   .mobile-layout #maindesc {
     font-size: 20px; }
@@ -30,6 +30,36 @@
       font-size: 16px; }
   .mobile-layout .tempi-item {
     display: none; }
+  .mobile-layout .mobile-view {
+    position: relative;
+    max-height: 0;
+    overflow: hidden;
+    background-color: #333;
+    -moz-transition: max-height 1s ease-in-out;
+    -o-transition: max-height 1s ease-in-out;
+    -webkit-transition: max-height 1s ease-in-out;
+    transition: max-height 1s ease-in-out; }
+    .mobile-layout .mobile-view.active {
+      max-height: 1000px; }
+  .mobile-layout .sts-view > p {
+    font-variant: small-caps;
+    padding: 5px 10px;
+    margin: 0;
+    color: #999;
+    line-height: 1.5em;
+    font-weight: 100; }
+    .mobile-layout .sts-view > p.checked {
+      color: yellowgreen; }
+  .mobile-layout .sts-view .inaz-credentials {
+    padding: 10px; }
+    .mobile-layout .sts-view .inaz-credentials input {
+      width: 40%; }
+    .mobile-layout .sts-view .inaz-credentials > i {
+      font-size: 2em;
+      position: absolute;
+      width: 20%;
+      text-align: center;
+      padding-top: 2px; }
   .mobile-layout .toolbar {
     position: fixed;
     bottom: 0;
@@ -42,6 +72,9 @@
     .mobile-layout .toolbar i {
       width: 24%;
       text-align: center; }
+      .mobile-layout .toolbar i[disabled] {
+        color: rgba(200, 200, 200, 0.03);
+        pointer-events: none; }
 
 /* pulse in SVG */
 svg.pulse-svg {

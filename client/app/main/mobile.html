@@ -1,4 +1,17 @@
 <div class="mobile-layout">
+  <!-- SETTINGS -->
+  <div class="mobile-view sts-view" ng-class="{'active':context.sts.show}">
+    <p ng-class="{'checked':context.options.checkmine}"><i class="fa fa-fw aslink" ng-class="{'fa-toggle-off':!context.options.checkmine, 'fa-toggle-on':context.options.checkmine}" ng-click="toggleOptionValue('checkmine')"></i> Verifica ingresso minimo</p>
+    <p ng-class="{'checked':context.options.checknine}"><i class="fa fa-fw aslink" ng-class="{'fa-toggle-off':!context.options.checknine, 'fa-toggle-on':context.options.checknine}" ng-click="toggleOptionValue('checknine')"></i> Verifica sforamento dell'ora d'ingresso</p>
+    <p ng-class="{'checked':context.options.checklunch}"><i class="fa fa-fw aslink" ng-class="{'fa-toggle-off':!context.options.checklunch, 'fa-toggle-on':context.options.checklunch}" ng-click="toggleOptionValue('checklunch')"></i> Verifica pausa pranzo</p>
+    <p>credenziali inaz:</p>
+    <div class="inaz-credentials">
+      <input class="form-control" type="text" ng-model="context.user.name" placeholder="name" title="Nome utente per il portale inaz"> /
+      <input id="password" class="form-control" type="password" ng-model="context.user.password" placeholder="pswrd" title="Password per il portale inaz" autocomplete="false">
+      <i class="fa fa-lock aslink" ng-class="{'checked':context.options.lockuser}" ng-click="toggleLockUser()"></i>
+    </div>
+  </div>
+  <!-- KLOK -->
   <div class="klok-view" ng-cloak>
     <svg class="pulse-svg" width="100%" height="100%" viewBox="0 0 600 600" ng-class="{'active':milking}"
          xmlns="http://www.w3.org/2000/svg" version="1.1">
@@ -12,22 +25,32 @@
       <path ng-if="context.klok.over.d" ng-attr-d="{{context.klok.over.d}}" fill="none" stroke="rgba(0,0,0,.4)" stroke-width="60"></path>
       <path ng-if="context.klok.out.d" ng-attr-d="{{context.klok.out.d}}" fill="none" stroke="rgba(220,0,0,.7)" stroke-width="60"></path>
       <text x="300" y="300" text-anchor="middle" id="maintime" ng-class="{'alarmed':alarmed}" fill="yellowgreen" ng-click="mobileKlok()"></text>
-      <text x="300" y="360" text-anchor="middle" id="worktime" fill="yellowgreen"></text>
-      <text x="300" y="380" text-anchor="middle" id="workdesc" fill="#444">work time</text>
+      <text x="240" y="360" text-anchor="middle" id="worktime" fill="yellowgreen"></text>
+      <text x="240" y="380" text-anchor="middle" fill="#444">work time</text>
+      <text x="360" y="360" text-anchor="middle" id="pausetime" fill="yellowgreen"></text>
+      <text x="360" y="380" text-anchor="middle" fill="#444">pause time</text>
     </svg>
     <tempi-item ng-repeat="i in context.items" ng-model="i" ng-change="recalc()"></tempi-item>
   </div>
   <!-- HISTORY -->
-  <!-- RAPS -->
+  <div class="mobile-view sts-view" ng-class="{'active':context.inaz.show}">
+    <h1>history</h1>
+  </div>
   <!-- INAZ STATS -->
-  <!-- SETTINGS -->
+  <div class="mobile-view sts-view" ng-class="{'active':context.stat.show}">
+    <h1>stats</h1>
+  </div>
+  <!-- RAPS -->
+  <div class="mobile-view sts-view" ng-class="{'active':context.rap.show}">
+    <h1>rapportini</h1>
+  </div>
   <div class="toolbar">
     <i class="fa fa-3x fa-calendar" ng-click="toggleInaz()" title="Storico Bedgiature"
-       ng-if="context.user.name && context.user.password" ng-class="{'active':context.inaz.show}"></i>
+       ng-if="context.user.name && context.user.password" ng-class="{'active':context.inaz.show}" disabled></i>
     <i class="fa fa-3x fa-trophy" ng-click="toggleStat()" title="Statistiche inaz"
-       ng-if="context.user.name && context.user.password" ng-class="{'active':context.stat.show}"></i>
+       ng-if="context.user.name && context.user.password" ng-class="{'active':context.stat.show}" disabled></i>
     <i class="fa fa-3x fa-paw" ng-click="toggleRap()" title="Rapportini"
-       ng-if="context.user.name && context.user.password" ng-class="{'active':context.rap.show}"></i>
+       ng-if="context.user.name && context.user.password" ng-class="{'active':context.rap.show}" disabled></i>
     <i class="fa fa-3x fa-cog" ng-click="toggleSts()" title="Settings" ng-class="{'active':context.sts.show}"></i>
   </div>
 </div>
