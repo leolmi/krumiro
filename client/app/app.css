@@ -45,7 +45,11 @@ html.mobile body [ng-view] {
   background-color: #222;
 }
 
-html:not(.mobile) body .background {
+body {
+  background-color: #222;
+}
+
+html.pc-style body .background {
   top: 0;
   left: 0;
   background: url('../assets/images/bg.jpg') no-repeat center center;

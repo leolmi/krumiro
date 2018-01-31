@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('krumiroApp')
-  .factory('klok', ['Utilities', function(U) {
+  .factory('klok', ['Utilities', '$interval', function(U, $interval) {
 
     const _layout = {
       main: 'klok',
@@ -11,10 +11,22 @@ angular.module('krumiroApp')
       },
       radius: 200
     };
+    var _context = {};
 
-    function text(main, work) {
+    function _set(name, atrb, value) {
+      const e = document.getElementById(name);
+      if (!e) return;
+      _.isUndefined(value) ? e.innerHTML = atrb : e.setAttribute(atrb, value);
+    }
+
+    function _text(main, work) {
       _set('maintime', main||'');
       _set('worktime', work||'none');
+    }
+
+    function init(context) {
+      _context = context;
+      if (U.mobile) $interval(calc, 30000);
     }
 
     function _rad(CX, CY, r, a) {
@@ -25,13 +37,13 @@ angular.module('krumiroApp')
       };
     }
 
-    function _set(name, atrb, value) {
-      const e = document.getElementById(name);
-      if (!e) return;
-      _.isUndefined(value) ? e.innerHTML = atrb : e.setAttribute(atrb, value);
-    }
-
-    function _d(startAngle, endAngle){
+    function _d(startAngle, endAngle) {
+      if (_.isObject(startAngle)) {
+        endAngle = startAngle.end - 1;
+        startAngle = startAngle.start;
+      }
+      if (endAngle>360) endAngle = 360;
+      if (startAngle >= endAngle) return null;
       const start = _rad(_layout.center.x, _layout.center.y, _layout.radius, endAngle);
       const end = _rad(_layout.center.x, _layout.center.y, _layout.radius, startAngle);
       const largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
@@ -41,7 +53,7 @@ angular.module('krumiroApp')
       ].join(" ");
     }
 
-    function arc(name, startAngle, endAngle){
+    function _arc(name, startAngle, endAngle){
       if (!name) {
         name = _layout.main;
         startAngle = 0;
@@ -51,23 +63,35 @@ angular.module('krumiroApp')
       _set(name, 'd', d);
     }
 
-    function calc(items) {
-      console.log('ITEMS:', items);
+    function _calc() {
       const now = new Date();
       const info = {
         nowM: now.getMinutes() + now.getHours() * 60,
         workM: 0,
-        items: []
+        exitM: _context.exitm,
+        exit: _context.exit,
+        items: [],
+        tot: 0,
+        over: {},   // over time
+        out: {},    // out of time
+        angle: function(v) {
+          return ((v - this.str) * 360) / (this.tot||1)
+        }
       };
       var pre;
-      items.forEach(function (i) {
+      _context.items.forEach(function (i) {
         if (i.E) {
           if (!info.start) info.start = i.EM;
-          const item = {
-            EM: i.EM,
-            UM: i.UM,
-            dt: i.UM ? i.UM - i.EM : 0
-          };
+          const item = {};
+          // ora di entrata
+          item.EM = pre && pre.UM > i.EM ? pre.UM + 10 : i.EM;
+          item.UM = i.UM > item.EM ? i.UM : 0;
+          item.dt = item.UM > item.EM ? item.UM - item.EM : 0;
+          // const item = {
+          //   EM: i.EM,
+          //   UM: i.UM,
+          //   dt: i.UM ? i.UM - i.EM : 0
+          // };
           if (pre && item.dt <= 0) item.dt = pre.EM - 1 - item.EM;
           info.workM += item.dt;
           info.items.push(item);
@@ -76,22 +100,44 @@ angular.module('krumiroApp')
       });
       const first = _.first(info.items);
       const last = _.last(info.items);
-      last.UM = last.UM || info.nowM;
+      if (!last.UM) {
+        last.UM = info.nowM >= last.EM ? info.nowM : last.EM + 10;
+        last.dt = last.UM - last.EM;
+        info.workM += last.dt;
+      }
       info.str = first.EM;
-      info.tot = last.UM - first.EM;
+      info.tot = info.exitM - first.EM;
       info.items.forEach(function (i) {
-        i.start = (((i.EM - info.str) * 360) / info.tot).toFixed(2);
-        i.end = (((i.UM - info.str) * 360) / info.tot).toFixed(2);
-        i.d = _d(i.start, i.end);
+        i.start = info.angle(i.EM);
+        i.end = info.angle(i.UM);
+        i.d = _d(i);
       });
       info.work = U.getTime(info.workM);
       info.d = _d(first.start + 1, last.end - 1);
+      if (last.UM>info.nowM) {
+        info.over.start = info.angle(info.nowM);
+        info.over.end = info.angle(last.UM);
+        info.over.d = _d(info.over);
+      }
+      const max = Math.max(info.nowM, last.UM);
+      if (max > info.exitM) {
+        info.out.start = info.angle(info.start);
+        info.out.end = info.angle(info.start + max - info.exitM);
+        info.out.d = _d(info.out);
+      }
+      console.log('ITEMS', _context.items);
+      console.log('KLOK', info);
+      _arc();
+      _text(info.exit, info.work);
       return info;
     }
 
+    function calc() {
+      _context.klok = _calc();
+    }
+
     return {
-      calc: calc,
-      text: text,
-      arc: arc
+      init: init,
+      calc: calc
     }
   }]);

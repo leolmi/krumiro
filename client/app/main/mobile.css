@@ -1,0 +1,103 @@
+.mobile-layout {
+  padding-bottom: 100px; }
+  .mobile-layout text {
+    -webkit-transition: text-shadow 1s linear;
+    -moz-transition: text-shadow 1s linear;
+    -ms-transition: text-shadow 1s linear;
+    -o-transition: text-shadow 1s linear;
+    transition: text-shadow 1s linear; }
+    .mobile-layout text.alarmed {
+      text-shadow: 0 0 10px yellowgreen, 0 0 20px yellowgreen, 0 0 30px yellowgreen, 0 0 40px tomato, 0 0 70px tomato, 0 0 80px tomato, 0 0 100px tomato, 0 0 150px tomato; }
+  .mobile-layout #maintime {
+    font-size: 90px; }
+  .mobile-layout #worktime {
+    font-size: 30px; }
+  .mobile-layout #maindesc {
+    font-size: 20px; }
+  .mobile-layout tempi-item {
+    text-align: center;
+    zoom: 1.4;
+    margin-bottom: 4px; }
+    .mobile-layout tempi-item input {
+      background-color: #333;
+      border: none;
+      color: #aaa;
+      box-shadow: none !important;
+      text-align: center; }
+    .mobile-layout tempi-item .u-alarm,
+    .mobile-layout tempi-item .e-alarm {
+      color: #666;
+      font-size: 16px; }
+  .mobile-layout .tempi-item {
+    display: none; }
+  .mobile-layout .toolbar {
+    position: fixed;
+    bottom: 0;
+    height: 70px;
+    line-height: 60px;
+    width: 100%;
+    padding-top: 10px;
+    z-index: 10;
+    background-color: #222; }
+    .mobile-layout .toolbar i {
+      width: 24%;
+      text-align: center; }
+
+/* pulse in SVG */
+svg.pulse-svg {
+  overflow: visible; }
+  svg.pulse-svg.active .circle {
+    visibility: visible;
+    fill: yellow; }
+  svg.pulse-svg .first-circle, svg.pulse-svg .second-circle, svg.pulse-svg .third-circle {
+    visibility: hidden;
+    transform: scale(0.5);
+    transform-origin: center center;
+    animation: pulse-me 3s linear infinite; }
+  svg.pulse-svg .second-circle {
+    animation-delay: 1s; }
+  svg.pulse-svg .third-circle {
+    animation-delay: 2s; }
+
+/* pulse in CSS */
+.pulse-css {
+  width: 50px;
+  height: 50px;
+  -webkit-border-radius: 25px;
+  -moz-border-radius: 25px;
+  border-radius: 25px;
+  background: yellowgreen;
+  position: relative; }
+  .pulse-css:before, .pulse-css:after {
+    content: '';
+    width: 50px;
+    height: 50px;
+    -webkit-border-radius: 25px;
+    -moz-border-radius: 25px;
+    border-radius: 25px;
+    background-color: yellowgreen;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    margin: auto;
+    transform: scale(0.5);
+    transform-origin: center center;
+    animation: pulse-me 3s linear infinite; }
+  .pulse-css:after {
+    animation-delay: 2s; }
+
+@keyframes pulse-me {
+  0% {
+    transform: scale(0.5);
+    opacity: 0; }
+  50% {
+    opacity: 0.1; }
+  70% {
+    opacity: 0.09; }
+  100% {
+    transform: scale(5);
+    opacity: 0; } }
+
+/*# sourceMappingURL=mobile.css.map */

@@ -55,6 +55,7 @@ angular.module("krumiroApp")
     }
 
     return{
+      mobile: /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(navigator.userAgent.toLowerCase()),
       merge:merge,
       getTime:getTime,
       parseDate:parseDate,

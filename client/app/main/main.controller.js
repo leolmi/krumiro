@@ -4,9 +4,9 @@
 angular.module('krumiroApp')
   .controller('TempiCtrl', ['$scope','$http','$interval','$timeout','$window','Utilities','AES','Logger','klok',
     function ($scope,$http,$interval,$timeout,$window,U,AES,Logger,klok) {
-      var alarm = new Audio('assets/media/alarm.mp3');
+      const alarm = new Audio('assets/media/alarm.mp3');
       var alarmOwner;
-      var SCRT = '431a12934fc4914912895c5103aa51b0';
+      const SCRT = '431a12934fc4914912895c5103aa51b0';
       var helpstyle_hidden = '-1000px';
       const STORE_OPTIONS = 'OPT';
       var _tick;
@@ -404,13 +404,6 @@ angular.module('krumiroApp')
         return m;
       }
 
-      function _caclKlok() {
-        klok.arc();
-        $scope.klok = klok.calc($scope.context.items);
-        klok.text($scope.context.exit, $scope.klok.work);
-        console.log('KLOK', $scope.klok);
-      }
-
       /**
        * Ricalcola l'orario d'uscita
        */
@@ -489,7 +482,7 @@ angular.module('krumiroApp')
         $scope.context.exitm = r;
         $scope.context.exit = (r > 0) ? U.getTime(r) : '?';
         watchTime();
-        _caclKlok();
+        klok.calc();
       };
 
       /**
@@ -497,6 +490,7 @@ angular.module('krumiroApp')
        * (preserva le opzioni e le credenziali)
        */
       $scope.clear = function () {
+
         var u = ($scope.context && $scope.context.user) ? $scope.context.user : {};
         var a = ($scope.context && $scope.context.ass) ? $scope.context.ass : {};
         var opt = $scope.context.options;
@@ -547,9 +541,13 @@ angular.module('krumiroApp')
             items: [],
             selection: []
           },
+          sts:{
+            show: false
+          },
           debug: {}
         };
         loadOptionsStore();
+        klok.init($scope.context);
         $scope.recalc();
       };
 
@@ -853,6 +851,13 @@ angular.module('krumiroApp')
         milkrap();
       };
 
+      $scope.toggleSts = function() {
+        $scope.context.sts.show = !$scope.context.sts.show;
+        if (!$scope.context.sts.show) {
+          _updateOptionsStore();
+        }
+      };
+
       $scope.toggleAmonalie = function () {
         if (!$scope.context.amonalie.show) {
           $scope.context.inaz.show = false;
@@ -960,5 +965,10 @@ angular.module('krumiroApp')
        */
       $scope.clear();
 
-      if ($scope.context.user.name && $scope.context.user.password && $scope.context.options.milkstart) $scope.inaz();
+      $scope.mobileKlok = function() {
+        $scope.alarmed ? $scope.stopAlarm() : $scope.inaz();
+      };
+
+      klok.init($scope.context);
+      if ($scope.context.user.name && $scope.context.user.password && ($scope.context.options.milkstart || U.mobile)) $scope.inaz();
     }]);

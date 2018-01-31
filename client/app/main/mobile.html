@@ -1,17 +1,33 @@
 <div class="mobile-layout">
-  <div class="klok-view">
-    <svg width="100%" height="100%" viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg" version="1.1">
-      <path id="klok" fill="none" stroke="#333" stroke-width="60" />
+  <div class="klok-view" ng-cloak>
+    <svg class="pulse-svg" width="100%" height="100%" viewBox="0 0 600 600" ng-class="{'active':milking}"
+         xmlns="http://www.w3.org/2000/svg" version="1.1">
+      <circle class="circle first-circle" fill="#333" cx="300" cy="300" r="200"></circle>
+      <circle class="circle second-circle" fill="#333" cx="300" cy="300" r="200"></circle>
+      <circle class="circle third-circle" fill="#333" cx="300" cy="300" r="200"></circle>
+      <path id="klok" fill="none" stroke="#333" stroke-width="60"></path>
       <text x="300" y="220" text-anchor="middle" id="maindesc" fill="#444">exit at</text>
-      <path ng-attr-d="{{klok.d}}" fill="none" stroke="rgba(154,205,50,.3)" stroke-width="60"></path>
-      <path ng-repeat="i in klok.items" ng-attr-d="{{i.d}}" fill="none" stroke="yellowgreen" stroke-width="60"></path>
-      <text x="300" y="300" text-anchor="middle" id="maintime" ng-class="{'alarmed':alarmed}" fill="yellowgreen" ng-click="stopAlarm()"></text>
+      <path ng-attr-d="{{context.klok.d}}" fill="none" stroke="rgba(154,205,50,.3)" stroke-width="60"></path>
+      <path ng-repeat="i in context.klok.items" ng-attr-d="{{i.d}}" fill="none" stroke="yellowgreen" stroke-width="60"></path>
+      <path ng-if="context.klok.over.d" ng-attr-d="{{context.klok.over.d}}" fill="none" stroke="rgba(0,0,0,.4)" stroke-width="60"></path>
+      <path ng-if="context.klok.out.d" ng-attr-d="{{context.klok.out.d}}" fill="none" stroke="rgba(220,0,0,.7)" stroke-width="60"></path>
+      <text x="300" y="300" text-anchor="middle" id="maintime" ng-class="{'alarmed':alarmed}" fill="yellowgreen" ng-click="mobileKlok()"></text>
       <text x="300" y="360" text-anchor="middle" id="worktime" fill="yellowgreen"></text>
       <text x="300" y="380" text-anchor="middle" id="workdesc" fill="#444">work time</text>
     </svg>
     <tempi-item ng-repeat="i in context.items" ng-model="i" ng-change="recalc()"></tempi-item>
   </div>
+  <!-- HISTORY -->
+  <!-- RAPS -->
+  <!-- INAZ STATS -->
+  <!-- SETTINGS -->
   <div class="toolbar">
-
+    <i class="fa fa-3x fa-calendar" ng-click="toggleInaz()" title="Storico Bedgiature"
+       ng-if="context.user.name && context.user.password" ng-class="{'active':context.inaz.show}"></i>
+    <i class="fa fa-3x fa-trophy" ng-click="toggleStat()" title="Statistiche inaz"
+       ng-if="context.user.name && context.user.password" ng-class="{'active':context.stat.show}"></i>
+    <i class="fa fa-3x fa-paw" ng-click="toggleRap()" title="Rapportini"
+       ng-if="context.user.name && context.user.password" ng-class="{'active':context.rap.show}"></i>
+    <i class="fa fa-3x fa-cog" ng-click="toggleSts()" title="Settings" ng-class="{'active':context.sts.show}"></i>
   </div>
 </div>
