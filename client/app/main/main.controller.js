@@ -873,7 +873,7 @@ angular.module('krumiroApp')
         var reqopt = {
           user: $scope.context.user,
           date: $scope.context.rap.date,
-          advanced: $scope.context.rap.advanced,
+          advanced: $scope.context.rap.advanced||U.mobile,
           todate: $scope.context.rap.todate,
           debug: $scope.context.options.debug
         };
