@@ -66,6 +66,10 @@
     transition: max-height 1s ease-in-out; }
     .mobile-layout .mobile-view.active {
       max-height: 1000px; }
+  .mobile-layout .sts-view > h1 {
+    color: #000;
+    font-variant: small-caps;
+    opacity: .2; }
   .mobile-layout .sts-view > p {
     font-variant: small-caps;
     padding: 5px 10px;
@@ -75,6 +79,8 @@
     font-weight: 100; }
     .mobile-layout .sts-view > p.checked {
       color: yellowgreen; }
+      .mobile-layout .sts-view > p.checked i {
+        color: yellowgreen; }
   .mobile-layout .sts-view .options-inputs {
     padding: 10px; }
     .mobile-layout .sts-view .options-inputs input {

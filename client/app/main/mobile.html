@@ -1,6 +1,7 @@
 <div class="mobile-layout">
   <!-- SETTINGS -->
   <div class="mobile-view sts-view" ng-class="{'active':context.sts.show}">
+    <h1>crumiro {{(product||{}).version}}</h1>
     <p ng-class="{'checked':context.options.checkmine}" ng-click="toggleOptionValue('checkmine')"><i class="fa fa-fw aslink" ng-class="{'fa-toggle-off':!context.options.checkmine, 'fa-toggle-on':context.options.checkmine}"></i> Verifica ingresso minimo</p>
     <p ng-class="{'checked':context.options.checknine}" ng-click="toggleOptionValue('checknine')"><i class="fa fa-fw aslink" ng-class="{'fa-toggle-off':!context.options.checknine, 'fa-toggle-on':context.options.checknine}"></i> Verifica sforamento dell'ora d'ingresso</p>
     <p ng-class="{'checked':context.options.checklunch}" ng-click="toggleOptionValue('checklunch')"><i class="fa fa-fw aslink" ng-class="{'fa-toggle-off':!context.options.checklunch, 'fa-toggle-on':context.options.checklunch}"></i> Verifica pausa pranzo</p>

@@ -97,6 +97,11 @@
     }
   }
   .sts-view {
+    > h1 {
+      color: #000;
+      font-variant: small-caps;
+      opacity: .2;
+    }
     > p {
       font-variant: small-caps;
       padding: 5px 10px;
@@ -106,6 +111,9 @@
       font-weight: 100;
       &.checked {
         color: yellowgreen;
+        i {
+          color: yellowgreen;
+        }
       }
     }
     .options-inputs {
