@@ -230,8 +230,7 @@ angular.module('krumiroApp')
             if (results && results.data.length) {
               if (all) {
                 loadAllData(results);
-              }
-              else {
+              } else {
                 var items = [];
                 var i = {};
                 results.data.forEach(function (r) {
@@ -506,6 +505,7 @@ angular.module('krumiroApp')
           }],
           options: opt,
           inaz: {
+            svg: {},
             show: false,
             items: [],
             analisys: {
@@ -698,6 +698,45 @@ angular.module('krumiroApp')
         });
         addItems(daysItems, day, items);
         $scope.context.inaz.items = daysItems;
+        $scope.context.inaz.svg.items = [];
+        $scope.context.inaz.svg.state = 0;
+        $scope.history();
+      };
+
+      $scope.history = function() {
+        function __getTime(m) {
+          var hT = Math.floor(m / 60);
+          var mT = m - (hT * 60);
+          if (mT.toString().length < 2) mT = '0' + mT;
+          return hT + ':' + mT;
+        }
+        const chunk = $scope.context.inaz.items.slice($scope.context.inaz.svg.state, $scope.context.inaz.svg.state+20);
+        const H = 50;
+        var Y = $scope.context.inaz.svg.state * H;
+        const svgitems = _.map(chunk, function(i){
+          Y+=H;
+          var X = 0, odd = 0;
+          return {
+            day: i.day,
+            items: _.map(i.items, function(ii, pos){
+              odd = !!(pos%2);
+              const svgi = {
+                color: odd ? 'yellowgreen' : '#666',
+                x: X,
+                w: (ii.time-480)-X,
+                ty: odd ? 4 : 52,
+                time: __getTime(ii.time)
+              };
+              X += svgi.w;
+              return svgi;
+            }),
+            y: Y
+          }
+        });
+        $scope.context.inaz.svg.items.push.apply($scope.context.inaz.svg.items, svgitems);
+        $scope.context.inaz.svg.state += chunk.length;
+        $scope.context.inaz.svg.more = $scope.context.inaz.items.length > $scope.context.inaz.svg.state;
+        console.log('SVG ITEMS', $scope.context.inaz.svg.items);
       };
 
       /**

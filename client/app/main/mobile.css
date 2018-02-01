@@ -66,6 +66,10 @@
     transition: max-height 1s ease-in-out; }
     .mobile-layout .mobile-view.active {
       max-height: 1000px; }
+  .mobile-layout .inaz-view .history-svg-item .item-day {
+    font-size: 1.6em; }
+  .mobile-layout .inaz-view .history-svg-item .item-time {
+    font-size: 1.2em; }
   .mobile-layout .sts-view > h1 {
     color: #000;
     font-variant: small-caps;

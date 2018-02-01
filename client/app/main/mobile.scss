@@ -96,6 +96,16 @@
       max-height: 1000px;
     }
   }
+  .inaz-view {
+    .history-svg-item {
+      .item-day {
+        font-size: 1.6em;
+      }
+      .item-time {
+        font-size: 1.2em;
+      }
+    }
+  }
   .sts-view {
     > h1 {
       color: #000;
