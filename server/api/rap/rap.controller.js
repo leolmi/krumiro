@@ -6,14 +6,14 @@ var u = require('../utilities/util');
 var w = require('../utilities/web');
 
 function getToday() {
-  var now = new Date();
+  const now = new Date();
   return u.merge(now.getDate()) + '/' + u.merge((now.getMonth() + 1)) + '/' + now.getFullYear();
 }
 
 function isEmpty(r) { return (!r || !r.hasOwnProperty('C0')); }
 
 function getType(r) {
-  var style = r.attr('style');
+  const style = r.attr('style');
   if (style.indexOf('background-color:Snow;')>=0 ||
     style.indexOf('background-color:WhiteSmoke;')>=0) return 'day';
   if (style.indexOf('background-color:LightCyan;')>=0) return 'work';
@@ -22,24 +22,24 @@ function getType(r) {
 
 function parseRap(content) {
   content = content.replace(/<br>/g,'|');
-  var table = [];
+  const table = [];
   var row = {};
   var date = undefined;
   var loc = undefined;
   var travel = undefined;
-  var $ = cheerio.load(content);
+  const $ = cheerio.load(content);
   $('#tblRap > tr').each(function(ri) {
     //console.log('riga corrente: '+$(this).text()+'   style:'+$(this).attr('style'));
     //riga intestazione
-    if (getType($(this))=='day'){
+    if (getType($(this))==='day'){
       //console.log('RIGA: '+ri+'   valori:'+JSON.stringify(row));
       if (!isEmpty(row)) table.push(row);
       var absence = false;
       $(this).children().each(function(i, e) {
-        if (i==0) date = $(e).text();
-        if (i==4) loc = $(e).text().trim();
-        if (i==5) travel = $(e).text();
-        if (i==3 && $(e).text())
+        if (i===0) date = $(e).text();
+        if (i===4) loc = $(e).text().trim();
+        if (i===5) travel = $(e).text();
+        if (i===3 && $(e).text())
           absence=true;
         if (absence) {
           row['C0'] = date;
@@ -53,7 +53,7 @@ function parseRap(content) {
       row = {};
     }
     //riga singolo valore
-    if (getType($(this))=='work'){
+    if (getType($(this))==='work'){
       $(this).children().each(function(i, e){ row['C'+i] = $(e).text(); });
       row['C0'] = date;
       row['C6'] = loc;
@@ -70,20 +70,20 @@ function parseRap(content) {
 }
 
 function getMonthN(date){
-  var pattern = /\d+/g;
-  var values = date.match(pattern);
+  const values = date.match(/\d+/g);
   if (values && values.length>1)
     return parseInt(values[0])+ parseInt(values[1])*12;
 }
 function getMonth(N){
-  var y = Math.floor(N/12);
-  return (N-y*12)+'/'+y;
+  const y = Math.floor(N/12);
+  const m = (N-y*12);
+  return m ? m+'/'+y : '12/' + (y-1);
 }
 
 function getMonths(o){
-  var months = [];
-  var m1 = getMonthN(o.date);
-  var m2 = getMonthN(o.todate);
+  const months = [];
+  const m1 = getMonthN(o.date);
+  const m2 = getMonthN(o.todate);
   for (var y=Math.min(m1,m2),yf=Math.max(m1,m2); y<=yf; y++){
     months.push(getMonth(y));
   }
@@ -91,12 +91,12 @@ function getMonths(o){
 }
 
 exports.data = function(req, res) {
-  var o = u.checkReqOpt(req);
+  const o = u.checkReqOpt(req);
   if (!o) return w.error(res, new Error('Utente non definito correttamente!'));
   if (!o.date) return w.error(res, new Error('Data di riferimento non definita correttamente!'));
 
   o.debuglines = [];
-  var results = {};
+  const results = {};
   if (o.advanced && o.todate){
     var months = getMonths(o);
     multimilk(o, months, function(err, table){
@@ -127,26 +127,26 @@ exports.data = function(req, res) {
 function multimilk(o, months, cb, index, results) {
   index = index || 0;
   results = results || [];
-  var opt = {
+  const opt = {
     user: o.user,
     date: months[index],
     debug: o.debug,
     debuglines: o.debuglines
   };
-  //console.log('Multimilk: '+months[index]);
-  milk(opt, function(err, table){
+  //console.log('Multimilk: ' + months[index]);
+  milk(opt, function (err, table) {
     if (err) return cb(err);
     results = _.union(results, table);
-    if (index==months.length-1)
+    if (index === (months.length - 1))
       return cb(null, results);
-    multimilk(o, months, cb, index+1, results);
+    multimilk(o, months, cb, index + 1, results);
   });
 }
 
 function milk(o, cb) {
   cb = cb || u.noop;
 
-  var options = {
+  const options = {
     SSL: true,
     host: process.env.RAP_HOST,
     method: 'GET',
@@ -180,7 +180,7 @@ function milk(o, cb) {
     }
   };
 
-  var sequence = [{
+  const sequence = [{
     title:'ACCESS',
     path: process.env.RAP_PATH_LOGIN
   }, {
@@ -217,7 +217,7 @@ function milk(o, cb) {
     if (err) return cb(err);
 
     console.log('CONTENT: ', c);
-    var table = parseRap(c);
+    const table = parseRap(c);
     //var txt = JSON.stringify(amonalie);
     //txt = txt.replace(/},{/g,'\r\n');
     //console.log('DATI: '+txt);
