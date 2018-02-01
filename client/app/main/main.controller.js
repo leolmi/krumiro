@@ -551,6 +551,60 @@ angular.module('krumiroApp')
         $scope.recalc();
       };
 
+      $scope.refreshRapSummary = function() {
+        function __parse(v,min,max) {
+          var rv = parseInt(v) || 0;
+          if (rv<min) rv=min;
+          if (rv>max) rv=max;
+          return rv;
+        }
+        function __getMin(t) {
+          if (!t) return 0;
+          const pattern = /\d+/g;
+          var values = t.match(pattern);
+          var mt = 0;
+          if (values && values.length>0) {
+            var h = __parse(values[0],0,23);
+            var m = 0;
+            if (values.length>1) {
+              m = __parse(values[1],0,99);
+              m = m ? m/100 : 0;
+            }
+            mt = h+m;
+          }
+          return mt;
+        }
+        var tot = 0, totv = 0, totsel = 0, totselv = 0, sel = 0;
+        ($scope.context.filteredRaps||[]).forEach(function(f) {
+          var m = __getMin(f['C5']);
+          var v = __getMin(f['C7']);
+          tot += m;
+          totv += v;
+          if (f.selected) {
+            sel++;
+            totsel += m;
+            totselv += v;
+          }
+        });
+
+        const o = parseInt($scope.context.o)||8;
+        $scope.context.rap.summary = tot;
+        $scope.context.rap.summaryV = totv;
+        $scope.context.rap.summaryGG = (tot / o).toFixed(2);
+        $scope.context.rap.summaryVGG = (totv / o).toFixed(2);
+        $scope.context.rap.summarySel = totsel;
+        $scope.context.rap.summarySelV = totselv;
+        $scope.context.rap.summarySelGG = (totsel / o).toFixed(2);
+        $scope.context.rap.summarySelVGG = (totselv / o).toFixed(2);
+        $scope.context.rap.selection = sel;
+        return tot;
+      };
+
+      $scope.toggleRapSel = function(rap) {
+        rap.selected = !rap.selected;
+        $scope.refreshRapSummary();
+      };
+
       /**
        * Attiva o spenge l'automungitura
        */
@@ -825,8 +879,13 @@ angular.module('krumiroApp')
         };
         $http.post('/api/rap', reqopt)
           .then(function (resp) {
-            var results = resp.data;
+            const results = resp.data;
             debugPrint('Risultati della mungitura rapportini:', results.debug);
+            var pre = null;
+            (results.data||[]).forEach(function(i){
+              if (pre && i['C0']===pre['C0']) pre.samedate = true;
+              pre = i;
+            });
             $scope.context.rap.items = results.data;
             $scope.milking = false;
           }, function (err) {

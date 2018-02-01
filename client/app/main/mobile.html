@@ -19,7 +19,7 @@
     </div>
   </div>
   <!-- KLOK -->
-  <div class="klok-view" ng-cloak>
+  <div class="klok-view" ng-hide="context.inaz.show || context.rap.show">
     <svg class="pulse-svg" width="100%" height="100%" viewBox="0 0 600 600" ng-class="{'active':milking}"
          xmlns="http://www.w3.org/2000/svg" version="1.1">
       <circle class="circle first-circle" fill="#333" cx="300" cy="300" r="200"></circle>
@@ -40,8 +40,52 @@
     <tempi-item ng-repeat="i in context.items" ng-model="i" ng-change="recalc()"></tempi-item>
   </div>
   <!-- HISTORY -->
-  <div class="mobile-view inaz-view" ng-class="{'active':context.inaz.show}">
-    <h1>history</h1>
+  <div ng-if="context.inaz.show" class="inaz-view">
+
+  </div>
+  <!-- RAPS -->
+  <div ng-if="context.rap.show" class="rap-view">
+    <svg class="pulse-svg over" width="100%" height="100%" viewBox="0 0 600 600" ng-class="{'active':milking}"
+         xmlns="http://www.w3.org/2000/svg" version="1.1">
+      <circle class="circle first-circle" fill="#333" cx="300" cy="300" r="200"></circle>
+      <circle class="circle second-circle" fill="#333" cx="300" cy="300" r="200"></circle>
+      <circle class="circle third-circle" fill="#333" cx="300" cy="300" r="200"></circle>
+    </svg>
+    <div class="rap-item" ng-repeat="rap in context.filteredRaps=(context.rap.items | rapfilter:context.rap)"
+         tabindex="-1" ng-click="toggleRapSel(rap)" ng-class="{'checked':rap.selected, 'samedate':rap.samedate}">
+      <div class="index">{{$index+1}}</div>
+      <div class="desc">
+        <span>{{rap['C1']}}</span>
+        <span class="secondary">{{rap['C2']}}</span>
+        <span class="secondary">{{rap['C3']}}</span>
+      </div>
+      <div class="layout-row">
+        <div class="date">{{rap['C0']}}</div>
+        <div class="location">{{rap['C6']}}</div>
+        <div class="idaol" ng-show="rap['C4']">[{{rap['C4']}}]</div>
+        <div class="on-right">{{rap['C5']}}<span ng-show="rap['C7'] && rap['C7']!='0:0'"> / {{rap['C7']}}</span></div>
+      </div>
+    </div>
+    <div class="rap-items-summary" ng-show="context.rap.items">
+      <span class="value">{{context.filteredRaps.length}}</span><small> elementi </small>
+      <small>Tot: </small><span class="value">{{refreshRapSummary()}}<span ng-show="context.rap.summaryV>0"> / {{context.rap.summaryV}}</span></span>
+      <small>hh (</small><span class="value">{{context.rap.summaryGG}}<span ng-show="context.rap.summaryVGG>0"> / {{context.rap.summaryVGG}}</span></span><small>gg)</small>
+    </div>
+    <div class="rap-items-summary selection" ng-show="context.rap.selection">
+      <span class="value">{{context.rap.selection}}</span><small> elementi </small>
+      <small>Tot: </small><span class="value">{{context.rap.summarySel}}<span ng-show="context.rap.summarySelV>0"> / {{context.rap.summarySelV}}</span></span>
+      <small>hh (</small><span class="value">{{context.rap.summarySelGG}}<span ng-show="context.rap.summarySelVGG>0"> / {{context.rap.summarySelVGG}}</span></span><small>gg)</small>
+    </div>
+    <div class="toolbar-bis">
+      <div class="rap-dates toolbar-row">
+        <span>dal</span>
+        <input class="form-control width-30" type="text" class="form-control" ng-model="context.rap.date" ng-keydown="handleKeySearch($event)" title="start date">
+        <span>al</span>
+        <input class="form-control width-30" type="text" class="form-control" ng-model="context.rap.todate" ng-keydown="handleKeySearch($event)" title="end date">
+        <i class="fa fa-2x fa-refresh aslink on-right width-20" ng-click="reloadRap()"></i>
+      </div>
+      <input type="text" class="form-control" ng-model="context.rap.filter" placeholder="search...">
+    </div>
   </div>
   <!-- INAZ STATS -->
   <div class="mobile-view stat-view" ng-class="{'active':context.stat.show}">
@@ -50,17 +94,13 @@
       <div ng-show="context.stat.data && !milking" ng-repeat="d in context.stat.data">{{d.title}}: <span class="value">{{d.value}}</span></div>
     </div>
   </div>
-  <!-- RAPS -->
-  <div class="mobile-view rap-view" ng-class="{'active':context.rap.show}">
-    <!--<rapportini ng-model="context"></rapportini>-->
-  </div>
   <div class="toolbar">
     <i class="fa fa-3x fa-calendar" ng-click="toggleInaz()" title="Storico Bedgiature"
-       ng-if="context.user.name && context.user.password" ng-class="{'checked':context.inaz.show}" disabled></i>
+       ng-class="{'checked':context.inaz.show}" disabled></i>
     <i class="fa fa-3x fa-trophy" ng-click="toggleStat()" title="Statistiche inaz"
-       ng-if="context.user.name && context.user.password" ng-class="{'checked':context.stat.show}"></i>
+       ng-class="{'checked':context.stat.show}" ng-disabled="!context.user.name || !context.user.password"></i>
     <i class="fa fa-3x fa-paw" ng-click="toggleRap()" title="Rapportini"
-       ng-if="context.user.name && context.user.password" ng-class="{'checked':context.rap.show}" disabled></i>
+       ng-class="{'checked':context.rap.show}" ng-disabled="!context.user.name || !context.user.password"></i>
     <i class="fa fa-3x fa-cog" ng-click="toggleSts()" title="Settings" ng-class="{'checked':context.sts.show}"></i>
   </div>
 </div>

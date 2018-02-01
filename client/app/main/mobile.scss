@@ -58,6 +58,24 @@
   .tempi-item {
     display: none;
   }
+  .width-20 {
+    width: 20%;
+    text-align: center;
+  }
+  .width-30 {
+    width: 30%;
+    text-align: center;
+  }
+  .width-40 {
+    width: 40%;
+    text-align: center;
+  }
+  input {
+    background-color: #666;
+    border: none;
+    color: #ddd;
+    box-shadow: none !important;
+  }
   .mobile-view {
     position: relative;
     max-height: 0;
@@ -69,12 +87,6 @@
     transition: max-height 1s ease-in-out;
     &.active {
       max-height: 1000px;
-    }
-    input {
-      background-color: #666;
-      border: none;
-      color: #ddd;
-      box-shadow: none !important;
     }
   }
   .sts-view {
@@ -121,6 +133,79 @@
       }
     }
   }
+  .toolbar-bis {
+    position: fixed;
+    bottom: 70px;
+    width: 100%;
+    padding: 10px;
+    z-index: 10;
+    background-color: #222;
+    > * {
+      width: inherit;
+      width: -webkit-fill-available;
+    }
+    .toolbar-row {
+      padding-bottom: 10px;
+    }
+  }
+  .layout-row {
+    > * {
+      display: inline-block;
+    }
+  }
+  .on-right {
+    float: right;
+  }
+  .secondary {
+    opacity: .4;
+  }
+  .rap-view {
+    padding-bottom: 90px;
+    .rap-item {
+      color: #aaa;
+      padding: 10px 10px 10px 30px;
+      border-bottom: #666 1px solid;
+      zoom: .9;
+      outline: none;
+      box-shadow: none;
+      &.samedate {
+        border-color: transparent;
+      }
+      .index {
+        position: absolute;
+        left: 2px;
+        font-size: .8em;
+      }
+      &.checked {
+        background-color: yellowgreen;
+        color: #111;
+      }
+    }
+    .rap-items-summary {
+      padding: 10px 0 0;
+      text-align: right;
+      color: #777;
+      > .value {
+        color: darkorange;
+        font-weight: bold;
+        min-width: 40px;
+        display: inline-block;
+      }
+      &.selection {
+        > .value {
+          color: yellowgreen;
+        }
+      }
+    }
+    .toolbar-row {
+      &.rap-dates {
+        input {
+          width: 30%;
+          text-align: center;
+        }
+      }
+    }
+  }
 }
 
 @mixin circle($diameter){
@@ -140,6 +225,11 @@ svg.pulse-svg{
       visibility: visible;
       fill: yellow;
     }
+  }
+  &.over {
+    position: fixed;
+    top: 0;
+    pointer-events: none;
   }
   .first-circle{
     visibility: hidden;
