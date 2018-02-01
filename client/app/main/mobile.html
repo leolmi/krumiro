@@ -51,30 +51,44 @@
       <circle class="circle second-circle" fill="#333" cx="300" cy="300" r="200"></circle>
       <circle class="circle third-circle" fill="#333" cx="300" cy="300" r="200"></circle>
     </svg>
-    <div class="rap-item" ng-repeat="rap in context.filteredRaps=(context.rap.items | rapfilter:context.rap)"
-         tabindex="-1" ng-click="toggleRapSel(rap)" ng-class="{'checked':rap.selected, 'samedate':rap.samedate}">
-      <div class="index">{{$index+1}}</div>
-      <div class="desc">
-        <span>{{rap['C1']}}</span>
-        <span class="secondary">{{rap['C2']}}</span>
-        <span class="secondary">{{rap['C3']}}</span>
+    <div class="rap-standard-view" ng-if="!context.rap.grouped">
+      <div class="rap-item" ng-repeat="rap in context.filteredRaps=(context.rap.items | rapfilter:context.rap)"
+           tabindex="-1" ng-click="toggleRapSel(rap)" ng-class="{'checked':rap.selected, 'samedate':rap.samedate}">
+        <div class="index">{{$index+1}}</div>
+        <div class="desc">
+          <span>{{rap['C1']}}</span>
+          <span class="secondary">{{rap['C2']}}</span>
+          <span class="secondary">{{rap['C3']}}</span>
+        </div>
+        <div class="layout-row">
+          <div class="date">{{rap['C0']}}</div>
+          <div class="location">{{rap['C6']}}</div>
+          <div class="idaol" ng-show="rap['C4']">[{{rap['C4']}}]</div>
+          <div class="on-right">{{rap['C5']}}<span ng-show="rap['C7'] && rap['C7']!='0:0'"> / {{rap['C7']}}</span></div>
+        </div>
       </div>
-      <div class="layout-row">
-        <div class="date">{{rap['C0']}}</div>
-        <div class="location">{{rap['C6']}}</div>
-        <div class="idaol" ng-show="rap['C4']">[{{rap['C4']}}]</div>
-        <div class="on-right">{{rap['C5']}}<span ng-show="rap['C7'] && rap['C7']!='0:0'"> / {{rap['C7']}}</span></div>
+      <div class="rap-items-summary" ng-show="context.rap.items">
+        <span class="value">{{context.filteredRaps.length}}</span><small> elementi </small>
+        <small>Tot: </small><span class="value">{{refreshRapSummary()}}<span ng-show="context.rap.summaryV>0"> / {{context.rap.summaryV}}</span></span>
+        <small>hh (</small><span class="value">{{context.rap.summaryGG}}<span ng-show="context.rap.summaryVGG>0"> / {{context.rap.summaryVGG}}</span></span><small>gg)</small>
       </div>
+      <div class="rap-items-summary selection" ng-show="context.rap.selection">
+        <span class="value">{{context.rap.selection}}</span><small> elementi </small>
+        <small>Tot: </small><span class="value">{{context.rap.summarySel}}<span ng-show="context.rap.summarySelV>0"> / {{context.rap.summarySelV}}</span></span>
+        <small>hh (</small><span class="value">{{context.rap.summarySelGG}}<span ng-show="context.rap.summarySelVGG>0"> / {{context.rap.summarySelVGG}}</span></span><small>gg)</small>
+      </div>
+      <i class="fa fa-4x fa-indent aslink width-100 lh-2x" ng-click="context.rap.grouped=true"></i>
     </div>
-    <div class="rap-items-summary" ng-show="context.rap.items">
-      <span class="value">{{context.filteredRaps.length}}</span><small> elementi </small>
-      <small>Tot: </small><span class="value">{{refreshRapSummary()}}<span ng-show="context.rap.summaryV>0"> / {{context.rap.summaryV}}</span></span>
-      <small>hh (</small><span class="value">{{context.rap.summaryGG}}<span ng-show="context.rap.summaryVGG>0"> / {{context.rap.summaryVGG}}</span></span><small>gg)</small>
-    </div>
-    <div class="rap-items-summary selection" ng-show="context.rap.selection">
-      <span class="value">{{context.rap.selection}}</span><small> elementi </small>
-      <small>Tot: </small><span class="value">{{context.rap.summarySel}}<span ng-show="context.rap.summarySelV>0"> / {{context.rap.summarySelV}}</span></span>
-      <small>hh (</small><span class="value">{{context.rap.summarySelGG}}<span ng-show="context.rap.summarySelVGG>0"> / {{context.rap.summarySelVGG}}</span></span><small>gg)</small>
+    <div class="rap-grupped-view" ng-if="context.rap.grouped">
+      <div class="rap-item" ng-repeat="rap in context.rap.gitems">
+        <div class="index">{{$index+1}}</div>
+        <div class="desc">{{rap.desc}}</div>
+        <div class="layout-row">
+          <div><span class="value">{{rap.count}}</span> items</div>
+          <div class="on-right"><span class="value">{{rap.hours}}</span>hh</div>
+        </div>
+      </div>
+      <i class="fa fa-4x fa-list-ol aslink width-100 lh-2x" ng-click="context.rap.grouped=false"></i>
     </div>
     <div class="toolbar-bis">
       <div class="rap-dates toolbar-row">

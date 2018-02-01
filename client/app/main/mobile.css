@@ -36,6 +36,8 @@
       font-size: 16px; }
   .mobile-layout .tempi-item {
     display: none; }
+  .mobile-layout .lh-2x {
+    line-height: 2em; }
   .mobile-layout .width-20 {
     width: 20%;
     text-align: center; }
@@ -44,6 +46,9 @@
     text-align: center; }
   .mobile-layout .width-40 {
     width: 40%;
+    text-align: center; }
+  .mobile-layout .width-100 {
+    width: 100%;
     text-align: center; }
   .mobile-layout input {
     background-color: #666;
@@ -115,6 +120,9 @@
     opacity: .4; }
   .mobile-layout .rap-view {
     padding-bottom: 90px; }
+    .mobile-layout .rap-view .value {
+      color: darkorange;
+      font-weight: bold; }
     .mobile-layout .rap-view .rap-item {
       color: #aaa;
       padding: 10px 10px 10px 30px;
@@ -136,8 +144,6 @@
       text-align: right;
       color: #777; }
       .mobile-layout .rap-view .rap-items-summary > .value {
-        color: darkorange;
-        font-weight: bold;
         min-width: 40px;
         display: inline-block; }
       .mobile-layout .rap-view .rap-items-summary.selection > .value {

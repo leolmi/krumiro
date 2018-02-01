@@ -491,9 +491,9 @@ angular.module('krumiroApp')
        */
       $scope.clear = function () {
 
-        var u = ($scope.context && $scope.context.user) ? $scope.context.user : {};
-        var a = ($scope.context && $scope.context.ass) ? $scope.context.ass : {};
-        var opt = $scope.context.options;
+        const u = ($scope.context||{}).user||{};
+        const a = ($scope.context||{}).ass||{};
+        const opt = $scope.context.options;
         $scope.context = {
           user: u,
           ass: a,
@@ -522,6 +522,7 @@ angular.module('krumiroApp')
             items: [],
             show: false,
             date: $scope.getDate('verysmall'),
+            grouped: false,
             advanced: false,
             todate: $scope.getDate('verysmall'),
             headers: ['Data', 'Cliente|Commessa', 'Lavoro', 'Attività', 'Descrizione|Idaol'],
@@ -866,6 +867,17 @@ angular.module('krumiroApp')
         $scope.progress.elapsed = U.getTime(elps);
       }, 2000);
 
+      function _getHours(items) {
+        var h = 0;
+        items.forEach(function (i) {
+          const v = i['C5'].match(/\d+/g);
+          h += parseInt(v[0]);
+          const c = parseInt(v[1]);
+          if (c) h += c / 100;
+        });
+        return h;
+      }
+
       function milkrap() {
         if ($scope.milking) return;
 
@@ -887,6 +899,14 @@ angular.module('krumiroApp')
               pre = i;
             });
             $scope.context.rap.items = results.data;
+            const groups = _.groupBy(results.data, 'C1');
+            $scope.context.rap.gitems = _.map(groups, function(v,n){
+              return {
+                desc: n,
+                count: v.length,
+                hours: _getHours(v)
+              }
+            });
             $scope.milking = false;
           }, function (err) {
             $scope.milking = false;
