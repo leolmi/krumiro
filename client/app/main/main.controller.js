@@ -15,6 +15,19 @@ angular.module('krumiroApp')
       $scope.helpstyle = {top: helpstyle_hidden};
       $scope.showopt = false;
       $scope.optstyle = {height: 0};
+      $scope.options = [{
+        name: 'checkmine',
+        desc: 'Verifica ingresso minimo'
+      }, {
+        name: 'checknine',
+        desc: 'Verifica sforamento dell\'ora d\'ingresso'
+      }, {
+        name: 'checklunch',
+        desc: 'Verifica pausa pranzo'
+      }, {
+        name: 'checkrange',
+        desc: 'Verifica intervallo giornaliero'
+      }];
       $scope.progress = {
         forecolor: 'yellowgreen',
         value: 0,
@@ -36,6 +49,7 @@ angular.module('krumiroApp')
           checknine: true,  //verifica l'ingresso dopo le 9:00
           checklunch: true, //verifica la pausa pranzo
           checkmine: true,  //verifica l'ingresso prima delle 8:30
+          checkrange: true, //verifica l'orario giornaliero
           milkstart: true,  // munge all'avvio
           canautomilk: false,  //offre la possibilità di attivare l'automilk
           debug: false,
@@ -46,7 +60,8 @@ angular.module('krumiroApp')
           min_lunch: 30,
           max_lunch: 90,
           start_lunch: (12 * 60 + 15),
-          end_lunch: (14 * 60 + 30)
+          end_lunch: (14 * 60 + 30),
+          endm: (22 * 60)
         },
         debug: {}
       };
@@ -158,6 +173,7 @@ angular.module('krumiroApp')
             $scope.context.options.checklunch = _.isUndefined(storedopt.checklunch)?true:storedopt.checklunch;
             $scope.context.options.checkmine = _.isUndefined(storedopt.checkmine)?true:storedopt.checkmine;
             $scope.context.options.checknine = _.isUndefined(storedopt.checknine)?true:storedopt.checknine;
+            $scope.context.options.checkrange = _.isUndefined(storedopt.checkrange)?true:storedopt.checkrange;
             $scope.context.options.milkstart = _.isUndefined(storedopt.milkstart)?true:storedopt.milkstart;
             $scope.context.options.canautomilk = !!storedopt.canautomilk;
             $scope.context.amonalie.filter = storedopt.amonalieFilter;
@@ -234,7 +250,8 @@ angular.module('krumiroApp')
                 var items = [];
                 var i = {};
                 results.data.forEach(function (r) {
-                  r.time = getMinutes(r['C2'] + ':' + r['C3']);
+                  r._time = getMinutes(r['C2'] + ':' + r['C3']);
+                  r.time = r._time;
                 });
                 results.data.sort(timeCompare);
 
@@ -245,8 +262,7 @@ angular.module('krumiroApp')
                       i = {};
                     }
                     i.E = r['C2'] + ':' + r['C3'];
-                  }
-                  else if (r['C4'] === 'U') {
+                  } else if (r['C4'] === 'U') {
                     if (i.U) {
                       items.push(i);
                       i = {};
@@ -403,6 +419,17 @@ angular.module('krumiroApp')
         return m;
       }
 
+      function _checkLast() {
+        const last = _.last($scope.context.items);
+        if ($scope.context.items.length>1) {
+          const prelast = $scope.context.items[$scope.context.items.length-2];
+          if (!last.EM && !last.UM && !prelast.UM) {
+            _.pull($scope.context.items, last);
+            _checkLast();
+          }
+        }
+      }
+
       /**
        * Ricalcola l'orario d'uscita
        */
@@ -421,6 +448,7 @@ angular.module('krumiroApp')
         // la pausa pranzo viene valutata solo se le ore di permesso non sono
         // uguali o superiori alla mezza giornata e l'opzione è attiva
         var lunchable = (mPP < $scope.context.options.halfday) && $scope.context.options.checklunch;
+        $scope.context.targetworkm = getMinutes($scope.context.o) - getMinutes($scope.context.p);
         $scope.context.items.forEach(function (i) {
           m1 = calcMinutes(i, 'E');
           /// il minimo ingresso è alle 8:30
@@ -449,8 +477,9 @@ angular.module('krumiroApp')
             var l = (m2 - m1);
             i.minutes = U.getTime(l);
             mL += l;
+          } else {
+            i.minutes = 0;
           }
-          else i.minutes = 0;
 
           if (m1 > 0 && i.E) {
             lastE = m1;
@@ -479,7 +508,9 @@ angular.module('krumiroApp')
 
         $scope.context.startm = firstE;
         $scope.context.exitm = r;
+
         $scope.context.exit = (r > 0) ? U.getTime(r) : '?';
+        _checkLast();
         watchTime();
         klok.calc();
       };
@@ -489,7 +520,6 @@ angular.module('krumiroApp')
        * (preserva le opzioni e le credenziali)
        */
       $scope.clear = function () {
-
         const u = ($scope.context||{}).user||{};
         const a = ($scope.context||{}).ass||{};
         const opt = $scope.context.options;
@@ -1088,5 +1118,5 @@ angular.module('krumiroApp')
       };
 
       klok.init($scope.context);
-      if ($scope.context.user.name && $scope.context.user.password && ($scope.context.options.milkstart || U.mobile)) $scope.inaz();
+      // if ($scope.context.user.name && $scope.context.user.password && ($scope.context.options.milkstart || U.mobile)) $scope.inaz();
     }]);

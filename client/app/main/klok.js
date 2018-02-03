@@ -67,16 +67,16 @@ angular.module('krumiroApp')
     function _calc() {
       const now = new Date();
       const info = {
-        nowM: now.getMinutes() + now.getHours() * 60,
-        workM: 0,
-        exitM: _context.exitm,
+        nowm: now.getMinutes() + now.getHours() * 60,
+        workm: 0,
+        exitm: _context.exitm,
         exit: _context.exit,
         items: [],
         tot: 0,
         over: {},   // over time
         out: {},    // out of time
-        angle: function(v) {
-          return ((v - this.str) * 360) / (this.tot||1)
+        angle: function (v) {
+          return ((v - this.str) * 360) / (this.tot || 1)
         }
       };
       var pre;
@@ -94,36 +94,50 @@ angular.module('krumiroApp')
       });
       const first = _.first(info.items);
       const last = _.last(info.items);
-      if (!last.UM) {
-        last.UM = info.nowM >= last.EM ? info.nowM : last.EM + 10;
+      info.closed = !!last.UM;
+      if (!info.closed) {
+        last.UM = info.nowm >= last.EM ? info.nowm : last.EM + 10;
         last.dt = last.UM - last.EM;
       }
       info.str = first.EM;
-      info.tot = info.exitM - first.EM;
+      info.tot = info.exitm - first.EM;
       info.items.forEach(function (i) {
         i.start = info.angle(i.EM);
         i.end = info.angle(i.UM);
         i.d = _d(i);
-        info.workM += i.UM - i.EM;
+        info.workm += i.UM - i.EM;
       });
-      info.work = U.getTime(info.workM);
+      info.work = U.getTime(info.workm);
+      info.done = info.closed && ((info.workm >= _context.targetworkm) || (_context.options.checkrange && info.nowm>=_context.options.max_u));
       info.d = _d(first.start + 1, last.end - 1);
-      if (last.UM>info.nowM) {
-        info.over.start = info.angle(info.nowM);
+      // over (tempo non passato)
+      if (last.UM > info.nowm) {
+        info.over.start = info.angle(info.nowm);
         info.over.end = info.angle(last.UM);
         info.over.d = _d(info.over);
       }
-      const max = Math.max(info.nowM, last.UM);
-      if (max > info.exitM) {
+      // out (tempo oltre il limite)
+      // const max = Math.max(info.nowm, last.UM);
+      // if ((max > info.exitm) && !info.done) {
+      if (!info.done && (info.nowm > info.exitm)) {
         info.out.start = info.angle(info.start);
-        info.out.end = info.angle(info.start + max - info.exitM);
+        info.out.end = info.angle(info.start + info.nowm - info.exitm);
+        info.out.d = _d(info.out);
+      } else if (info.done && (last.UM > info.exitm)) {
+        info.out.start = info.angle(info.start);
+        info.out.end = info.angle(info.start + last.UM - info.exitm);
         info.out.d = _d(info.out);
       }
-      if (max - info.start > info.workM) {
-        info.pause = U.getTime(max - info.workM - info.start);
+      if (info.done) {
+        const p = last.UM - info.start - info.workm;
+        info.pause = (p > 0) ? U.getTime(p) : '';
+      } else if (info.nowm - info.start > info.workm) {
+        info.pause = U.getTime(info.nowm - info.workm - info.start);
+      } else {
+        info.pause = ''
       }
-      // console.log('ITEMS', _context.items);
-      // console.log('KLOK', info);
+      console.log('ITEMS', _context.items);
+      console.log('KLOK', info);
       _arc();
       _text(info);
       return info;

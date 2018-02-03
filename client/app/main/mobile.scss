@@ -248,6 +248,9 @@
 svg.pulse-svg{
   overflow: visible;
   &.active {
+    .over-circle {
+      visibility: visible;
+    }
     .circle {
       visibility: visible;
       fill: yellow;
@@ -257,6 +260,9 @@ svg.pulse-svg{
     position: fixed;
     top: 0;
     pointer-events: none;
+  }
+  .over-circle {
+    visibility: hidden;
   }
   .first-circle{
     visibility: hidden;

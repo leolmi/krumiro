@@ -2,9 +2,10 @@
   <!-- SETTINGS -->
   <div class="mobile-view sts-view" ng-class="{'active':context.sts.show}">
     <h1 class="width-100">crumiro {{(product||{}).version}}</h1>
-    <p ng-class="{'checked':context.options.checkmine}" ng-click="toggleOptionValue('checkmine')"><i class="fa fa-fw aslink" ng-class="{'fa-toggle-off':!context.options.checkmine, 'fa-toggle-on':context.options.checkmine}"></i> Verifica ingresso minimo</p>
-    <p ng-class="{'checked':context.options.checknine}" ng-click="toggleOptionValue('checknine')"><i class="fa fa-fw aslink" ng-class="{'fa-toggle-off':!context.options.checknine, 'fa-toggle-on':context.options.checknine}"></i> Verifica sforamento dell'ora d'ingresso</p>
-    <p ng-class="{'checked':context.options.checklunch}" ng-click="toggleOptionValue('checklunch')"><i class="fa fa-fw aslink" ng-class="{'fa-toggle-off':!context.options.checklunch, 'fa-toggle-on':context.options.checklunch}"></i> Verifica pausa pranzo</p>
+    <p ng-repeat="o in options" ng-class="{'checked':context.options[o.name]}" ng-click="toggleOptionValue(o.name)">
+      <i class="fa fa-fw aslink" ng-class="{'fa-toggle-off':!context.options[o.name], 'fa-toggle-on':context.options[o.name]}"></i>
+      {{::o.desc}}
+    </p>
     <p class="label">ore lavorative / permessi</p>
     <div class="options-inputs">
       <input class="form-control work-hour" type="text" ng-model="context.o" ng-change="recalc()"
@@ -26,6 +27,9 @@
       <circle class="circle first-circle" fill="#333" cx="300" cy="300" r="200"></circle>
       <circle class="circle second-circle" fill="#333" cx="300" cy="300" r="200"></circle>
       <circle class="circle third-circle" fill="#333" cx="300" cy="300" r="200"></circle>
+      <circle class="over-circle" fill="#222" cx="300" cy="300" r="200"></circle>
+      <path ng-if="context.klok.done" d="M 190 320 l 90 60 l 100 -160" fill="none" stroke-linecap="round"
+            stroke="rgba(10,10,10,.5)" stroke-width="40"></path>
       <path id="klok" fill="none" stroke="#333" stroke-width="60"></path>
       <text x="300" y="220" text-anchor="middle" id="maindesc" fill="#444">exit at</text>
       <path ng-attr-d="{{context.klok.d}}" fill="none" stroke="rgba(154,205,50,.3)" stroke-width="60"></path>
@@ -47,6 +51,7 @@
       <circle class="circle first-circle" fill="#333" cx="300" cy="300" r="200"></circle>
       <circle class="circle second-circle" fill="#333" cx="300" cy="300" r="200"></circle>
       <circle class="circle third-circle" fill="#333" cx="300" cy="300" r="200"></circle>
+      <circle class="over-circle" fill="#222" cx="300" cy="300" r="105"></circle>
     </svg>
     <svg class="history-svg-item" width="100%" height="40px" viewBox="0 0 800 30" xmlns="http://www.w3.org/2000/svg" version="1.1"
          ng-repeat="i in context.inaz.svg.items">
@@ -63,6 +68,7 @@
       <circle class="circle first-circle" fill="#333" cx="300" cy="300" r="200"></circle>
       <circle class="circle second-circle" fill="#333" cx="300" cy="300" r="200"></circle>
       <circle class="circle third-circle" fill="#333" cx="300" cy="300" r="200"></circle>
+      <circle class="over-circle" fill="#222" cx="300" cy="300" r="105"></circle>
     </svg>
     <div class="rap-standard-view" ng-if="!context.rap.grouped">
       <div class="rap-item" ng-repeat="rap in context.filteredRaps=(context.rap.items | rapfilter:context.rap)"
