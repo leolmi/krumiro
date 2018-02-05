@@ -15,8 +15,8 @@
       <p ng-class="{'checked':context.options.canautomilk}"><i class="fa fa-fw aslink" ng-class="{'fa-toggle-off':!context.options.canautomilk, 'fa-toggle-on':context.options.canautomilk}" ng-click="toggleOptionValue('canautomilk')"></i> Offre la possibilità di attivare l'automungitura</p>
       <p ng-class="{'checked':context.options.debug}"><i class="fa fa-fw aslink" ng-class="{'fa-toggle-off':!context.options.debug, 'fa-toggle-on':context.options.debug}" ng-click="toggleOptionValue('debug')"></i> Attiva la modalità debug</p>
       <div class="options-commands">
-        <i class="fa fa-fw fa-download" ng-class="{'disabled':!context.user.name || !context.user.password}" ng-click="downloadHistory()"></i>
-        <i class="fa fa-fw fa-cloud-upload" ng-class="{'disabled':!context.user.name || !context.user.password}" ng-click="uploadHistory()"></i>
+        <i class="fa fa-fw fa-download" ng-class="{'disabled':!isInaz()}" ng-click="downloadHistory()"></i>
+        <i class="fa fa-fw fa-cloud-upload" ng-class="{'disabled':!isInaz()}" ng-click="uploadHistory()"></i>
       </div>
     </div>
   </div>
@@ -47,13 +47,13 @@
     </div>
     <div class="form-group">
       <label class="col-xs-6 control-label inaz-commands">
-        <span ng-hide="context.user.name && context.user.password">Credenziali INAZ:</span>
+        <span ng-hide="isInaz()">Credenziali INAZ:</span>
         <i class="fa fa-3x inaz-command" ng-class="{'fa-toggle-on':context.user.auto,'fa-toggle-off':!context.user.auto}"
-           ng-show="context.user.name && context.user.password && context.options.canautomilk" ng-click="toggleAutoInaz()"
+           ng-show="isInaz() && context.options.canautomilk" ng-click="toggleAutoInaz()"
            title="Se lo accendi allinea automaticamente i dati con quelli del portale inaz (ogni 30sec)"></i>
         <i class="fa fa-3x fa-cloud-download inaz-command" ng-click="inaz()"
-           ng-class="{'disabled':!context.user.name || !context.user.password || context.user.auto}"
-           ng-show="context.user.name && context.user.password && !milking"
+           ng-class="{'disabled':!isInaz() || context.user.auto}"
+           ng-show="isInaz() && !milking"
            title="Allinea manualmente con i dati del portale inaz"></i>
         <i class="fa fa-3x fa-cog fa-spin" ng-show="milking"></i>
       </label>
@@ -72,7 +72,7 @@
   <!--  -->
   <i class="fa fa-trophy fa-inaz-stat fa-lg aslink" ng-click="toggleStat()"
      title="Statistiche inaz" ng-class="{'active':context.stat.show}"
-     ng-show="context.user.name && context.user.password"></i>
+     ng-show="isInaz()"></i>
   <!--<i class="fa fa-money fa-inaz-ced fa-lg aslink" ng-click="downloadCed()"-->
      <!--title="Scarica ultima busta paga"-->
      <!--ng-show="context.user.name && context.user.password"></i>-->
@@ -86,8 +86,8 @@
 </div>
 <i class="details details-help fa fa-2x fa-user-md" ng-class="{'active':helpon}" ng-click="help()" title="Help"></i>
 <i class="details details-amonalie fa fa-2x fa-bug" ng-class="{'active':context.amonalie.show}" ng-click="toggleAmonalie()" title="Amonalie"></i>
-<i class="details details-history fa fa-2x fa-calendar" ng-class="{'enabled':context.user.name && context.user.password,'active':context.inaz.show}" ng-click="toggleInaz()" title="Storico Bedgiature"></i>
-<i class="details details-works fa fa-2x fa-paw" ng-class="{'enabled':context.user.name && context.user.password,'active':context.rap.show}" ng-click="toggleRap()" title="Rapportini"></i>
+<i class="details details-history fa fa-2x fa-calendar" ng-class="{'enabled':isInaz(),'active':context.inaz.show}" ng-click="toggleInaz()" title="Storico Bedgiature"></i>
+<i class="details details-works fa fa-2x fa-paw" ng-class="{'enabled':isInaz(),'active':context.rap.show}" ng-click="toggleRap()" title="Rapportini"></i>
 <div class="popup-page page-inaz quando-container" ng-class="{'visible':context.inaz.show,'large':context.inaz.analisys.show}">
   <div class="header">
     <span class="header-title">Storico</span>

@@ -421,8 +421,8 @@ angular.module('krumiroApp')
 
       function _checkLast() {
         const last = _.last($scope.context.items);
-        if ($scope.context.items.length>1) {
-          const prelast = $scope.context.items[$scope.context.items.length-2];
+        if ($scope.context.items.length > 1) {
+          const prelast = $scope.context.items[$scope.context.items.length - 2];
           if (!last.EM && !last.UM && !prelast.UM) {
             _.pull($scope.context.items, last);
             _checkLast();
@@ -511,8 +511,8 @@ angular.module('krumiroApp')
 
         $scope.context.exit = (r > 0) ? U.getTime(r) : '?';
         _checkLast();
-        watchTime();
         klok.calc();
+        watchTime();
       };
 
       /**
@@ -661,15 +661,15 @@ angular.module('krumiroApp')
         milkinaz(true);
       };
 
-      function validateUser() {
-        return ($scope.context.user.name && $scope.context.user.password);
+      $scope.isInaz = function() {
+        return $scope.context.user.name && $scope.context.user.password;
       }
 
       /**
        * Se le credenziali sono valorizzate avvia il processo di mngitura
        */
       $scope.inaz = function () {
-        if (!validateUser() || $scope.context.user.auto)
+        if (!$scope.isInaz() || $scope.context.user.auto)
           return;
         milkinaz();
       };
@@ -796,13 +796,12 @@ angular.module('krumiroApp')
       function watchTime() {
         if (angular.isDefined(_tick) || !$scope.context.options.alarms) return;
         _tick = $interval(function () {
-          var nowm = getNowM();
+          const nowm = getNowM();
           //verifica orario uscita
-          if ($scope.context.exitm && alarm.paused && nowm >= $scope.context.exitm) {
+          if ($scope.context.exitm && alarm.paused && nowm >= $scope.context.exitm && !klok.state().done) {
             $scope.alarmed = true;
             $scope.alarm();
-          }
-          else {
+          } else {
             //verifica orari intermedi
             $scope.context.items.some(function (i) {
               if (i['EM'] && i['EM'] <= nowm && i.ealarm) {
@@ -878,7 +877,7 @@ angular.module('krumiroApp')
       };
 
       $scope.downloadHistory = function () {
-        if (!validateUser()) return;
+        if (!$scope.isInaz()) return;
         var reqopt = {
           user: $scope.context.user
         };
@@ -900,7 +899,7 @@ angular.module('krumiroApp')
       };
 
       $scope.uploadHistoryContent = function (args) {
-        if (!validateUser()) return;
+        if (!$scope.isInaz()) return;
         var reader = new FileReader();
         reader.onload = function (onLoadEvent) {
           var reqopt = {
@@ -920,7 +919,7 @@ angular.module('krumiroApp')
       };
 
       $scope.uploadHistory = function () {
-        if (!validateUser()) return;
+        if (!$scope.isInaz()) return;
         angular.element('#history-file').trigger('click');
       };
 
@@ -1118,5 +1117,5 @@ angular.module('krumiroApp')
       };
 
       klok.init($scope.context);
-      // if ($scope.context.user.name && $scope.context.user.password && ($scope.context.options.milkstart || U.mobile)) $scope.inaz();
+      if ($scope.isInaz() && ($scope.context.options.milkstart || U.mobile)) $scope.inaz();
     }]);

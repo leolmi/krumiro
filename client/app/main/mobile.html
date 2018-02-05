@@ -130,11 +130,11 @@
   <!-- TOOLBAR -->
   <div class="toolbar">
     <i class="fa fa-3x fa-calendar" ng-click="toggleInaz()" title="Storico Bedgiature"
-       ng-class="{'checked':context.inaz.show}" ng-disabled="!context.user.name || !context.user.password"></i>
+       ng-class="{'checked':context.inaz.show}" ng-disabled="!isInaz()"></i>
     <i class="fa fa-3x fa-trophy" ng-click="toggleStat()" title="Statistiche inaz"
-       ng-class="{'checked':context.stat.show}" ng-disabled="!context.user.name || !context.user.password"></i>
+       ng-class="{'checked':context.stat.show}" ng-disabled="!isInaz()"></i>
     <i class="fa fa-3x fa-paw" ng-click="toggleRap()" title="Rapportini"
-       ng-class="{'checked':context.rap.show}" ng-disabled="!context.user.name || !context.user.password"></i>
+       ng-class="{'checked':context.rap.show}" ng-disabled="!isInaz()"></i>
     <i class="fa fa-3x fa-cog" ng-click="toggleSts()" title="Settings" ng-class="{'checked':context.sts.show}"></i>
   </div>
 </div>

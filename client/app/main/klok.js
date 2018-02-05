@@ -12,6 +12,7 @@ angular.module('krumiroApp')
       radius: 200
     };
     var _context = {};
+    var _state = {};
 
     function _set(name, atrb, value) {
       const e = document.getElementById(name);
@@ -140,14 +141,20 @@ angular.module('krumiroApp')
       console.log('KLOK', info);
       _arc();
       _text(info);
-      return info;
+      _state = info;
+      return _state;
     }
 
     function calc() {
       _context.klok = _calc();
     }
 
+    function state() {
+      return _state;
+    }
+
     return {
+      state: state,
       init: init,
       calc: calc
     }
