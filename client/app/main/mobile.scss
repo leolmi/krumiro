@@ -96,6 +96,17 @@
       max-height: 1000px;
     }
   }
+  .stat-view {
+    margin-top: 20px;
+    .stat-view-content {
+      color: #999;
+      padding: 20px;
+      .value {
+        float: right;
+        color: orange;
+      }
+    }
+  }
   .inaz-view {
     .history-svg-item {
       .item-day {

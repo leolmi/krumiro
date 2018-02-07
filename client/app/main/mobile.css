@@ -66,6 +66,14 @@
     transition: max-height 1s ease-in-out; }
     .mobile-layout .mobile-view.active {
       max-height: 1000px; }
+  .mobile-layout .stat-view {
+    margin-top: 20px; }
+    .mobile-layout .stat-view .stat-view-content {
+      color: #999;
+      padding: 20px; }
+      .mobile-layout .stat-view .stat-view-content .value {
+        float: right;
+        color: orange; }
   .mobile-layout .inaz-view .history-svg-item .item-day {
     font-size: 1.6em; }
   .mobile-layout .inaz-view .history-svg-item .item-time {

@@ -121,9 +121,9 @@
     </div>
   </div>
   <!-- INAZ STATS -->
-  <div class="mobile-view stat-view" ng-class="{'active':context.stat.show}">
-    <div class="inaz-stat-data">
-      <div ng-show="!context.stat.data || milking">Nessun dato</div>
+  <div class="mobile-view stat-view" ng-class="{'active':context.stat.show && !milking}">
+    <div class="stat-view-content">
+      <div ng-show="!context.stat.data && !milking">nessun dato</div>
       <div ng-show="context.stat.data && !milking" ng-repeat="d in context.stat.data">{{d.title}}: <span class="value">{{d.value}}</span></div>
     </div>
   </div>

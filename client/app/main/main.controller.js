@@ -308,9 +308,8 @@ angular.module('krumiroApp')
               data.push({title: 'Residuo Anno Prec.', value: row['C1'] + 'gg'});
               data.push({title: 'Maturato Anno', value: row['C2'] + 'gg'});
               data.push({title: 'Goduti ad oggi', value: row['C3'] + 'gg'});
-              data.push({title: 'Obiettivo al mese corrente', value: row['C4'] + 'gg'});
-              data.push({title: 'Scostamento', value: row['C5'] + 'gg'});
-              data.push({title: 'Residuo attuale', value: row['C6'] + 'gg'});
+              data.push({title: 'Pianificati entro fine anno', value: row['C4'] + 'gg'});
+              data.push({title: 'Residuo', value: row['C5'] + 'gg'});
               $scope.context.stat.data = data;
             }
             $scope.milking = false;
