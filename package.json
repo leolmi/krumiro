@@ -16,11 +16,11 @@
     "express": "~4.0.0",
     "express-session": "~1.0.2",
     "lodash": "~2.4.1",
+    "memory-streams": "~0.1.2",
     "method-override": "~1.0.0",
     "mongoose": "~3.8.8",
     "morgan": "~1.0.0",
-    "serve-favicon": "~2.0.1",
-    "memory-streams": "~0.1.2"
+    "serve-favicon": "~2.0.1"
   },
   "devDependencies": {
     "grunt": "~0.4.4",
