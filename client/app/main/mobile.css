@@ -91,6 +91,11 @@
     .mobile-layout .inaz-view .history-item .history-item-details .value {
       float: right;
       color: orange; }
+  .mobile-layout .inaz-view .history-item .history-item-month {
+    font-size: 3em;
+    color: #444;
+    font-variant: all-small-caps;
+    padding: 10px; }
   .mobile-layout .sts-view > h1 {
     color: #000;
     font-variant: small-caps;

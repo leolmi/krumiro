@@ -520,13 +520,16 @@ angular.module('krumiroApp')
           const p = getMinutes($scope.context.p || '0');
           var lav = 0, eff = 0, pau = 0, dif = 0;
           var pre;
+          var eff_steps = '';
           item.items.forEach(function (i) {
             if (i.original['C4'] === 'E') {
               if (eff > 0) {
                 pau += (i.original.time - pre.original.time);
               }
             } else {
-              eff += (i.original.time - pre.original.time);
+              const eff_time = (i.original.time - pre.original.time);
+              eff += eff_time;
+              eff_steps += (eff_steps? ' + ' : '') + _getTime(eff_time);
             }
             pre = i;
           });
@@ -534,7 +537,7 @@ angular.module('krumiroApp')
           dif = eff - o - p;
           item._data = [
             {name: 'lavorato', value: _getTime(lav)},
-            {name: 'effettivo', value: _getTime(eff)},
+            {name: 'effettivo (' + eff_steps + ')', value: _getTime(eff)},
             {name: 'pausa', value: _getTime(pau)},
             {name: 'extra', value: _getTime(dif)}
           ];
@@ -767,16 +770,29 @@ angular.module('krumiroApp')
         return hT + ':' + mT;
       }
 
-      $scope.history = function() {
+      function _month(day) {
+        const months = ["Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno", "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre"];
+        const parts = day.match(/\d+/g);
+        if (parts) return months[parseInt(parts[1])-1];
+      }
 
+      function _getMonth(pre, cur) {
+        const curm = _month(cur.day);
+        const prem = pre ? _month(pre.day) : null;
+        return (!prem || prem!==curm) ? curm : null;
+      }
+
+      $scope.history = function() {
         const chunk = $scope.context.inaz.items.slice($scope.context.inaz.svg.state, $scope.context.inaz.svg.state+20);
         const H = 50;
         var Y = $scope.context.inaz.svg.state * H;
+        var pre = _.last($scope.context.inaz.svg.items);
         const svgitems = _.map(chunk, function(i){
           Y+=H;
           var X = 0, odd = 0;
-          return {
+          const item = {
             day: i.day,
+            month: _getMonth(pre, i),
             items: _.map(i.items, function(ii, pos){
               odd = !!(pos%2);
               const svgi = {
@@ -792,6 +808,8 @@ angular.module('krumiroApp')
             }),
             y: Y
           }
+          pre = item;
+          return item;
         });
         $scope.context.inaz.svg.items.push.apply($scope.context.inaz.svg.items, svgitems);
         $scope.context.inaz.svg.state += chunk.length;
