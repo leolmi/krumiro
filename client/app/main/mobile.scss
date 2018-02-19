@@ -32,6 +32,9 @@
   #maintime {
     font-size: 90px;
   }
+  #currenttime {
+    font-size: 40px;
+  }
   #worktime, #pausetime {
     font-size: 30px;
   }
@@ -108,12 +111,27 @@
     }
   }
   .inaz-view {
-    .history-svg-item {
-      .item-day {
-        font-size: 1.6em;
+    .history-item {
+      &.expanded {
+        background-color: #333;
       }
-      .item-time {
-        font-size: 1.2em;
+      .history-svg-item {
+        width: 100%;
+        height: 12vmin;
+        .item-day {
+          font-size: 1.6em;
+        }
+        .item-time {
+          font-size: 1.2em;
+        }
+      }
+      .history-item-details {
+        padding: 0 20px 20px;
+        color: #999;
+        .value {
+          float: right;
+          color: orange;
+        }
       }
     }
   }

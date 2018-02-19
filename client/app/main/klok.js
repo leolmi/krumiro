@@ -109,7 +109,7 @@ angular.module('krumiroApp')
         info.workm += i.UM - i.EM;
       });
       info.work = U.getTime(info.workm);
-      info.done = info.closed && ((info.workm >= _context.targetworkm) || (_context.options.checkrange && info.nowm>=_context.options.max_u));
+      info.done = info.closed && ((info.workm >= _context.targetworkm) || (_context.options.checkrange && info.nowm >= _context.options.max_u));
       info.d = _d(first.start + 1, last.end - 1);
       // over (tempo non passato)
       if (last.UM > info.nowm) {
@@ -129,13 +129,21 @@ angular.module('krumiroApp')
         info.out.end = info.angle(info.start + last.UM - info.exitm);
         info.out.d = _d(info.out);
       }
+      var p = 0;
       if (info.done) {
-        const p = last.UM - info.start - info.workm;
-        info.pause = (p > 0) ? U.getTime(p) : '';
+        p = last.UM - info.start - info.workm;
       } else if (info.nowm - info.start > info.workm) {
-        info.pause = U.getTime(info.nowm - info.workm - info.start);
-      } else {
-        info.pause = ''
+        p = info.nowm - info.workm - info.start;
+      }
+      info.pause = (p > 0) ? U.getTime(p) : '';
+      // se la pausa è durata meno di 30 min
+      // mostra il delta non usufruito
+      if (_context.options.checklunch && p > 0 && p < 30) {
+        info.outp = {
+          start: info.angle(last.EM),
+          end: info.angle(last.EM + 30 - p)
+        };
+        info.outp.d = _d(info.outp);
       }
       console.log('ITEMS', _context.items);
       console.log('KLOK', info);

@@ -16,6 +16,8 @@
       text-shadow: 0 0 10px yellowgreen, 0 0 20px yellowgreen, 0 0 30px yellowgreen, 0 0 40px tomato, 0 0 70px tomato, 0 0 80px tomato, 0 0 100px tomato, 0 0 150px tomato; }
   .mobile-layout #maintime {
     font-size: 90px; }
+  .mobile-layout #currenttime {
+    font-size: 40px; }
   .mobile-layout #worktime, .mobile-layout #pausetime {
     font-size: 30px; }
   .mobile-layout #maindesc {
@@ -74,10 +76,21 @@
       .mobile-layout .stat-view .stat-view-content .value {
         float: right;
         color: orange; }
-  .mobile-layout .inaz-view .history-svg-item .item-day {
-    font-size: 1.6em; }
-  .mobile-layout .inaz-view .history-svg-item .item-time {
-    font-size: 1.2em; }
+  .mobile-layout .inaz-view .history-item.expanded {
+    background-color: #333; }
+  .mobile-layout .inaz-view .history-item .history-svg-item {
+    width: 100%;
+    height: 12vmin; }
+    .mobile-layout .inaz-view .history-item .history-svg-item .item-day {
+      font-size: 1.6em; }
+    .mobile-layout .inaz-view .history-item .history-svg-item .item-time {
+      font-size: 1.2em; }
+  .mobile-layout .inaz-view .history-item .history-item-details {
+    padding: 0 20px 20px;
+    color: #999; }
+    .mobile-layout .inaz-view .history-item .history-item-details .value {
+      float: right;
+      color: orange; }
   .mobile-layout .sts-view > h1 {
     color: #000;
     font-variant: small-caps;

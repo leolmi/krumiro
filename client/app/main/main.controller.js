@@ -514,6 +514,34 @@ angular.module('krumiroApp')
         watchTime();
       };
 
+      $scope.toggleHistoryItem = function(item) {
+        if (!item._expanded && !item._data) {
+          const o = getMinutes($scope.context.o || '8');
+          const p = getMinutes($scope.context.p || '0');
+          var lav = 0, eff = 0, pau = 0, dif = 0;
+          var pre;
+          item.items.forEach(function (i) {
+            if (i.original['C4'] === 'E') {
+              if (eff > 0) {
+                pau += (i.original.time - pre.original.time);
+              }
+            } else {
+              eff += (i.original.time - pre.original.time);
+            }
+            pre = i;
+          });
+          lav = (pau < 30) ? eff - (30 - pau) : eff;
+          dif = eff - o - p;
+          item._data = [
+            {name: 'lavorato', value: _getTime(lav)},
+            {name: 'effettivo', value: _getTime(eff)},
+            {name: 'pausa', value: _getTime(pau)},
+            {name: 'extra', value: _getTime(dif)}
+          ];
+        }
+        item._expanded = !item._expanded;
+      };
+
       /**
        * Resetta tutti gli orari inseriti
        * (preserva le opzioni e le credenziali)
@@ -732,13 +760,15 @@ angular.module('krumiroApp')
         $scope.history();
       };
 
+      function _getTime(m) {
+        var hT = Math.floor(m / 60);
+        var mT = m - (hT * 60);
+        if (mT.toString().length < 2) mT = '0' + mT;
+        return hT + ':' + mT;
+      }
+
       $scope.history = function() {
-        function __getTime(m) {
-          var hT = Math.floor(m / 60);
-          var mT = m - (hT * 60);
-          if (mT.toString().length < 2) mT = '0' + mT;
-          return hT + ':' + mT;
-        }
+
         const chunk = $scope.context.inaz.items.slice($scope.context.inaz.svg.state, $scope.context.inaz.svg.state+20);
         const H = 50;
         var Y = $scope.context.inaz.svg.state * H;
@@ -754,7 +784,8 @@ angular.module('krumiroApp')
                 x: X,
                 w: (ii.time-480)-X,
                 ty: odd ? 4 : 52,
-                time: __getTime(ii.time)
+                time: _getTime(ii.time),
+                original: ii
               };
               X += svgi.w;
               return svgi;
@@ -773,7 +804,7 @@ angular.module('krumiroApp')
        * @returns {number}
        */
       function getNowM() {
-        var now = new Date();
+        const now = new Date();
         return now.getHours() * 60 + now.getMinutes();
       }
 
@@ -1094,6 +1125,11 @@ angular.module('krumiroApp')
         $scope.expanded[index] = !$scope.expanded[index];
       };
 
+      $scope.now = function() {
+        const now = new Date();
+        const m = now.getMinutes();
+        return now.getHours() + ':' + (m < 10 ? '0' + m : m);
+      }
 
       $scope.copyToClipboard = function (txt) {
         U.copyToClipboard(txt);
