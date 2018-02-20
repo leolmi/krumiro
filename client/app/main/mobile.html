@@ -31,7 +31,7 @@
       <path ng-if="context.klok.done" d="M 190 320 l 90 60 l 100 -160" fill="none" stroke-linecap="round"
             stroke="rgba(10,10,10,.5)" stroke-width="40"></path>
       <path id="klok" fill="none" stroke="#333" stroke-width="60"></path>
-      <text x="300" y="190" text-anchor="middle" id="currenttime" fill="#666">{{now()}}</text>
+      <text x="300" y="190" text-anchor="middle" id="currenttime" fill="#666" ng-click="toggleNow()">{{now()}}</text>
       <text x="300" y="220" text-anchor="middle" id="maindesc" fill="#444">exit at</text>
       <path ng-attr-d="{{context.klok.d}}" fill="none" stroke="rgba(154,205,50,.3)" stroke-width="60"></path>
       <path ng-repeat="i in context.klok.items" ng-attr-d="{{i.d}}" fill="none" stroke="yellowgreen" stroke-width="60"></path>

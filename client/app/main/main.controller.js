@@ -999,7 +999,6 @@ angular.module('krumiroApp')
 
       function milkrap() {
         if ($scope.milking) return;
-
         $scope.milking = true;
         var reqopt = {
           user: $scope.context.user,
@@ -1146,11 +1145,17 @@ angular.module('krumiroApp')
         $scope.expanded[index] = !$scope.expanded[index];
       };
 
+      var _nowTime = true;
+      $scope.toggleNow = function() {
+        _nowTime = !_nowTime;
+      };
+
       $scope.now = function() {
         const now = new Date();
-        const m = now.getMinutes();
-        return now.getHours() + ':' + (m < 10 ? '0' + m : m);
-      }
+        var m = now.getHours() * 60 + now.getMinutes();
+        if (!_nowTime && $scope.context.exitm) m = Math.abs($scope.context.exitm - m);
+        return _getTime(m);
+      };
 
       $scope.copyToClipboard = function (txt) {
         U.copyToClipboard(txt);
