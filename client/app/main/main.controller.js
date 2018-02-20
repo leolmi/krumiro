@@ -541,6 +541,7 @@ angular.module('krumiroApp')
             {name: 'pausa', value: _getTime(pau)},
             {name: 'extra', value: _getTime(dif)}
           ];
+          if (item.perm) item._data.push({name:'permesso', value:_getTime(item.perm)});
         }
         item._expanded = !item._expanded;
       };
@@ -790,8 +791,10 @@ angular.module('krumiroApp')
         const svgitems = _.map(chunk, function(i){
           Y+=H;
           var X = 0, odd = 0;
+          const meta = _.find($scope.context.meta, function(m) {m.day === i.day;});
           const item = {
             day: i.day,
+            perm: (meta||{}).perm,
             month: _getMonth(pre, i),
             items: _.map(i.items, function(ii, pos){
               odd = !!(pos%2);

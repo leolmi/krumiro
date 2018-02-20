@@ -62,6 +62,7 @@
         <text class="item-day" x="20" y="0" fill="orange">{{i.day}}</text>
         <text class="item-time" ng-repeat-start="ii in i.items" ng-attr-x="{{ii.x+ii.w}}" ng-attr-y="{{ii.ty}}" text-anchor="middle" fill="#666">{{ii.time}}</text>
         <rect ng-repeat-end ng-attr-fill="{{ii.color}}" ng-attr-width="{{ii.w}}" ng-attr-x="{{ii.x}}" y="10" height="25"></rect>;
+        <circle ng-if="i.perm" class="perm-circle" fill="steelblue" cx="780" cy="22" r="10"></circle>
       </svg>
       <div class="history-item-details" ng-if="i._expanded">
         <div ng-repeat="d in i._data">{{d.name}}: <span class="value">{{d.value}}</span></div>

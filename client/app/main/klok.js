@@ -138,7 +138,7 @@ angular.module('krumiroApp')
       info.pause = (p > 0) ? U.getTime(p) : '';
       // se la pausa è durata meno di 30 min
       // mostra il delta non usufruito
-      if (_context.options.checklunch && p > 0 && p < 30) {
+      if (_context.options.checklunch && p > 0 && p < 30 && info.items.length>1) {
         info.outp = {
           start: info.angle(last.EM),
           end: info.angle(last.EM + 30 - p)
