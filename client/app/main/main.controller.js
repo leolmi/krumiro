@@ -791,7 +791,7 @@ angular.module('krumiroApp')
         const svgitems = _.map(chunk, function(i){
           Y+=H;
           var X = 0, odd = 0;
-          const meta = _.find($scope.context.meta, function(m) {m.day === i.day;});
+          const meta = _.find($scope.context.meta, function(m) { return m.day === i.day; });
           const item = {
             day: i.day,
             perm: (meta||{}).perm,
