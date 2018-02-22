@@ -110,10 +110,13 @@ angular.module('krumiroApp')
       });
       info.work = U.getTime(info.workm);
       info.done = info.closed && ((info.workm >= _context.targetworkm) || (_context.options.checkrange && info.nowm >= _context.options.max_u));
-      info.d = _d(first.start + 1, last.end - 1);
+      const now_angle = info.angle(info.nowm);
+      const end = info.done ? last.end : Math.max(last.end||0, now_angle);
+      // over tempo passato (tutto)
+      info.d = _d(first.start + 1, end - 1);
       // over (tempo non passato)
       if (last.UM > info.nowm) {
-        info.over.start = info.angle(info.nowm);
+        info.over.start = now_angle;
         info.over.end = info.angle(last.UM);
         info.over.d = _d(info.over);
       }
