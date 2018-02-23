@@ -24,6 +24,8 @@ angular.module('krumiroApp')
       _set('maintime', info.exit||'');
       _set('worktime', info.work||'');
       _set('pausetime', info.pause||'');
+      _set('giftwtime', info.gift.w||'');
+      _set('giftptime', info.gift.p||'');
     }
 
     function init(context) {
@@ -65,6 +67,10 @@ angular.module('krumiroApp')
       _set(name, 'd', d);
     }
 
+    function _time(v) {
+      return (v > 0) ? U.getTime(v) : '';
+    }
+
     function _calc() {
       const now = new Date();
       const info = {
@@ -72,6 +78,7 @@ angular.module('krumiroApp')
         workm: 0,
         exitm: _context.exitm,
         exit: _context.exit,
+        gift: {},
         items: [],
         tot: 0,
         over: {},   // over time
@@ -127,10 +134,12 @@ angular.module('krumiroApp')
         info.out.start = info.angle(info.start);
         info.out.end = info.angle(info.start + info.nowm - info.exitm);
         info.out.d = _d(info.out);
+        info.gift.wm = (info.nowm - info.exitm);
       } else if (info.done && (last.UM > info.exitm)) {
         info.out.start = info.angle(info.start);
         info.out.end = info.angle(info.start + last.UM - info.exitm);
         info.out.d = _d(info.out);
+        info.gift.wm = (last.UM - info.exitm);
       }
       var p = 0;
       if (info.done) {
@@ -138,7 +147,7 @@ angular.module('krumiroApp')
       } else if (info.nowm - info.start > info.workm) {
         p = info.nowm - info.workm - info.start;
       }
-      info.pause = (p > 0) ? U.getTime(p) : '';
+      info.pause = _time(p);
       // se la pausa è durata meno di 30 min
       // mostra il delta non usufruito
       if (_context.options.checklunch && p > 0 && p < 30 && info.items.length>1) {
@@ -147,7 +156,10 @@ angular.module('krumiroApp')
           end: info.angle(last.EM + 30 - p)
         };
         info.outp.d = _d(info.outp);
+        info.gift.pm = (30 - p);
       }
+      info.gift.w = _time(info.gift.wm);
+      info.gift.p = _time(info.gift.pm);
       console.log('ITEMS', _context.items);
       console.log('KLOK', info);
       _arc();

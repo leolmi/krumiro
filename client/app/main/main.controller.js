@@ -719,14 +719,14 @@ angular.module('krumiroApp')
        */
       function addItems(daysItems, day, items) {
         if (items.length <= 0) return;
-        var dayitem = {
+        const dayitem = {
           day: day,
           dayn: U.parseDate(day),
           items: items.sort(timeCompare)
         };
         //aggiunge i meta del giorno
         if ($scope.context.meta.length > 0) {
-          var metas = $.grep($scope.context.meta, function (m) {
+          const metas = $.grep($scope.context.meta, function (m) {
             return m.day === day;
           });
           if (metas && metas.length > 0) {
@@ -929,20 +929,20 @@ angular.module('krumiroApp')
 
       $scope.downloadHistory = function () {
         if (!$scope.isInaz()) return;
-        var reqopt = {
+        const reqopt = {
           user: $scope.context.user
         };
         $http.post('/api/inaz/download', reqopt)
           .then(function (resp) {
-            var history = resp.data;
+            const history = resp.data;
             debugPrint('Storico completo inaz:', history);
             var content = JSON.stringify(history);
             content = content.replace(/,"\$\$hashKey":"object:\d+"/g, '');
             content = content.replace(/},{/g, '},\r\n{');
             content = content.replace(/],"/g, '],\r\n"');
             content = content.replace(/:\[{/g, ':[\r\n{');
-            var file = new Blob([content], {type: 'text/json;charset=utf-8'});
-            var today = $scope.getDate(null, '-');
+            const file = new Blob([content], {type: 'text/json;charset=utf-8'});
+            const today = $scope.getDate(null, '-');
             saveAs(file, 'history_' + today + '.json');
           }, function (err) {
             handleError(err);
@@ -951,9 +951,9 @@ angular.module('krumiroApp')
 
       $scope.uploadHistoryContent = function (args) {
         if (!$scope.isInaz()) return;
-        var reader = new FileReader();
+        const reader = new FileReader();
         reader.onload = function (onLoadEvent) {
-          var reqopt = {
+          const reqopt = {
             user: $scope.context.user,
             history: onLoadEvent.target.result
           };
@@ -978,10 +978,10 @@ angular.module('krumiroApp')
        * Avvia la rappresentazione dell'orologio con un delay di 2 secondi
        */
       $interval(function () {
-        var nm = getNowM();
-        var lm = $scope.context.exitm - $scope.context.startm;
-        var rm = getNowM() - $scope.context.startm;
-        var elps = $scope.context.exitm - nm;
+        const nm = getNowM();
+        const lm = $scope.context.exitm - $scope.context.startm;
+        const rm = getNowM() - $scope.context.startm;
+        const elps = $scope.context.exitm - nm;
         $scope.progress.value = (lm <= 0 || rm <= 0) ? 0 : Math.floor((rm * 100) / lm);
         $scope.progress.elapsed = U.getTime(elps);
       }, 2000);
@@ -1000,7 +1000,7 @@ angular.module('krumiroApp')
       function milkrap() {
         if ($scope.milking) return;
         $scope.milking = true;
-        var reqopt = {
+        const reqopt = {
           user: $scope.context.user,
           date: $scope.context.rap.date,
           advanced: $scope.context.rap.advanced||U.mobile,
@@ -1064,7 +1064,7 @@ angular.module('krumiroApp')
       };
 
       function getRows(items) {
-        var rows = [];
+        const rows = [];
         items.forEach(function (i) {
           rows.push(getValues(i));
         });
@@ -1072,7 +1072,7 @@ angular.module('krumiroApp')
       }
 
       function getValues(o) {
-        var v = {values: []};
+        const v = {values: []};
         for (var pn in o)
           v.values.push(o[''+pn]);
         return v;
@@ -1082,7 +1082,7 @@ angular.module('krumiroApp')
         if ($scope.milking) return;
         _updateOptionsStore();
         $scope.milking = true;
-        var reqopt = {
+        const reqopt = {
           user: $scope.context.ass,
           SSL: $scope.context.amonalie.o.SSL,
           debug: $scope.context.options.debug
@@ -1120,7 +1120,7 @@ angular.module('krumiroApp')
         _updateOptionsStore();
 
         $scope.milking = true;
-        var reqopt = {
+        const reqopt = {
           user: $scope.context.user,
           debug: $scope.context.options.debug
         };

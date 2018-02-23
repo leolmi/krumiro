@@ -41,8 +41,10 @@
       <text x="300" y="300" text-anchor="middle" id="maintime" ng-class="{'alarmed':alarmed}" fill="yellowgreen" ng-click="mobileKlok()"></text>
       <text x="240" y="360" text-anchor="middle" id="worktime" fill="yellowgreen"></text>
       <text x="240" y="380" text-anchor="middle" fill="#444">work time</text>
+      <text x="240" y="416" text-anchor="middle" id="giftwtime" fill="tomato"></text>
       <text x="360" y="360" text-anchor="middle" id="pausetime" fill="yellowgreen"></text>
       <text x="360" y="380" text-anchor="middle" fill="#444">pause time</text>
+      <text x="360" y="416" text-anchor="middle" id="giftptime" fill="tomato"></text>
     </svg>
     <tempi-item ng-repeat="i in context.items" ng-model="i" ng-change="recalc()"></tempi-item>
   </div>
