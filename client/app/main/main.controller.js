@@ -310,6 +310,8 @@ angular.module('krumiroApp')
               data.push({title: 'Goduti ad oggi', value: row['C3'] + 'gg'});
               data.push({title: 'Pianificati entro fine anno', value: row['C4'] + 'gg'});
               data.push({title: 'Residuo', value: row['C5'] + 'gg'});
+              const tot = parseFloat(row['C2']||0) + parseFloat(row['C1']||0) - parseFloat(row['C3']||0);
+              data.push({title: 'Residuo anno', value: tot.toFixed(2) + 'gg'});
               $scope.context.stat.data = data;
             }
             $scope.milking = false;
